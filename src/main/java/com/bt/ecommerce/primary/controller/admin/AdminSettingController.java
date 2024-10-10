@@ -1,11 +1,10 @@
-//package com.kpis.kpisFood.primary.controller.admin;
+//package com.bt.ecommerce.primary.controller.admin;
 //
-//import com.kpis.kpisFood.annotation.TranslateResponseMessage;
-//import com.kpis.kpisFood.bean.ResponsePacket;
-//import com.kpis.kpisFood.exception.BadRequestException;
-//import com.kpis.kpisFood.primary.controller._BaseController;
-//import com.kpis.kpisFood.primary.dto.SettingDto;
-//import com.kpis.kpisFood.primary.pojo.enums.SettingEnum;
+//import com.bt.ecommerce.annotation.TranslateResponseMessage;
+//import com.bt.ecommerce.bean.ResponsePacket;
+//import com.bt.ecommerce.exception.BadRequestException;
+//import com.bt.ecommerce.primary.controller._BaseController;
+//import com.bt.ecommerce.primary.pojo.enums.SettingEnum;
 //import lombok.extern.slf4j.Slf4j;
 //import org.springframework.http.HttpStatus;
 //import org.springframework.http.ResponseEntity;

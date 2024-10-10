@@ -2,10 +2,10 @@ package com.bt.ecommerce.primary.service;
 
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.AuthDto;
-import com.bt.ecommerce.primary.pojo.user.UserAdmin;
+import com.bt.ecommerce.primary.pojo.user.SystemUser;
 import com.bt.ecommerce.primary.pojo.user._BaseUser;
-import com.bt.ecommerce.utils.TextUtils;
 import com.bt.ecommerce.security.JwtTokenUtil;
+import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -18,8 +18,8 @@ import java.util.Map;
 @Service
 public class AuthService extends _BaseService {
     @Autowired protected JwtTokenUtil jwtTokenUtil;
-    public UserAdmin findByUsername(String userName) throws BadRequestException {
-        UserAdmin pojo = userAdminRepository.findFirstByUsername(userName);
+    public SystemUser findByUsername(String userName) throws BadRequestException {
+        SystemUser pojo = systemUserRepository.findFirstByUsername(userName);
         if (pojo == null) {
             throw new BadRequestException("kpis_food.common.message.record_not_exist");
         }
@@ -27,10 +27,10 @@ public class AuthService extends _BaseService {
     }
 
     public AuthDto.UserDetails loginAdmin(String userName, String password, String ipAddress) throws BadRequestException {
-        UserAdmin userAdmin = findByUsername(userName);
+        SystemUser userAdmin = findByUsername(userName);
         validateUser(userAdmin, password);
         userAdmin.setLastLogin(LocalDateTime.now());
-        userAdminRepository.save(userAdmin);
+        systemUserRepository.save(userAdmin);
         return generateAuthTokenAndGetUserDetails(userAdmin, ipAddress);
     }
 

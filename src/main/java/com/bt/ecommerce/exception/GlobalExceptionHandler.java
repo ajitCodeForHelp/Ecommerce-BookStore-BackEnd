@@ -34,7 +34,7 @@ public class GlobalExceptionHandler {
     public ResponseEntity<?> invalidDataExceptionHandling(Locale locale, BadRequestException e, WebRequest request) {
         log.debug(e.getMessage());
         String message = e.getMessage();
-        if (message.startsWith("kpis_food")) {
+        if (message.startsWith("ecommerce")) {
             message = messageSource.getMessage(e.getMessage(), null, locale);
         }
         return new ResponseEntity<>(ResponsePacket.builder()
