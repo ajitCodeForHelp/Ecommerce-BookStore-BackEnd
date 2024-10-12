@@ -1,0 +1,71 @@
+package com.bt.ecommerce.primary.dto;
+
+import com.bt.ecommerce.primary.pojo.common.BasicParent;
+import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+import java.util.List;
+
+@Setter
+@Getter
+@NoArgsConstructor
+public class ItemDto extends AbstractDto{
+
+    @Setter
+    @Getter
+    public static class SaveItem extends Save {
+//        @NotNull private String categoryUuid;
+//        private String subCategoryUuid;
+
+        @NotNull private String title;
+        private String description;
+        @NotNull private double Mrp;
+        @NotNull private double sellingPrice;
+        private List<String> itemImageUrls;
+        private int sequenceNo;
+        private double weight;
+        private String otherDataJson;
+    }
+    @Setter
+    @Getter
+    public static class UpdateItem extends Update {
+//        @NotNull private String categoryUuid;
+//        private String subCategoryUuid;
+
+        @NotNull private String title;
+        private String description;
+        @NotNull private double Mrp;
+        @NotNull private double sellingPrice;
+        private List<String> itemImageUrls;
+        private int sequenceNo;
+        private double weight;
+        private String otherDataJson;
+    }
+    @Setter
+    @Getter
+    public static class DetailItem extends Detail {
+        private List<BasicParent> parentCategoryDetail;
+        private List<BasicParent> subCategoryDetail;
+
+        private String title;
+        private String description;
+        private double Mrp;
+        private double sellingPrice;
+        private List<String> itemImageUrls;
+        private int sequenceNo;
+        private double weight;
+        private String otherDataJson;
+    }
+
+    @Setter
+    @Getter
+    public static class GetList extends _BasePageRequest {
+        private String search;
+    }
+
+
+
+
+}

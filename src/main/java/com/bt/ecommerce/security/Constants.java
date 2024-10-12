@@ -24,5 +24,5 @@ public class Constants {
             "/csrf",
     };
     public static final String[] MONITORING_PATTERNS = new String[]{"/actuator/**"};
-    public static final String[] PROTECTED_PATTERNS = new String[]{"/super-admin/**", "/admin/**", "/client/**"};
+    public static final String[] PROTECTED_PATTERNS = new String[]{"/admin/**"};
 }

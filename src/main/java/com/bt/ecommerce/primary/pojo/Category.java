@@ -12,22 +12,12 @@ import org.springframework.data.mongodb.core.mapping.Field;
 @Document(value = "category")
 public class Category extends _BasicEntity {
 
-    private String title;
-
-    @Field("parent_category_id")
     private ObjectId parentCategoryId;
     private BasicParent parentCategoryDetail;
 
-//    @Field("parent_shop_id")
-//    private ObjectId parentShopId;
-//    private BasicParent parentShopDetail;
-
-    @Field("category_icon_ref_id")
-    private String categoryIconRefId;
-
-    @Field("description")
+    private String title;
+    private String categoryIconUrl;
     private String description;
-
     private int sequenceNo;
 
 }
