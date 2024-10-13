@@ -15,10 +15,6 @@ import java.util.List;
 public class Item extends _BasicEntity {
 
     private List<ObjectId> categoryId = new ArrayList<>();
-    private List<BasicParent> categoryDetail = new ArrayList<>();
-
-    private List<ObjectId> subCategoryId = new ArrayList<>();
-    private List<BasicParent> subCategoryDetail = new ArrayList<>();
 
     private String title;
     private String description;
@@ -29,7 +25,7 @@ public class Item extends _BasicEntity {
     private double weight;
     private String otherDataJson; // other book associated details
 
-    //Todo Author ,Publications , Pages  , Publish Year ,Language
-    // Color , Size , Dynamic Specification  (JSON)
+    // Todo Author ,Publications , Pages  , Publish Year ,Language
+    // Todo Color , Size , Dynamic Specification  (JSON)
 
 }
