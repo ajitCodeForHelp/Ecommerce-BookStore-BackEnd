@@ -47,7 +47,4 @@ public class CategoryDto extends AbstractDto{
         private String search;
     }
 
-
-
-
 }
