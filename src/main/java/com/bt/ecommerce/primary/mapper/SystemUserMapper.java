@@ -2,6 +2,7 @@ package com.bt.ecommerce.primary.mapper;
 
 import com.bt.ecommerce.bean.KeyValueDto;
 import com.bt.ecommerce.primary.dto.StaffDto;
+import com.bt.ecommerce.primary.pojo.Cart;
 import com.bt.ecommerce.primary.pojo.user.SystemUser;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -24,4 +25,6 @@ public interface SystemUserMapper {
     @Mapping(expression = "java(staff.getUuid())", target = "value")
     @Mapping(expression = "java(staff.fullName())", target = "label")
     KeyValueDto mapToKeyPairDto(SystemUser staff);
+
+    Cart.CustomerDetail mapToCartCustomer(SystemUser systemUser);
 }
