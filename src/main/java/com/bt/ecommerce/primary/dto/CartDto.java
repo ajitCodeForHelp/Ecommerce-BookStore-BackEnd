@@ -2,7 +2,6 @@ package com.bt.ecommerce.primary.dto;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 import lombok.Setter;
 
 import java.util.List;
@@ -14,9 +13,15 @@ public class CartDto extends AbstractDto{
 
     @Getter
     @Setter
-    public static class createCart extends Save{
+    public static class CreateCart extends Save{
         private String addressUuid;
         private List<String> itemUuids;
         private String couponCodeUuid;
+    }
+
+    @Getter
+    @Setter
+    public static class UpdateCart extends Update{
+        private List<String> itemUuids;
     }
 }

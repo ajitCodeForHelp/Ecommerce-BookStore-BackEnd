@@ -25,30 +25,31 @@ import java.util.List;
 public class CartService extends _BaseService implements _BaseServiceImpl {
     @Override
     public String save(AbstractDto.Save saveDto) throws BadRequestException {
-        CartDto.createCart createCartDto = (CartDto.createCart) saveDto;
+        CartDto.CreateCart createCartDto = (CartDto.CreateCart) saveDto;
         SystemUser loggedInCustomer = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        //todo: Need to check if the cart exist for customer if yes then delete the previous cart.
+        //todo: Need to check if the cart exist for customer if yes then update the cart else create a new cart
         Cart cart = new Cart();
         //Customer Detail
         Cart.CustomerDetail customerCart = SystemUserMapper.MAPPER.mapToCartCustomer(loggedInCustomer);
         cart.setCustomerDetail(customerCart);
         // set the items in cart object
-        mapItemToCart(cart, createCartDto.getItemUuids());
+        List<Cart.ItemDetail> itemDetails = mapItemToCart(createCartDto.getItemUuids());
+        cart.setItemDetailList(itemDetails);
         // check if we get the address uuid, if yes then map the address to the cart customer address
         if (createCartDto.getAddressUuid() != null) {
             mapAddressToCart(cart, createCartDto.getAddressUuid());
         }
-        setCartAmount(cart);
+        saveCartAmount(cart, itemDetails);
         cartRepository.save(cart);
         return cart.getUuid();
     }
 
-    private void setCartAmount(Cart cart) {
+    private void saveCartAmount(Cart cart, List<Cart.ItemDetail> itemDetails) {
         double cartSubTotal = 0;
         double packingCharges = 0;
-        for (Cart.ItemDetail itemDetail : cart.getItemDetailList()) {
-            cartSubTotal += itemDetail.getItemTotal();
-            packingCharges += 10;
+        for (Cart.ItemDetail itemDetail : itemDetails) {
+            cartSubTotal += itemDetail.getItemTotal() * itemDetail.getQuantity();
+            packingCharges += 10 * itemDetail.getQuantity();
         }
         cart.setSubTotal(cartSubTotal);
         //>TODO: coupon code discount and delivery charges calculation and its implementations
@@ -61,19 +62,36 @@ public class CartService extends _BaseService implements _BaseServiceImpl {
         cart.setCustomerAddressDetail(customerAddressDetail);
     }
 
-    private void mapItemToCart(Cart cart, List<String> itemUuids) {
+    private List<Cart.ItemDetail> mapItemToCart(List<String> itemUuids) {
         List<Cart.ItemDetail> itemDetails = new ArrayList<>();
         for (String itemUuid : itemUuids) {
             Item item = itemRepository.findByUuid(itemUuid);
             Cart.ItemDetail itemDetail = ItemMapper.MAPPER.mapToCartItem(item);
             itemDetails.add(itemDetail);
         }
-        cart.setItemDetailList(itemDetails);
+        return itemDetails;
     }
 
     @Override
     public void update(String uuid, AbstractDto.Update updateDto) throws BadRequestException {
+        CartDto.UpdateCart updateCart = (CartDto.UpdateCart) updateDto;
+        Cart cart = cartRepository.findByUuid(uuid);
+        List<Cart.ItemDetail> itemDetails = mapItemToCart(updateCart.getItemUuids());
+        cart.getItemDetailList().addAll(itemDetails);
+        updateCartAmount(cart, itemDetails);
+        cartRepository.save(cart);
+    }
 
+    private void updateCartAmount(Cart cart, List<Cart.ItemDetail> itemDetails) {
+        double cartSubTotal = 0;
+        double packingCharges = 0;
+        for (Cart.ItemDetail itemDetail : itemDetails) {
+            cartSubTotal += itemDetail.getItemTotal() * itemDetail.getQuantity();
+            packingCharges += 10 * itemDetail.getQuantity();
+        }
+        cart.setSubTotal(cart.getSubTotal() + cartSubTotal);
+        //>TODO: coupon code discount and delivery charges calculation and its implementations
+        cart.setOrderTotal(cart.getOrderTotal() + packingCharges);
     }
 
     @Override
