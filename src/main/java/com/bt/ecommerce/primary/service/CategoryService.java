@@ -7,9 +7,11 @@ import com.bt.ecommerce.primary.dto.AbstractDto;
 import com.bt.ecommerce.primary.dto.CategoryDto;
 import com.bt.ecommerce.primary.mapper.CategoryMapper;
 import com.bt.ecommerce.primary.pojo.Category;
+import com.bt.ecommerce.primary.pojo.Item;
 import com.bt.ecommerce.primary.pojo.common.BasicParent;
 import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -56,7 +58,18 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
     @Override
     public AbstractDto.Detail get(String uuid) throws BadRequestException {
         Category category = findByUuid(uuid);
-        return CategoryMapper.MAPPER.mapToDetailDto(category);
+        return mapToDetailDto(category);
+    }
+
+    private CategoryDto.DetailCategory mapToDetailDto(Category category){
+        CategoryDto.DetailCategory detailCategory = CategoryMapper.MAPPER.mapToDetailDto(category);
+        List<Item> itemList = itemRepository.findByCategoryId(category.getId());
+        if (!TextUtils.isEmpty(itemList)) {
+            detailCategory.setCategoryAssignItems(itemList.stream()
+                    .map(item -> new BasicParent(item.getUuid(), item.getTitle()))
+                    .collect(Collectors.toList()));
+        }
+        return detailCategory;
     }
 
     @Override
@@ -108,6 +121,42 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
                 .collect(Collectors.toList());
     }
 
+    public void assignCategory(String uuid, List<String> itemUuids) throws BadRequestException {
+        Category category = findByUuid(uuid);
+        Category parentCategory = null;
+        if (category.getParentCategoryId() != null) {
+            parentCategory = findById(category.getParentCategoryId());
+        }
+        if (TextUtils.isEmpty(itemUuids)) {
+            throw new BadRequestException("Invalid item assign, please check item Ids");
+        }
+        List<Item> itemList = itemRepository.findByUuids(itemUuids);
+        if (TextUtils.isEmpty(itemList)) {
+            throw new BadRequestException("Please provide valid item");
+        }
+        for (Item item : itemList) {
+            if (parentCategory != null) {
+                {
+                    // update parent category
+                    List<ObjectId> parentCategoryIds = item.getParentCategoryIds();
+                    parentCategoryIds.add(parentCategory.getId());
+                    item.setParentCategoryIds(parentCategoryIds);
+                }
+                {
+                    // update sub category
+                    List<ObjectId> subCategoryIds = item.getSubCategoryIds();
+                    subCategoryIds.add(category.getId());
+                    item.setSubCategoryIds(subCategoryIds);
+                }
+            } else {
+                List<ObjectId> parentCategoryIds = item.getParentCategoryIds();
+                parentCategoryIds.add(parentCategory.getId());
+                item.setParentCategoryIds(parentCategoryIds);
+            }
+        }
+        itemRepository.saveAll(itemList);
+    }
+
     public List<KeyValueDto> parentCategoryListInKeyValue() {
         List<Category> categoryList = categoryRepository.getCategoryList(null);
         return categoryList.stream()
@@ -125,6 +174,14 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
 
     private Category findByUuid(String uuid) throws BadRequestException {
         Category category = categoryRepository.findByUuid(uuid);
+        if (category == null) {
+            throw new BadRequestException("ecommerce.common.message.record_not_exist");
+        }
+        return category;
+    }
+
+    private Category findById(ObjectId id) throws BadRequestException {
+        Category category = categoryRepository.findById(id).orElse(null);
         if (category == null) {
             throw new BadRequestException("ecommerce.common.message.record_not_exist");
         }

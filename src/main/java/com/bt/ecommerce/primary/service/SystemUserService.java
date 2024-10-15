@@ -70,8 +70,6 @@ public class SystemUserService extends _BaseService implements _BaseServiceImpl 
         }
         staff.setEmail(updateStaffDto.getEmail());
         staff.setUsername(updateStaffDto.getEmail());
-        staff.setPwdText(updateStaffDto.getPassword());
-        staff.setPwdSecure(TextUtils.getEncodedPassword(updateStaffDto.getPassword()));
         staff.setUserType(RoleEnum.ROLE_SUB_ADMIN);
         staff = systemUserRepository.save(staff);
     }

@@ -16,8 +16,8 @@ public class ItemDto extends AbstractDto{
     @Setter
     @Getter
     public static class SaveItem extends Save {
-//        @NotNull private String categoryUuid;
-//        private String subCategoryUuid;
+        @NotNull private List<String> parentCategoryUuids;
+        private List<String> subCategoryUuids;
 
         @NotNull private String title;
         private String description;
@@ -31,8 +31,8 @@ public class ItemDto extends AbstractDto{
     @Setter
     @Getter
     public static class UpdateItem extends Update {
-//        @NotNull private String categoryUuid;
-//        private String subCategoryUuid;
+        @NotNull private List<String> parentCategoryUuids;
+        private List<String> subCategoryUuids;
 
         @NotNull private String title;
         private String description;

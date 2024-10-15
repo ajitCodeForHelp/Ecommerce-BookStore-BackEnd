@@ -12,6 +12,20 @@ import java.util.List;
 public interface ItemRepository extends MongoRepository<Item, ObjectId> {
 
     Item findByUuid(String uuid);
+
+    @Query(value = "" +
+            "{" +
+            "  '_uuid'  : { '$in' : ?0 }," +
+            "}")
+    List<Item> findByUuids(List<String> itemUuids);
+    @Query(value = "{" +
+            "  '$or' : [" +
+            "    { 'parentCategoryIds' : { '$in' : [?0] } }," +
+            "    { 'subCategoryIds'    : { '$in' : [?0] } }" +
+            "  ]" +
+            "}")
+    List<Item> findByCategoryId(ObjectId categoryId);
+
     @Query(value = "" +
             "{" +
             "  'active'  : { '$eq' : true }," +
