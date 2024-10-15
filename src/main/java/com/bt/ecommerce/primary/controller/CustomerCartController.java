@@ -39,4 +39,40 @@ public class CustomerCartController extends _BaseController{
                 .message("ecommerce.common.message.update")
                 .build(), HttpStatus.OK);
     }
+
+    @TranslateResponseMessage
+    @PutMapping("/removeItemFromCart/{cartUuid}/{itemUuid}")
+    public ResponseEntity<ResponsePacket> removeItemFromCart(@PathVariable("cartUuid") String cardUuid,
+                                                             @PathVariable("itemUuid") String itemUuid){
+        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        cartService.removeItemFromCart(cardUuid, itemUuid);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.cart_item_removed")
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @PutMapping("/clearCart/{cartUuid}")
+    public ResponseEntity<ResponsePacket> clearCart(@PathVariable("cartUuid") String cartUuid){
+        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        cartService.clearCart(cartUuid);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.clear_cart")
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @PutMapping("/updateItemQuantity/{cartUuid}/{itemUuid}/{itemQuantity}")
+    public ResponseEntity<ResponsePacket> updateItemQuantity(@PathVariable("cartUuid") String cartUuid,
+                                                             @PathVariable("itemUuid") String itemUuid,
+                                                             @PathVariable("itemQuantity") long itemQuantity){
+        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        cartService.updateItemQuantity(cartUuid,itemUuid,itemQuantity);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.update_item_quantity")
+                .build(), HttpStatus.OK);
+    }
 }

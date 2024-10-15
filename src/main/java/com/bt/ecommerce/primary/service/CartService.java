@@ -76,22 +76,42 @@ public class CartService extends _BaseService implements _BaseServiceImpl {
     public void update(String uuid, AbstractDto.Update updateDto) throws BadRequestException {
         CartDto.UpdateCart updateCart = (CartDto.UpdateCart) updateDto;
         Cart cart = cartRepository.findByUuid(uuid);
+        if (cart == null) {
+            cart = new Cart();
+        }
         List<Cart.ItemDetail> itemDetails = mapItemToCart(updateCart.getItemUuids());
         cart.getItemDetailList().addAll(itemDetails);
-        updateCartAmount(cart, itemDetails);
+        saveCartAmount(cart, cart.getItemDetailList());
         cartRepository.save(cart);
     }
 
-    private void updateCartAmount(Cart cart, List<Cart.ItemDetail> itemDetails) {
-        double cartSubTotal = 0;
-        double packingCharges = 0;
-        for (Cart.ItemDetail itemDetail : itemDetails) {
-            cartSubTotal += itemDetail.getItemTotal() * itemDetail.getQuantity();
-            packingCharges += 10 * itemDetail.getQuantity();
+    public void removeItemFromCart(String cartUuid, String itemUuid) {
+        Cart cart = cartRepository.findByUuid(cartUuid);
+        if (cart == null) {
+            cart = new Cart();
         }
-        cart.setSubTotal(cart.getSubTotal() + cartSubTotal);
-        //>TODO: coupon code discount and delivery charges calculation and its implementations
-        cart.setOrderTotal(cart.getOrderTotal() + packingCharges);
+        List<Cart.ItemDetail> cartItemRemoved = cart.getItemDetailList().stream().filter(x -> !x.getItemUuid().equalsIgnoreCase(itemUuid)).toList();
+        cart.setItemDetailList(cartItemRemoved);
+        saveCartAmount(cart, cartItemRemoved);
+        cartRepository.save(cart);
+    }
+
+    public void clearCart(String cartUuid) {
+        Cart cart = cartRepository.findByUuid(cartUuid);
+        if (cart == null) {
+            cart = new Cart();
+        }
+        cart.setItemDetailList(new ArrayList<>());
+        cart.setSubTotal(0.00);
+        cart.setOrderTotal(0.00);
+        cartRepository.save(cart);
+    }
+
+    public void updateItemQuantity(String cartUuid, String itemUuid, long quantity) {
+        Cart cart = cartRepository.findByUuid(cartUuid);
+        cart.getItemDetailList().stream().filter(x -> x.getItemUuid().equalsIgnoreCase(itemUuid)).findFirst().ifPresent(x -> x.setQuantity(quantity));
+        saveCartAmount(cart, cart.getItemDetailList());
+        cartRepository.save(cart);
     }
 
     @Override
@@ -128,4 +148,5 @@ public class CartService extends _BaseService implements _BaseServiceImpl {
     public List<KeyValueDto> listInKeyValue() throws BadRequestException {
         return null;
     }
+
 }
