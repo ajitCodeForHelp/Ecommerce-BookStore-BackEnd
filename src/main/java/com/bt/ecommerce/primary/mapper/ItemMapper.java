@@ -1,7 +1,9 @@
 package com.bt.ecommerce.primary.mapper;
 
 import com.bt.ecommerce.bean.KeyValueDto;
+import com.bt.ecommerce.primary.dto.CartDto;
 import com.bt.ecommerce.primary.dto.ItemDto;
+import com.bt.ecommerce.primary.pojo.Cart;
 import com.bt.ecommerce.primary.pojo.Item;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -25,4 +27,6 @@ public interface ItemMapper {
     @Mapping(expression = "java(item.getUuid())", target = "value")
     @Mapping(expression = "java(item.getTitle())", target = "label")
     KeyValueDto mapToKeyPairDto(Item item);
+
+    Cart.ItemDetail mapToCartItem(Item item);
 }

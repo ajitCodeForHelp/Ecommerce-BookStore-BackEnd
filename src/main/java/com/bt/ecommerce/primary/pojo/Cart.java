@@ -3,6 +3,7 @@ package com.bt.ecommerce.primary.pojo;
 import com.bt.ecommerce.primary.pojo.common.BasicParent;
 import lombok.Getter;
 import lombok.Setter;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.List;
@@ -26,7 +27,7 @@ public class Cart extends _BasicEntity {
     @Getter
     public static class CustomerDetail {
         // TODO > modify this later on
-        private Long userCustomerId;
+        private ObjectId userCustomerId;
         private String userCustomerFirstName;
         private String userCustomerLastName;
         private String userCustomerIsdCode;
