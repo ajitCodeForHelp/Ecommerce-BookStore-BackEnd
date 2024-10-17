@@ -148,4 +148,15 @@ public class AdminCategoryController extends _BaseController {
                 .responsePacket(categoryService.subCategoryListInKeyValue(parentCategoryUuid))
                 .build(), HttpStatus.OK);
     }
+
+    @TranslateResponseMessage
+    @PostMapping("/assign-category/{uuid}")
+    public ResponseEntity<ResponsePacket> assignCategory(@PathVariable("uuid") String uuid,
+                                                         @Valid @RequestBody CategoryDto.AssignCategory updateDto) throws BadRequestException {
+        categoryService.assignCategory(uuid, updateDto.getItemUuids());
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.update")
+                .build(), HttpStatus.OK);
+    }
 }

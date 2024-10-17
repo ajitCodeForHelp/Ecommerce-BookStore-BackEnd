@@ -14,6 +14,16 @@ public interface CategoryRepository extends MongoRepository<Category, ObjectId> 
     Category findByUuid(String uuid);
     @Query(value = "" +
             "{" +
+            "  '_uuid'  : { '$in' : ?0 }," +
+            "}")
+    List<Category> findByUuids(List<String> uuids);
+    @Query(value = "" +
+            "{" +
+            "  '_id'  : { '$in' : ?0 }," +
+            "}")
+    List<Category> findByIds(List<ObjectId> ids);
+    @Query(value = "" +
+            "{" +
             "  'active'  : { '$eq' : true }," +
             "  'deleted' : { '$eq' : false }," +
             "}")

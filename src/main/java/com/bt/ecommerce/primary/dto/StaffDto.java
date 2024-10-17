@@ -33,7 +33,6 @@ public class StaffDto extends AbstractDto{
         private String isdCode;
         private String mobile;
         private String email;
-        @NotNull private String password;
         private String photoImageUrl;
     }
     @Setter

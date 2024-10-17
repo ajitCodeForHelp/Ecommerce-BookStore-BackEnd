@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
 @Setter
 @Getter
 @NoArgsConstructor
@@ -39,12 +41,21 @@ public class CategoryDto extends AbstractDto{
         private String categoryIconUrl;
         private String description;
         private int sequenceNo;
+
+        // category assign items
+        private List<BasicParent> categoryAssignItems;
     }
 
     @Setter
     @Getter
     public static class GetList extends _BasePageRequest {
         private String search;
+    }
+
+    @Setter
+    @Getter
+    public static class AssignCategory {
+      @NotNull private List<String> itemUuids;
     }
 
 }
