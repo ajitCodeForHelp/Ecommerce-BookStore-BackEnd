@@ -11,37 +11,30 @@ import java.util.List;
 @Setter
 @Getter
 @NoArgsConstructor
-public class CategoryDto extends AbstractDto{
+public class DisplayCategoryDto extends AbstractDto{
 
     @Setter
     @Getter
-    public static class SaveCategory extends Save {
-        private String parentCategoryUuid;
-
+    public static class SaveDisplayCategory extends Save {
         @NotNull private String title;
         private String categoryIconUrl;
         private String description;
-        private Boolean displayCategory = false;
     }
     @Setter
     @Getter
-    public static class UpdateCategory extends Update {
-        private String parentCategoryUuid;
-
+    public static class UpdateDisplayCategory extends Update {
         @NotNull private String title;
         private String categoryIconUrl;
         private String description;
-        private Boolean displayCategory = false;
     }
     @Setter
     @Getter
-    public static class DetailCategory extends Detail {
-        private BasicParent parentCategoryDetail;
+    public static class DetailDisplayCategory extends Detail {
         private String title;
         private String categoryIconUrl;
         private String description;
         private int sequenceNo;
-        private Boolean displayCategory = false;
+        private Boolean displayCategory;
 
 
         // category assign items
@@ -58,12 +51,6 @@ public class CategoryDto extends AbstractDto{
     @Getter
     public static class AssignCategory {
       @NotNull private List<String> itemUuids;
-    }
-
-    @Setter
-    @Getter
-    public static class ParentCategoryIds {
-        @NotNull private List<String> parentCategoryUuids;
     }
 
 }

@@ -14,6 +14,7 @@ public class Category extends _BasicEntity {
     private ObjectId parentCategoryId;
     private BasicParent parentCategoryDetail;
 
+    private Boolean displayCategory = false;
     private String title;
     private String categoryIconUrl;
     private String description;

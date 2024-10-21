@@ -22,12 +22,27 @@ public interface CategoryRepository extends MongoRepository<Category, ObjectId> 
             "  '_id'  : { '$in' : ?0 }," +
             "}")
     List<Category> findByIds(List<ObjectId> ids);
+
+    @Query(value = "" +
+            "{" +
+            "  'parentCategoryId'  : { '$in' : ?0 }," +
+            "}")
+    List<Category> findByParentCategoryIds(List<ObjectId> parentCategoryIds);
     @Query(value = "" +
             "{" +
             "  'active'  : { '$eq' : true }," +
             "  'deleted' : { '$eq' : false }," +
+            "  'displayCategory' : { '$ne' : true }," +
             "}")
     List<Category> findByActiveAndDeleted();
+
+    @Query(value = "" +
+            "{" +
+            "  'active'  : { '$eq' : true }," +
+            "  'deleted' : { '$eq' : false }," +
+            "  'displayCategory' : { '$eq' : true }," +
+            "}")
+    List<Category> findByActiveAndDeletedAndDisplayCategory();
 
     @Query(value = "" +
             "{" +
@@ -40,6 +55,7 @@ public interface CategoryRepository extends MongoRepository<Category, ObjectId> 
     @Query(value = "{ " +
             "   $and : [" +
             "       { deleted    : { $eq : ?0} }," +
+            "       { displayCategory  : { $ne : true} }," +
             "       { $or : [ " +
             "           { title : { $regularExpression : { pattern : ?1, options : 'i'} } }" +
             "        ] }" +
@@ -47,4 +63,16 @@ public interface CategoryRepository extends MongoRepository<Category, ObjectId> 
             "}"
     )
     Page<Category> findByDeleted(boolean deleted, String search, Pageable pageable);
+
+    @Query(value = "{ " +
+            "   $and : [" +
+            "       { deleted  : { $eq : ?0} }," +
+            "       { displayCategory  : { $eq : true} }," +
+            "       { $or : [ " +
+            "           { title : { $regularExpression : { pattern : ?1, options : 'i'} } }" +
+            "        ] }" +
+            "   ]" +
+            "}"
+    )
+    Page<Category> findByDeletedAndDisplayCategory(boolean deleted, String search, Pageable pageable);
 }
