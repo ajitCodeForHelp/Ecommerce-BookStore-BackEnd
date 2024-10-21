@@ -58,4 +58,10 @@ public class CategoryDto extends AbstractDto{
       @NotNull private List<String> itemUuids;
     }
 
+    @Setter
+    @Getter
+    public static class ParentCategoryIds {
+        @NotNull private List<String> parentCategoryUuids;
+    }
+
 }

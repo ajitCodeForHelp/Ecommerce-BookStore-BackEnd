@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
+import java.util.TreeSet;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -168,6 +170,19 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
         Category parentCategory = findByUuid(parentCategoryUuid);
         List<Category> categoryList = categoryRepository.getCategoryList(parentCategory.getId());
         return categoryList.stream()
+                .map(category -> CategoryMapper.MAPPER.mapToKeyPairDto(category))
+                .collect(Collectors.toList());
+    }
+
+    public List<KeyValueDto> subCategoryListInKeyValue(List<String> parentCategoryUuids) throws BadRequestException {
+        if (TextUtils.isEmpty(parentCategoryUuids)) {
+            throw new BadRequestException("please provide parent category ids");
+        }
+        List<Category> parentCategoryList = categoryRepository.findByUuids(parentCategoryUuids);
+        Set<ObjectId> parentCategoryIds = new TreeSet<>();
+        parentCategoryList.stream().map(category -> parentCategoryIds.add(category.getId())).collect(Collectors.toList());
+        List<Category> subCategoryList = categoryRepository.findByParentCategoryIds(parentCategoryIds.stream().toList());
+        return subCategoryList.stream()
                 .map(category -> CategoryMapper.MAPPER.mapToKeyPairDto(category))
                 .collect(Collectors.toList());
     }

@@ -22,6 +22,12 @@ public interface CategoryRepository extends MongoRepository<Category, ObjectId> 
             "  '_id'  : { '$in' : ?0 }," +
             "}")
     List<Category> findByIds(List<ObjectId> ids);
+
+    @Query(value = "" +
+            "{" +
+            "  'parentCategoryId'  : { '$in' : ?0 }," +
+            "}")
+    List<Category> findByParentCategoryIds(List<ObjectId> parentCategoryIds);
     @Query(value = "" +
             "{" +
             "  'active'  : { '$eq' : true }," +

@@ -150,6 +150,16 @@ public class AdminCategoryController extends _BaseController {
     }
 
     @TranslateResponseMessage
+    @PostMapping("/sub-category-list-in-key-value")
+    public ResponseEntity<ResponsePacket> subCategoryListInKeyValue(@Valid @RequestBody CategoryDto.ParentCategoryIds update) throws BadRequestException {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get_key_value_list")
+                .responsePacket(categoryService.subCategoryListInKeyValue(update.getParentCategoryUuids()))
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
     @PostMapping("/assign-category/{uuid}")
     public ResponseEntity<ResponsePacket> assignCategory(@PathVariable("uuid") String uuid,
                                                          @Valid @RequestBody CategoryDto.AssignCategory updateDto) throws BadRequestException {
