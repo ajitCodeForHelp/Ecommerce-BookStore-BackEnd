@@ -44,6 +44,7 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
 
     public String saveDisplayCategory(DisplayCategoryDto.SaveDisplayCategory saveDto)  {
         Category category = CategoryMapper.MAPPER.mapToPojo(saveDto);
+        category.setDisplayCategory(true);
         category = categoryRepository.save(category);
         return category.getUuid();
     }

@@ -19,12 +19,10 @@ public class DisplayCategoryDto extends AbstractDto{
         @NotNull private String title;
         private String categoryIconUrl;
         private String description;
-        private Boolean displayCategory = true;
     }
     @Setter
     @Getter
     public static class UpdateDisplayCategory extends Update {
-
         @NotNull private String title;
         private String categoryIconUrl;
         private String description;
