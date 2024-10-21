@@ -14,6 +14,7 @@ public class _BaseController {
     @Autowired protected ItemService itemService;
     @Autowired protected SystemUserService systemUserService;
     @Autowired protected CartService cartService;
+    @Autowired protected FileManagerService fileManagerService;
 
 
 }
