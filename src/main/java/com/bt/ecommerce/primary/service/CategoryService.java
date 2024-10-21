@@ -4,6 +4,7 @@ import com.bt.ecommerce.bean.DataTableResponsePacket;
 import com.bt.ecommerce.bean.KeyValueDto;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.AbstractDto;
+import com.bt.ecommerce.primary.dto.DisplayCategoryDto;
 import com.bt.ecommerce.primary.dto.CategoryDto;
 import com.bt.ecommerce.primary.mapper.CategoryMapper;
 import com.bt.ecommerce.primary.pojo.Category;
@@ -41,6 +42,12 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
         return category.getUuid();
     }
 
+    public String saveDisplayCategory(DisplayCategoryDto.SaveDisplayCategory saveDto)  {
+        Category category = CategoryMapper.MAPPER.mapToPojo(saveDto);
+        category = categoryRepository.save(category);
+        return category.getUuid();
+    }
+
     @Override
     public void update(String uuid, AbstractDto.Update update) throws BadRequestException {
         CategoryDto.UpdateCategory updateCategoryDto = (CategoryDto.UpdateCategory) update;
@@ -54,6 +61,12 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
             category.setParentCategoryDetail(null);
         }
         category = CategoryMapper.MAPPER.mapToPojo(category, updateCategoryDto);
+        categoryRepository.save(category);
+    }
+
+    public void updateDisplayCategory(String uuid, DisplayCategoryDto.UpdateDisplayCategory updateDto) throws BadRequestException {
+        Category category = findByUuid(uuid);
+        category = CategoryMapper.MAPPER.mapToPojo(category, updateDto);
         categoryRepository.save(category);
     }
 
@@ -78,6 +91,14 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
     public DataTableResponsePacket list(Boolean deleted, Integer pageNumber, Integer pageSize, String search) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Category> pageData = categoryRepository.findByDeleted(deleted, search, pageable);
+        return getDataTableResponsePacket(pageData, pageData.getContent().stream()
+                .map(category -> CategoryMapper.MAPPER.mapToDetailDto(category))
+                .collect(Collectors.toList()));
+    }
+
+    public DataTableResponsePacket listDisplayCategory(Boolean deleted, Integer pageNumber, Integer pageSize, String search) {
+        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
+        Page<Category> pageData = categoryRepository.findByDeletedAndDisplayCategory(deleted, search, pageable);
         return getDataTableResponsePacket(pageData, pageData.getContent().stream()
                 .map(category -> CategoryMapper.MAPPER.mapToDetailDto(category))
                 .collect(Collectors.toList()));
@@ -118,6 +139,12 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
 
     public List<KeyValueDto> listInKeyValue() {
         List<Category> categoryList = categoryRepository.findByActiveAndDeleted();
+        return categoryList.stream()
+                .map(category -> CategoryMapper.MAPPER.mapToKeyPairDto(category))
+                .collect(Collectors.toList());
+    }
+    public List<KeyValueDto> listInKeyValueForDisplayCategory() {
+        List<Category> categoryList = categoryRepository.findByActiveAndDeletedAndDisplayCategory();
         return categoryList.stream()
                 .map(category -> CategoryMapper.MAPPER.mapToKeyPairDto(category))
                 .collect(Collectors.toList());
