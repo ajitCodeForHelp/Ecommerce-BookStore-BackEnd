@@ -66,6 +66,9 @@ dependencies {
     // https://mvnrepository.com/artifact/org.springframework/spring-aspects
     implementation group: 'org.springframework', name: 'spring-aspects', version: '6.1.6'
 
+    // https://mvnrepository.com/artifact/com.cloudinary/cloudinary-http44
+    implementation group: 'com.cloudinary', name: 'cloudinary-http44', version: '1.29.0'
+
 }
 
 test {
