@@ -54,6 +54,17 @@ public class AdminDisplayCategoryController extends _BaseController {
     }
 
     @TranslateResponseMessage
+    @GetMapping("/list-data")
+    protected ResponseEntity<ResponsePacket> listData() throws BadRequestException {
+        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get_all")
+                .responsePacket(categoryService.listDisplayCategory())
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
     @PostMapping("/list")
     protected ResponseEntity<ResponsePacket> list(@Valid @RequestBody DisplayCategoryDto.GetList list) throws BadRequestException {
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();

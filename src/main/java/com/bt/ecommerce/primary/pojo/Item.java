@@ -15,7 +15,10 @@ import java.util.List;
 public class Item extends _BasicEntity {
 
     private List<ObjectId> parentCategoryIds = new ArrayList<>();
+    private List<BasicParent> parentCategoryDetails = new ArrayList<>();
     private List<ObjectId> subCategoryIds = new ArrayList<>();
+    private List<BasicParent> subCategoryDetails = new ArrayList<>();
+
 
     private String title;
     private String description;
