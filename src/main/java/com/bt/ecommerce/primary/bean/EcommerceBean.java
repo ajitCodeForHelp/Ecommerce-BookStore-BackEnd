@@ -15,7 +15,7 @@ public class EcommerceBean {
     @Setter
     public static class HomepageData {
         List<DashboardCategory> dashboardCategoryList;
-        List<DisplayCategory> displayCategoryList;
+        List<EcommerceCategory> displayCategoryList;
     }
 
     @Getter
@@ -33,7 +33,7 @@ public class EcommerceBean {
 
     @Getter
     @Setter
-    public static class DisplayCategory {
+    public static class EcommerceCategory {
         private String uuid;
         private String title;
         private String categoryIconUrl;
@@ -41,12 +41,12 @@ public class EcommerceBean {
         private int sequenceNo;
         private Boolean displayCategory;
 
-        private List<DisplayCategoryItem> displayCategoryItemList;
+        private List<EcommerceCategoryItem> displayCategoryItemList;
     }
 
     @Getter
     @Setter
-    public static class DisplayCategoryItem {
+    public static class EcommerceCategoryItem {
         private String uuid;
         private String title;
         private String description;

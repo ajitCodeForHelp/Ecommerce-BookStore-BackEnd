@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -22,6 +23,16 @@ public class EcommerceController extends _BaseController {
                 .errorCode(0)
                 .message("ecommerce.common.message.homepage_data")
                 .responsePacket(ecommerceService.getHomepageData())
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @GetMapping("/get-category-item-details/{categoryUuid}")
+    protected ResponseEntity<ResponsePacket> getCategoryItemDetails(@PathVariable("categoryUuid") String categoryUuid) {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.category_item_details")
+                .responsePacket(ecommerceService.getCategoryItemDetails(categoryUuid))
                 .build(), HttpStatus.OK);
     }
 
