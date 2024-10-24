@@ -21,7 +21,7 @@ public class AuthService extends _BaseService {
     public SystemUser findByUsername(String userName) throws BadRequestException {
         SystemUser pojo = systemUserRepository.findFirstByUsername(userName);
         if (pojo == null) {
-            throw new BadRequestException("kpis_food.common.message.record_not_exist");
+            throw new BadRequestException("ecommerce.common.message.record_not_exist");
         }
         return pojo;
     }

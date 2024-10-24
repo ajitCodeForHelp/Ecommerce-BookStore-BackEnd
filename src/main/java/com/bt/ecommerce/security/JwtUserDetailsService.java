@@ -48,7 +48,7 @@ public class JwtUserDetailsService implements UserDetailsService {
 
     private _BaseUser getAppUser(String userId, String userType, String uniqueKey) throws UsernameNotFoundException {
         _BaseUser user = null;
-        if (userType.equals(RoleEnum.ROLE_ADMIN.toString()) || userType.equals(RoleEnum.ROLE_SUPER_ADMIN.toString())) {
+        if (userType.equals(RoleEnum.ROLE_ADMIN.toString()) || userType.equals(RoleEnum.ROLE_SUB_ADMIN.toString())) {
             user = systemUserRepository.findByUuid(userId);
         } else if (user == null) {
             throw new UsernameNotFoundException("UnAuthorize Access");
