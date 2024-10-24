@@ -1,5 +1,6 @@
 package com.bt.ecommerce.primary.service;
 
+import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.primary.pojo.enums.GenderEnum;
 import com.bt.ecommerce.primary.pojo.enums.RoleEnum;
 import com.bt.ecommerce.primary.pojo.user.SystemUser;
@@ -13,6 +14,7 @@ public class BaseDataService extends _BaseService {
     @PostConstruct
     private void postConstruct() {
         generateDefaultAdmins();
+        SpringBeanContext.getBean(EcommerceDataService.class).generateEcommerceDefaultData();
     }
 
     public void generateDefaultAdmins() {

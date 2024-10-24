@@ -28,6 +28,13 @@ public interface CategoryRepository extends MongoRepository<Category, ObjectId> 
             "  'parentCategoryId'  : { '$in' : ?0 }," +
             "}")
     List<Category> findByParentCategoryIds(List<ObjectId> parentCategoryIds);
+
+    @Query(value = "" +
+            "{" +
+            "  'active'  : { '$eq' : true }," +
+            "  'deleted' : { '$eq' : false }" +
+            "}")
+    List<Category> findByAllCategory();
     @Query(value = "" +
             "{" +
             "  'active'  : { '$eq' : true }," +
