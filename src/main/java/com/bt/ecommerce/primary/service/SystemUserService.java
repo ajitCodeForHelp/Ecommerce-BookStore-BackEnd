@@ -47,6 +47,7 @@ public class SystemUserService extends _BaseService implements _BaseServiceImpl 
         staff.setPwdText(saveStaffDto.getPassword());
         staff.setPwdSecure(TextUtils.getEncodedPassword(saveStaffDto.getPassword()));
         staff.setUserType(RoleEnum.ROLE_SUB_ADMIN);
+        staff.setUniqueKey(TextUtils.getUniqueKey());
         staff = systemUserRepository.save(staff);
         return staff.getUuid();
     }
@@ -71,6 +72,7 @@ public class SystemUserService extends _BaseService implements _BaseServiceImpl 
         staff.setEmail(updateStaffDto.getEmail());
         staff.setUsername(updateStaffDto.getEmail());
         staff.setUserType(RoleEnum.ROLE_SUB_ADMIN);
+        staff.setUniqueKey(TextUtils.getUniqueKey());
         staff = systemUserRepository.save(staff);
     }
 
