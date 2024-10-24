@@ -7,6 +7,7 @@ public class Constants {
             "/auth/**",
             "/public/**",
             "/guest/**",
+            "/customer/**",
             "/",
 
             "/swagger-ui/index.html",

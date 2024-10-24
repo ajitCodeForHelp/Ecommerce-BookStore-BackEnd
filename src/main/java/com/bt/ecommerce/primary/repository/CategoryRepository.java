@@ -75,4 +75,16 @@ public interface CategoryRepository extends MongoRepository<Category, ObjectId> 
             "}"
     )
     Page<Category> findByDeletedAndDisplayCategory(boolean deleted, String search, Pageable pageable);
+
+    @Query(value = "" +
+            "{" +
+            "  'displayCategory'  : { '$eq' : true }," +
+            "}")
+    List<Category> findByDisplayCategory();
+
+    @Query(value = "" +
+            "{" +
+            "   { displayCategory  : { $ne : true} }," +
+            "}")
+    List<Category> findByCategory();
 }

@@ -46,8 +46,8 @@ public class ItemDto extends AbstractDto{
     @Setter
     @Getter
     public static class DetailItem extends Detail {
-        private List<BasicParent> parentCategoryDetail;
-        private List<BasicParent> subCategoryDetail;
+        private List<BasicParent> parentCategoryDetails;
+        private List<BasicParent> subCategoryDetails;
 
         private String title;
         private String description;

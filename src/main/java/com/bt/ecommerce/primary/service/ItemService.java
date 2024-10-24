@@ -51,6 +51,9 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
             item.setParentCategoryIds(categoryList.stream()
                     .map(category -> category.getId())
                     .collect(Collectors.toList()));
+            item.setParentCategoryDetails(categoryList.stream()
+                    .map(category -> new BasicParent(category.getUuid(), category.getTitle()))
+                    .collect(Collectors.toList()));
         }
         if (!TextUtils.isEmpty(subCategoryUuids)) {
             List<Category> subCategoryList = categoryRepository.findByUuids(subCategoryUuids);
@@ -60,6 +63,9 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
             item.setSubCategoryIds(subCategoryList.stream()
                     .map(category -> category.getId())
                     .collect(Collectors.toList()));
+            item.setSubCategoryDetails(subCategoryList.stream()
+                    .map(subCategory -> new BasicParent(subCategory.getUuid(), subCategory.getTitle()))
+                    .collect(Collectors.toList()));
         }
         return item;
     }
@@ -67,29 +73,29 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
     @Override
     public AbstractDto.Detail get(String uuid) throws BadRequestException {
         Item item = findByUuid(uuid);
-        return mapToDetailDto(item);
+        return ItemMapper.MAPPER.mapToDetailDto(item);
     }
 
-    private ItemDto.DetailItem mapToDetailDto(Item item) {
-        ItemDto.DetailItem detailItem = ItemMapper.MAPPER.mapToDetailDto(item);
-        if (!TextUtils.isEmpty(item.getParentCategoryIds())) {
-            List<Category> parentCategoryList = categoryRepository.findByIds(item.getParentCategoryIds());
-            if (parentCategoryList != null || !parentCategoryList.isEmpty()) {
-                detailItem.setParentCategoryDetail(parentCategoryList.stream()
-                        .map(category -> new BasicParent(category.getUuid(), category.getTitle()))
-                        .collect(Collectors.toList()));
-            }
-        }
-        if (!TextUtils.isEmpty(item.getSubCategoryIds())) {
-            List<Category> subCategoryList = categoryRepository.findByIds(item.getSubCategoryIds());
-            if (subCategoryList != null || !subCategoryList.isEmpty()) {
-                detailItem.setSubCategoryDetail(subCategoryList.stream()
-                        .map(category -> new BasicParent(category.getUuid(), category.getTitle()))
-                        .collect(Collectors.toList()));
-            }
-        }
-        return detailItem;
-    }
+//    private ItemDto.DetailItem mapToDetailDto(Item item) {
+//        ItemDto.DetailItem detailItem = ItemMapper.MAPPER.mapToDetailDto(item);
+//        if (!TextUtils.isEmpty(item.getParentCategoryIds())) {
+//            List<Category> parentCategoryList = categoryRepository.findByIds(item.getParentCategoryIds());
+//            if (parentCategoryList != null || !parentCategoryList.isEmpty()) {
+//                detailItem.setParentCategoryDetail(parentCategoryList.stream()
+//                        .map(category -> new BasicParent(category.getUuid(), category.getTitle()))
+//                        .collect(Collectors.toList()));
+//            }
+//        }
+//        if (!TextUtils.isEmpty(item.getSubCategoryIds())) {
+//            List<Category> subCategoryList = categoryRepository.findByIds(item.getSubCategoryIds());
+//            if (subCategoryList != null || !subCategoryList.isEmpty()) {
+//                detailItem.setSubCategoryDetail(subCategoryList.stream()
+//                        .map(category -> new BasicParent(category.getUuid(), category.getTitle()))
+//                        .collect(Collectors.toList()));
+//            }
+//        }
+//        return detailItem;
+//    }
 
     @Override
     public DataTableResponsePacket list(Boolean deleted, Integer pageNumber, Integer pageSize, String search) {
@@ -98,6 +104,13 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
         return getDataTableResponsePacket(pageData, pageData.getContent().stream()
                 .map(item -> ItemMapper.MAPPER.mapToDetailDto(item))
                 .collect(Collectors.toList()));
+    }
+
+    public List<ItemDto.DetailItem> listData() {
+        List<Item> list = itemRepository.findAll();
+        return list.stream()
+                .map(item -> ItemMapper.MAPPER.mapToDetailDto(item))
+                .collect(Collectors.toList());
     }
 
     @Override

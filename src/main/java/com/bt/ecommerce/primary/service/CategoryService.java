@@ -4,8 +4,8 @@ import com.bt.ecommerce.bean.DataTableResponsePacket;
 import com.bt.ecommerce.bean.KeyValueDto;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.AbstractDto;
-import com.bt.ecommerce.primary.dto.DisplayCategoryDto;
 import com.bt.ecommerce.primary.dto.CategoryDto;
+import com.bt.ecommerce.primary.dto.DisplayCategoryDto;
 import com.bt.ecommerce.primary.mapper.CategoryMapper;
 import com.bt.ecommerce.primary.pojo.Category;
 import com.bt.ecommerce.primary.pojo.Item;
@@ -42,7 +42,7 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
         return category.getUuid();
     }
 
-    public String saveDisplayCategory(DisplayCategoryDto.SaveDisplayCategory saveDto)  {
+    public String saveDisplayCategory(DisplayCategoryDto.SaveDisplayCategory saveDto) {
         Category category = CategoryMapper.MAPPER.mapToPojo(saveDto);
         category.setDisplayCategory(true);
         category = categoryRepository.save(category);
@@ -77,7 +77,7 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
         return mapToDetailDto(category);
     }
 
-    private CategoryDto.DetailCategory mapToDetailDto(Category category){
+    private CategoryDto.DetailCategory mapToDetailDto(Category category) {
         CategoryDto.DetailCategory detailCategory = CategoryMapper.MAPPER.mapToDetailDto(category);
         List<Item> itemList = itemRepository.findByCategoryId(category.getId());
         if (!TextUtils.isEmpty(itemList)) {
@@ -97,12 +97,26 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
                 .collect(Collectors.toList()));
     }
 
+    public List<CategoryDto.DetailCategory> list() {
+        List<Category> list = categoryRepository.findAll();
+        return list.stream()
+                .map(category -> CategoryMapper.MAPPER.mapToDetailDto(category))
+                .collect(Collectors.toList());
+    }
+
     public DataTableResponsePacket listDisplayCategory(Boolean deleted, Integer pageNumber, Integer pageSize, String search) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Category> pageData = categoryRepository.findByDeletedAndDisplayCategory(deleted, search, pageable);
         return getDataTableResponsePacket(pageData, pageData.getContent().stream()
                 .map(category -> CategoryMapper.MAPPER.mapToDetailDto(category))
                 .collect(Collectors.toList()));
+    }
+
+    public List<CategoryDto.DetailCategory> listDisplayCategory() {
+        List<Category> list = categoryRepository.findByDisplayCategory();
+        return list.stream()
+                .map(category -> CategoryMapper.MAPPER.mapToDetailDto(category))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -144,6 +158,7 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
                 .map(category -> CategoryMapper.MAPPER.mapToKeyPairDto(category))
                 .collect(Collectors.toList());
     }
+
     public List<KeyValueDto> listInKeyValueForDisplayCategory() {
         List<Category> categoryList = categoryRepository.findByActiveAndDeletedAndDisplayCategory();
         return categoryList.stream()
@@ -169,19 +184,28 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
                 {
                     // update parent category
                     List<ObjectId> parentCategoryIds = item.getParentCategoryIds();
+                    List<BasicParent> parentCategoryDetails = item.getParentCategoryDetails();
                     parentCategoryIds.add(parentCategory.getId());
+                    parentCategoryDetails.add(new BasicParent(parentCategory.getUuid(), parentCategory.getTitle()));
                     item.setParentCategoryIds(parentCategoryIds);
+                    item.setParentCategoryDetails(parentCategoryDetails);
                 }
                 {
                     // update sub category
                     List<ObjectId> subCategoryIds = item.getSubCategoryIds();
+                    List<BasicParent> subCategoryDetails = item.getParentCategoryDetails();
                     subCategoryIds.add(category.getId());
+                    subCategoryDetails.add(new BasicParent(category.getUuid(), category.getTitle()));
                     item.setSubCategoryIds(subCategoryIds);
+                    item.setSubCategoryDetails(subCategoryDetails);
                 }
             } else {
                 List<ObjectId> parentCategoryIds = item.getParentCategoryIds();
-                parentCategoryIds.add(parentCategory.getId());
+                List<BasicParent> parentCategoryDetails = item.getParentCategoryDetails();
+                parentCategoryIds.add(category.getId());
+                parentCategoryDetails.add(new BasicParent(category.getUuid(), category.getTitle()));
                 item.setParentCategoryIds(parentCategoryIds);
+                item.setParentCategoryDetails(parentCategoryDetails);
             }
         }
         itemRepository.saveAll(itemList);

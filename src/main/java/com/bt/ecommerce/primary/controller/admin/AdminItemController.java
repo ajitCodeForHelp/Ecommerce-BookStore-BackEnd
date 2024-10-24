@@ -54,6 +54,16 @@ public class AdminItemController extends _BaseController {
     }
 
     @TranslateResponseMessage
+    @GetMapping("/list-data")
+    protected ResponseEntity<ResponsePacket> listData() {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get_all")
+                .responsePacket(itemService.listData())
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
     @PostMapping("/list")
     protected ResponseEntity<ResponsePacket> list(@Valid @RequestBody ItemDto.GetList list) throws BadRequestException {
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();

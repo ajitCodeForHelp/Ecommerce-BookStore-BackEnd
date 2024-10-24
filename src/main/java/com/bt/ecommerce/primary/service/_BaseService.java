@@ -13,6 +13,7 @@ public class _BaseService {
     @Autowired protected ItemRepository itemRepository;
     @Autowired protected CartRepository cartRepository;
     @Autowired protected AddressRepository addressRepository;
+    @Autowired protected EcommerceJsonRepository ecommerceJsonRepository;
 
     protected DataTableResponsePacket getDataTableResponsePacket(Page pageData, List data) {
         DataTableResponsePacket responsePacket = new DataTableResponsePacket();
