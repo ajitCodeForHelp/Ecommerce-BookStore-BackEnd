@@ -17,6 +17,7 @@ public class _BaseController {
     @Autowired protected CartService cartService;
     @Autowired protected FileManagerService fileManagerService;
     @Autowired protected EcommerceService ecommerceService;
+    @Autowired protected BannerService bannerService;
 
 
 }
