@@ -18,5 +18,6 @@ public class _BaseController {
     @Autowired protected FileManagerService fileManagerService;
     @Autowired protected EcommerceService ecommerceService;
     @Autowired protected CouponCodeService couponCodeService;
+    @Autowired protected BannerService bannerService;
 
 }
