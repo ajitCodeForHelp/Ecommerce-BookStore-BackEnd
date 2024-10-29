@@ -9,7 +9,7 @@ import java.time.LocalDate;
 
 @Getter
 @Setter
-@Document(collation = "couponCode")
+@Document(value = "couponCode")
 public class CouponCode extends _BasicEntity{
 
     private String title;
