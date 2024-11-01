@@ -1,10 +1,9 @@
 package com.bt.ecommerce.primary.pojo.enums;
 
 public enum DiscountTypeEnum {
-    ValueDiscount("ValueDiscount"),
-    PercentageDiscount("PercentageDiscount"),
-    FreeItemDiscount("FreeItemDiscount"),
-    DeliveryFeeDiscount("DeliveryFeeDiscount"),
+    Amount("Amount"),
+    Percentage("Percentage"),
+
     ;
 
     String type;
