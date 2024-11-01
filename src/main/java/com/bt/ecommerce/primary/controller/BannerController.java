@@ -33,7 +33,7 @@ public class BannerController extends _BaseController {
     @PutMapping("/update/{bannerUuid}")
     public ResponseEntity<ResponsePacket> updateBanner(@PathVariable("bannerUuid") String uuid, @Valid @RequestBody BannerDto.UpdateDetail cart) throws BadRequestException {
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        cartService.update(uuid, cart);
+        bannerService.update(uuid, cart);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.update")
