@@ -20,9 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -138,40 +136,31 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
     @Override
     public void delete(String uuid) throws BadRequestException {
         Category category = findByUuid(uuid);
-        category.setDeleted(true);
-        category.setActive(false);
-        category.setModifiedAt(LocalDateTime.now());
-        categoryRepository.save(category);
+//        category.setDeleted(true);
+//        category.setActive(false);
+//        category.setModifiedAt(LocalDateTime.now());
+        categoryRepository.delete(category);
     }
 
     @Override
     public void revive(String uuid) throws BadRequestException {
-        Category category = findByUuid(uuid);
-        category.setDeleted(false);
-        category.setModifiedAt(LocalDateTime.now());
-        categoryRepository.save(category);
+//        Category category = findByUuid(uuid);
+//        category.setDeleted(false);
+//        category.setModifiedAt(LocalDateTime.now());
+//        categoryRepository.save(category);
     }
 
     public List<KeyValueDto> listInKeyValue() {
         List<Category> categoryList = categoryRepository.findByActiveAndDeleted();
-        return categoryList.stream()
-                .map(category -> CategoryMapper.MAPPER.mapToKeyPairDto(category))
-                .collect(Collectors.toList());
+        return categoryListInKeyValue(categoryList);
     }
-
     public List<KeyValueDto> listInKeyValueForDisplayCategory() {
         List<Category> categoryList = categoryRepository.findByActiveAndDeletedAndDisplayCategory();
-        return categoryList.stream()
-                .map(category -> CategoryMapper.MAPPER.mapToKeyPairDto(category))
-                .collect(Collectors.toList());
+        return categoryListInKeyValue(categoryList);
     }
 
     public void assignCategory(String uuid, List<String> itemUuids) throws BadRequestException {
         Category category = findByUuid(uuid);
-        Category parentCategory = null;
-        if (category.getParentCategoryId() != null) {
-            parentCategory = findById(category.getParentCategoryId());
-        }
         if (TextUtils.isEmpty(itemUuids)) {
             throw new BadRequestException("Invalid item assign, please check item Ids");
         }
@@ -180,61 +169,34 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
             throw new BadRequestException("Please provide valid item");
         }
         for (Item item : itemList) {
-            if (parentCategory != null) {
-                {
-                    // update parent category
-                    List<ObjectId> parentCategoryIds = item.getParentCategoryIds();
-                    List<BasicParent> parentCategoryDetails = item.getParentCategoryDetails();
-                    parentCategoryIds.add(parentCategory.getId());
-                    parentCategoryDetails.add(new BasicParent(parentCategory.getUuid(), parentCategory.getTitle()));
-                    item.setParentCategoryIds(parentCategoryIds);
-                    item.setParentCategoryDetails(parentCategoryDetails);
-                }
-                {
-                    // update sub category
-                    List<ObjectId> subCategoryIds = item.getSubCategoryIds();
-                    List<BasicParent> subCategoryDetails = item.getParentCategoryDetails();
-                    subCategoryIds.add(category.getId());
-                    subCategoryDetails.add(new BasicParent(category.getUuid(), category.getTitle()));
-                    item.setSubCategoryIds(subCategoryIds);
-                    item.setSubCategoryDetails(subCategoryDetails);
-                }
-            } else {
-                List<ObjectId> parentCategoryIds = item.getParentCategoryIds();
-                List<BasicParent> parentCategoryDetails = item.getParentCategoryDetails();
-                parentCategoryIds.add(category.getId());
-                parentCategoryDetails.add(new BasicParent(category.getUuid(), category.getTitle()));
-                item.setParentCategoryIds(parentCategoryIds);
-                item.setParentCategoryDetails(parentCategoryDetails);
-            }
+            // update parent category
+            List<ObjectId> categoryIds = item.getCategoryIds();
+            List<BasicParent> categoryDetails = item.getCategoryDetails();
+            categoryIds.add(category.getId());
+            categoryDetails.add(new BasicParent(category.getUuid(), category.getTitle()));
+            item.setCategoryIds(categoryIds);
+            item.setCategoryDetails(categoryDetails);
         }
         itemRepository.saveAll(itemList);
     }
 
-    public List<KeyValueDto> parentCategoryListInKeyValue() {
-        List<Category> categoryList = categoryRepository.getCategoryList(null);
-        return categoryList.stream()
-                .map(category -> CategoryMapper.MAPPER.mapToKeyPairDto(category))
-                .collect(Collectors.toList());
-    }
-
-    public List<KeyValueDto> subCategoryListInKeyValue(String parentCategoryUuid) throws BadRequestException {
-        Category parentCategory = findByUuid(parentCategoryUuid);
-        List<Category> categoryList = categoryRepository.getCategoryList(parentCategory.getId());
-        return categoryList.stream()
-                .map(category -> CategoryMapper.MAPPER.mapToKeyPairDto(category))
-                .collect(Collectors.toList());
-    }
-
-    public List<KeyValueDto> subCategoryListInKeyValue(List<String> parentCategoryUuids) throws BadRequestException {
-        if (TextUtils.isEmpty(parentCategoryUuids)) {
-            throw new BadRequestException("please provide parent category ids");
+    private List<KeyValueDto> categoryListInKeyValue(List<Category> categoryList) {
+        Map<String, Category> parentCategoryMap = new HashMap<>();
+        for (Category category : categoryList) {
+            parentCategoryMap.put(category.getUuid(), category);
         }
-        List<Category> parentCategoryList = categoryRepository.findByUuids(parentCategoryUuids);
-        Set<ObjectId> parentCategoryIds = new TreeSet<>();
-        parentCategoryList.stream().map(category -> parentCategoryIds.add(category.getId())).collect(Collectors.toList());
-        List<Category> subCategoryList = categoryRepository.findByParentCategoryIds(parentCategoryIds.stream().toList());
-        return subCategoryList.stream()
+        Map<String, Category> subCategoryMap = new HashMap<>();
+        for (Category category : categoryList) {
+            if(category.getParentCategoryId() != null){
+                subCategoryMap.put(category.getUuid(), category);
+                // Remove parent category and sub category
+                parentCategoryMap.remove(category.getUuid());
+                parentCategoryMap.remove(category.getParentCategoryDetail().getParentUuid());
+            }
+        }
+        List<Category> categories = new ArrayList<>(parentCategoryMap.values().stream().toList());
+        categories.addAll(subCategoryMap.values().stream().toList());
+        return categories.stream()
                 .map(category -> CategoryMapper.MAPPER.mapToKeyPairDto(category))
                 .collect(Collectors.toList());
     }

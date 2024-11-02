@@ -30,7 +30,7 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
     public String save(AbstractDto.Save save) throws BadRequestException {
         ItemDto.SaveItem saveItemDto = (ItemDto.SaveItem) save;
         Item item = ItemMapper.MAPPER.mapToPojo(saveItemDto);
-        item = updateItemCategory(item, saveItemDto.getParentCategoryUuids(), saveItemDto.getSubCategoryUuids());
+        item = updateItemCategory(item, saveItemDto.getCategoryUuids());
         item = itemRepository.save(item);
         SpringBeanContext.getBean(EcommerceDataService.class).generateEcommerceDefaultData();
         return item.getUuid();
@@ -41,33 +41,21 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
         ItemDto.UpdateItem updateItemDto = (ItemDto.UpdateItem) update;
         Item item = findByUuid(uuid);
         item = ItemMapper.MAPPER.mapToPojo(item, updateItemDto);
-        item = updateItemCategory(item, updateItemDto.getParentCategoryUuids(), updateItemDto.getSubCategoryUuids());
+        item = updateItemCategory(item, updateItemDto.getCategoryUuids());
         itemRepository.save(item);
         SpringBeanContext.getBean(EcommerceDataService.class).generateEcommerceDefaultData();
     }
-    private Item updateItemCategory(Item item, List<String> parentCategoryUuids, List<String> subCategoryUuids) throws BadRequestException {
-        if (!TextUtils.isEmpty(parentCategoryUuids)) {
-            List<Category> categoryList = categoryRepository.findByUuids(parentCategoryUuids);
+    private Item updateItemCategory(Item item, List<String> categoryUuids) throws BadRequestException {
+        if (!TextUtils.isEmpty(categoryUuids)) {
+            List<Category> categoryList = categoryRepository.findByUuids(categoryUuids);
             if (categoryList == null || categoryList.isEmpty()) {
                 throw new BadRequestException("ecommerce.common.message.record_not_exist");
             }
-            item.setParentCategoryIds(categoryList.stream()
+            item.setCategoryIds(categoryList.stream()
                     .map(category -> category.getId())
                     .collect(Collectors.toList()));
-            item.setParentCategoryDetails(categoryList.stream()
+            item.setCategoryDetails(categoryList.stream()
                     .map(category -> new BasicParent(category.getUuid(), category.getTitle()))
-                    .collect(Collectors.toList()));
-        }
-        if (!TextUtils.isEmpty(subCategoryUuids)) {
-            List<Category> subCategoryList = categoryRepository.findByUuids(subCategoryUuids);
-            if (subCategoryList == null || subCategoryList.isEmpty()) {
-                throw new BadRequestException("ecommerce.common.message.record_not_exist");
-            }
-            item.setSubCategoryIds(subCategoryList.stream()
-                    .map(category -> category.getId())
-                    .collect(Collectors.toList()));
-            item.setSubCategoryDetails(subCategoryList.stream()
-                    .map(subCategory -> new BasicParent(subCategory.getUuid(), subCategory.getTitle()))
                     .collect(Collectors.toList()));
         }
         return item;
@@ -135,18 +123,15 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
     @Override
     public void delete(String uuid) throws BadRequestException {
         Item item = findByUuid(uuid);
-        item.setDeleted(true);
-        item.setActive(false);
-        item.setModifiedAt(LocalDateTime.now());
-        itemRepository.save(item);
+        itemRepository.delete(item);
     }
 
     @Override
     public void revive(String uuid) throws BadRequestException {
-        Item item = findByUuid(uuid);
-        item.setDeleted(false);
-        item.setModifiedAt(LocalDateTime.now());
-        itemRepository.save(item);
+//        Item item = findByUuid(uuid);
+//        item.setDeleted(false);
+//        item.setModifiedAt(LocalDateTime.now());
+//        itemRepository.save(item);
     }
 
     public List<KeyValueDto> listInKeyValue() {

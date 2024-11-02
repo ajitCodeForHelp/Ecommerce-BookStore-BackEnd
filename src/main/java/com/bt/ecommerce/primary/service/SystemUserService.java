@@ -110,18 +110,11 @@ public class SystemUserService extends _BaseService implements _BaseServiceImpl 
     @Override
     public void delete(String uuid) throws BadRequestException {
         SystemUser staff = findByUuid(uuid);
-        staff.setDeleted(true);
-        staff.setActive(false);
-        staff.setModifiedAt(LocalDateTime.now());
-        systemUserRepository.save(staff);
+        systemUserRepository.delete(staff);
     }
 
     @Override
     public void revive(String uuid) throws BadRequestException {
-        SystemUser staff = findByUuid(uuid);
-        staff.setDeleted(false);
-        staff.setModifiedAt(LocalDateTime.now());
-        systemUserRepository.save(staff);
     }
 
     public List<KeyValueDto> listInKeyValue() {

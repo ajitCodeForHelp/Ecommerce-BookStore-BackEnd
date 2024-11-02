@@ -78,10 +78,7 @@ public class CouponCodeService extends _BaseService implements _BaseServiceImpl 
     @Override
     public void delete(String uuid) throws BadRequestException {
         CouponCode couponCode = findByUuid(uuid);
-        couponCode.setActive(false);
-        couponCode.setDeleted(true);
-        couponCode.setModifiedAt(LocalDateTime.now());
-        couponCodeRepository.save(couponCode);
+        couponCodeRepository.delete(couponCode);
     }
 
     @Override
