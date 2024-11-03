@@ -2,6 +2,7 @@ package com.bt.ecommerce.primary.service;
 
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.AuthDto;
+import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.primary.pojo.user.SystemUser;
 import com.bt.ecommerce.primary.pojo.user._BaseUser;
 import com.bt.ecommerce.security.JwtTokenUtil;
@@ -26,6 +27,14 @@ public class AuthService extends _BaseService {
         return pojo;
     }
 
+    public Customer findByCustomerUsername(String username) throws BadRequestException {
+        Customer customer = customerRepository.findFirstByUsername(username);
+        if(customer == null){
+            throw new BadRequestException("ecommerce.common.message.record_not_exist");
+        }
+        return customer;
+    }
+
     public AuthDto.UserDetails loginAdmin(String userName, String password, String ipAddress) throws BadRequestException {
         SystemUser userAdmin = findByUsername(userName);
         validateUser(userAdmin, password);
@@ -33,6 +42,14 @@ public class AuthService extends _BaseService {
         systemUserRepository.save(userAdmin);
         return generateAuthTokenAndGetUserDetails(userAdmin, ipAddress);
     }
+
+//    public AuthDto.UserDetails loginCustomer(String userName, String password, String ipAddress) throws BadRequestException {
+//        Customer userCustomer = findByCustomerUsername(userName);
+//        validateUser(userCustomer, password);
+//        userCustomer.setLastLogin(LocalDateTime.now());
+//        customerRepository.save(userCustomer);
+//        return generateAuthTokenAndGetUserDetails(userCustomer, ipAddress);
+//    }
 
     private void validateUser(_BaseUser user, String password) throws BadRequestException {
         if (!user.isActive() || user.isDeleted()) {

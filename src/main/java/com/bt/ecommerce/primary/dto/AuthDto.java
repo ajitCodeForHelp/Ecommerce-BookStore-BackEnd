@@ -16,6 +16,15 @@ public class AuthDto {
         private String password;
     }
 
+    @Getter
+    @Setter
+    public static class CustomerLogin{
+        @NotNull
+        private String userName;
+        @NotNull
+        private String password;
+    }
+
     @Setter
     @Getter
     public static class ClientLogin {

@@ -9,6 +9,5 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document(collection = "customer")
 public class Customer extends _BaseUser/*implements UserDetails*/ {
 
-
 }
 

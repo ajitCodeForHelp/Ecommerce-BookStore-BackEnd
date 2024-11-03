@@ -6,7 +6,6 @@ import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.AbstractDto;
 import com.bt.ecommerce.primary.dto.CouponCodeDto;
 import com.bt.ecommerce.primary.mapper.CouponCodeMapper;
-import com.bt.ecommerce.primary.pojo.Category;
 import com.bt.ecommerce.primary.pojo.CouponCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
