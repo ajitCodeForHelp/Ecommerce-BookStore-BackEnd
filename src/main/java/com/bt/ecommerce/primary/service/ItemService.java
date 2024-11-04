@@ -2,6 +2,7 @@ package com.bt.ecommerce.primary.service;
 
 import com.bt.ecommerce.bean.DataTableResponsePacket;
 import com.bt.ecommerce.bean.KeyValueDto;
+import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.AbstractDto;
 import com.bt.ecommerce.primary.dto.ItemDto;
@@ -31,6 +32,7 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
         Item item = ItemMapper.MAPPER.mapToPojo(saveItemDto);
         item = updateItemCategory(item, saveItemDto.getParentCategoryUuids(), saveItemDto.getSubCategoryUuids());
         item = itemRepository.save(item);
+        SpringBeanContext.getBean(EcommerceDataService.class).generateEcommerceDefaultData();
         return item.getUuid();
     }
 
@@ -41,6 +43,7 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
         item = ItemMapper.MAPPER.mapToPojo(item, updateItemDto);
         item = updateItemCategory(item, updateItemDto.getParentCategoryUuids(), updateItemDto.getSubCategoryUuids());
         itemRepository.save(item);
+        SpringBeanContext.getBean(EcommerceDataService.class).generateEcommerceDefaultData();
     }
     private Item updateItemCategory(Item item, List<String> parentCategoryUuids, List<String> subCategoryUuids) throws BadRequestException {
         if (!TextUtils.isEmpty(parentCategoryUuids)) {

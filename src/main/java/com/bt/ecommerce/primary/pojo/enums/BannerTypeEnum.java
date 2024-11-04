@@ -1,14 +1,12 @@
 package com.bt.ecommerce.primary.pojo.enums;
 
-public enum DiscountTypeEnum {
-    Amount("Amount"),
-    Percentage("Percentage"),
-
+public enum BannerTypeEnum {
+    DashboardTop("DashboardTop")
     ;
 
     String type;
 
-    DiscountTypeEnum(String type) {
+    BannerTypeEnum(String type) {
         this.type = type;
     }
 

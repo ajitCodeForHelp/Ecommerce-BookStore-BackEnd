@@ -20,4 +20,6 @@ public class _BaseController {
     @Autowired protected CouponCodeService couponCodeService;
     @Autowired protected AddressService addressService;
     @Autowired protected CustomerService customerService;
+    @Autowired protected BannerService bannerService;
+
 }
