@@ -58,7 +58,7 @@ public class Cart extends _BasicEntity {
         private double sellingPrice; /// use for calculation
         private List<String> itemImageUrls;
 
-        private Long quantity;
+        private Long quantity = 1L;
         private double itemTotal;
     }
 

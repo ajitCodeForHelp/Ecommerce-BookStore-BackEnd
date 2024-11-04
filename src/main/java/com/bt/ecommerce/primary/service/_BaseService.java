@@ -16,6 +16,7 @@ public class _BaseService {
     @Autowired protected EcommerceJsonRepository ecommerceJsonRepository;
     @Autowired protected CouponCodeRepository couponCodeRepository;
     @Autowired protected BannerRepository bannerRepository;
+    @Autowired protected OrderRepository orderRepository;
 
 
     protected DataTableResponsePacket getDataTableResponsePacket(Page pageData, List data) {

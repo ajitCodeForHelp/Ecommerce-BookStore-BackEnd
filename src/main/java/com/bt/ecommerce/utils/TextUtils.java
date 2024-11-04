@@ -142,7 +142,7 @@ public class TextUtils {
         return generatedString.toUpperCase();
     }
 
-    public String getOrderReferenceId(Long orderId) {
+    public static String getOrderReferenceId(Long orderId) {
         return "ORD-" + TextUtils.convertNumberTo10Digit(orderId);
     }
 

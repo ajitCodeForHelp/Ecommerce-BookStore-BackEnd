@@ -2,12 +2,9 @@ package com.bt.ecommerce.primary.controller.customer;
 
 import com.bt.ecommerce.annotation.TranslateResponseMessage;
 import com.bt.ecommerce.bean.ResponsePacket;
-import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.controller._BaseController;
 import com.bt.ecommerce.primary.dto.CartDto;
-import com.bt.ecommerce.primary.pojo.user.SystemUser;
-import com.bt.ecommerce.security.JwtUserDetailsService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -80,6 +77,16 @@ public class CustomerCartController extends _BaseController {
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.update_item_quantity")
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @PostMapping("/placeOrder/{cartUuid}")
+    public ResponseEntity<ResponsePacket> placeOrder(@PathVariable("cartUuid") String cartUuid) throws BadRequestException {
+        cartService.placeOrder(cartUuid);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.place_order")
                 .build(), HttpStatus.OK);
     }
 }

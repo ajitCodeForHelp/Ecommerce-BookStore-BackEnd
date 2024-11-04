@@ -1,22 +1,25 @@
 package com.bt.ecommerce.primary.service;
 
+import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.CartDto;
 import com.bt.ecommerce.primary.mapper.AddressMapper;
 import com.bt.ecommerce.primary.mapper.CartMapper;
 import com.bt.ecommerce.primary.mapper.ItemMapper;
-import com.bt.ecommerce.primary.pojo.Address;
-import com.bt.ecommerce.primary.pojo.Cart;
-import com.bt.ecommerce.primary.pojo.CouponCode;
-import com.bt.ecommerce.primary.pojo.Item;
+import com.bt.ecommerce.primary.pojo.*;
 import com.bt.ecommerce.primary.pojo.enums.DiscountTypeEnum;
 import com.bt.ecommerce.primary.pojo.user.SystemUser;
+import com.bt.ecommerce.primary.repository.SequenceRepository;
 import com.bt.ecommerce.utils.ProjectConst;
 import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -104,6 +107,7 @@ public class CartService extends _BaseService {
             throw new BadRequestException("Invalid item selection, Please select a active item");
         }
         Cart.ItemDetail itemDetail = ItemMapper.MAPPER.mapToCartItem(item);
+        itemDetail.setItemTotal(item.getSellingPrice());
         if (!cart.getItemIds().contains(item.getId())) {
             cart.getItemIds().add(item.getId());
             cart.getItemDetailList().add(itemDetail);
@@ -128,18 +132,28 @@ public class CartService extends _BaseService {
     private Cart cartPriceCalculation(Cart cart) {
         double cartSubTotal = 0;
         double packingCharges = 0;
+        // TODO > Delivery charges calculation is based on item weight
         double deliveryCharges = ProjectConst.deliveryCharges;
         // Set And Update Coupon Code Details
         cart = calculateCouponCodeDiscountAmount(cart);
+        List<ObjectId> removedItemIds = new ArrayList<>();
+        List<Cart.ItemDetail> removedItemList = new ArrayList<>();
         for (Cart.ItemDetail itemDetail : cart.getItemDetailList()) {
+            Item item = itemRepository.findByUuid(itemDetail.getItemUuid());
+            if (item.isDeleted() || !item.isActive()) {
+                removedItemIds.add(item.getId());
+                removedItemList.add(itemDetail);
+                continue;
+            }
+            itemDetail.setItemTotal(item.getSellingPrice());
             cartSubTotal += itemDetail.getItemTotal() * itemDetail.getQuantity();
             packingCharges += ProjectConst.packingCharges * itemDetail.getQuantity();
         }
-        // TODO // add > PackingCharges > DeliveryCharges > couponCodeDiscount
         cart.setSubTotal(cartSubTotal);
         cart.setPackingCharges(packingCharges);
         cart.setDeliveryCharges(deliveryCharges);
-        cart.setOrderTotal(cartSubTotal + packingCharges);
+        // Cart Order Does not include packing charges and delivery charges
+        cart.setOrderTotal(cartSubTotal + packingCharges + deliveryCharges);
         return cart;
     }
 
@@ -166,10 +180,10 @@ public class CartService extends _BaseService {
         }
         // implement coupon code
         double couponCodeDiscountAmount = 0.0;
-        if(couponCode.getDiscountType().equals(DiscountTypeEnum.Percentage)) {
-            if(!couponCode.getDiscountValue().equals(0.0)){
+        if (couponCode.getDiscountType().equals(DiscountTypeEnum.Percentage)) {
+            if (!couponCode.getDiscountValue().equals(0.0)) {
                 double couponDiscount = (couponCode.getDiscountValue() / 100.0) * cart.getSubTotal();
-                if(couponDiscount > couponCode.getMaxDiscountAmount()){
+                if (couponDiscount > couponCode.getMaxDiscountAmount()) {
                     couponDiscount = couponCode.getMaxDiscountAmount();
                 }
                 couponCodeDiscountAmount = couponDiscount;
@@ -189,7 +203,6 @@ public class CartService extends _BaseService {
 
     private Cart createNewCart() {
 //        SystemUser loggedInCustomer = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        // TODO > Remove this > loggedInCustomer
         SystemUser loggedInCustomer = systemUserRepository.findAll().get(0);
         Cart cart = cartRepository.findByCustomerId(loggedInCustomer.getId());
         if (cart == null) {
@@ -201,5 +214,32 @@ public class CartService extends _BaseService {
                 loggedInCustomer.getLastName(), loggedInCustomer.getIsdCode(),
                 loggedInCustomer.getMobile()));
         return cart;
+    }
+
+    public String placeOrder(String cartUuid) throws BadRequestException {
+        Cart cart = cartRepository.findByUuid(cartUuid);
+        if (cart == null) {
+            throw new BadRequestException("There is no valid cart");
+        }
+        if (TextUtils.isEmpty(cart.getItemDetailList())) {
+            throw new BadRequestException("there is no valid item in your cart");
+        }
+
+        cart = cartPriceCalculation(cart);
+        Order order = CartMapper.MAPPER.mapToOrder(cart);
+        // Generate > invoice number | order number
+        order.setInvoiceNumber(SpringBeanContext.getBean(SequenceRepository.class).getNextSequenceId(Order.class.getSimpleName()));
+        order.setOrderId(TextUtils.getOrderReferenceId(order.getInvoiceNumber()));
+        orderRepository.save(order);
+        // clear the cart
+        clearCart(cart.getUuid());
+        return order.getOrderId();
+    }
+
+    public List<CartDto.DetailCart> getCartList() throws BadRequestException {
+        List<Cart> cartList = cartRepository.findAll();
+        return cartList.stream()
+                .map(cart -> CartMapper.MAPPER.mapToDetailCartDto(cart))
+                .collect(Collectors.toList());
     }
 }
