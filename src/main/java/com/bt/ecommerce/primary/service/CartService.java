@@ -1,152 +1,205 @@
 package com.bt.ecommerce.primary.service;
 
-import com.bt.ecommerce.bean.DataTableResponsePacket;
-import com.bt.ecommerce.bean.KeyValueDto;
-import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
-import com.bt.ecommerce.primary.dto.AbstractDto;
 import com.bt.ecommerce.primary.dto.CartDto;
 import com.bt.ecommerce.primary.mapper.AddressMapper;
+import com.bt.ecommerce.primary.mapper.CartMapper;
 import com.bt.ecommerce.primary.mapper.ItemMapper;
-import com.bt.ecommerce.primary.mapper.SystemUserMapper;
 import com.bt.ecommerce.primary.pojo.Address;
 import com.bt.ecommerce.primary.pojo.Cart;
+import com.bt.ecommerce.primary.pojo.CouponCode;
 import com.bt.ecommerce.primary.pojo.Item;
+import com.bt.ecommerce.primary.pojo.enums.DiscountTypeEnum;
 import com.bt.ecommerce.primary.pojo.user.SystemUser;
-import com.bt.ecommerce.security.JwtUserDetailsService;
+import com.bt.ecommerce.utils.ProjectConst;
+import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDate;
 
 @Slf4j
 @Service
-public class CartService extends _BaseService implements _BaseServiceImpl {
-    @Override
-    public String save(AbstractDto.Save saveDto) throws BadRequestException {
-        CartDto.CreateCart createCartDto = (CartDto.CreateCart) saveDto;
-        SystemUser loggedInCustomer = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        //todo: Need to check if the cart exist for customer if yes then update the cart else create a new cart
-        Cart cart = new Cart();
-        //Customer Detail
-        Cart.CustomerDetail customerCart = SystemUserMapper.MAPPER.mapToCartCustomer(loggedInCustomer);
-        cart.setCustomerDetail(customerCart);
-        // set the items in cart object
-        List<Cart.ItemDetail> itemDetails = mapItemToCart(createCartDto.getItemUuids());
-        cart.setItemDetailList(itemDetails);
-        // check if we get the address uuid, if yes then map the address to the cart customer address
-        if (createCartDto.getAddressUuid() != null) {
-            mapAddressToCart(cart, createCartDto.getAddressUuid());
+public class CartService extends _BaseService {
+
+    public CartDto.DetailCart getCartDetail(String cartUuid) throws BadRequestException {
+        Cart cart = null;
+        if (!TextUtils.isEmpty(cartUuid)) {
+            cart = cartRepository.findByUuid(cartUuid);
         }
-        saveCartAmount(cart, itemDetails);
-        cartRepository.save(cart);
-        return cart.getUuid();
-    }
-
-    private void saveCartAmount(Cart cart, List<Cart.ItemDetail> itemDetails) {
-        double cartSubTotal = 0;
-        double packingCharges = 0;
-        for (Cart.ItemDetail itemDetail : itemDetails) {
-            cartSubTotal += itemDetail.getItemTotal() * itemDetail.getQuantity();
-            packingCharges += 10 * itemDetail.getQuantity();
+        if (cart == null) {
+            cart = createNewCart();
         }
-        cart.setSubTotal(cartSubTotal);
-        //>TODO: coupon code discount and delivery charges calculation and its implementations
-        cart.setOrderTotal(cartSubTotal + packingCharges);
+        cart = cartPriceCalculation(cart);
+        return CartMapper.MAPPER.mapToDetailCartDto(cart);
     }
 
-    private void mapAddressToCart(Cart cart, String addressUuid) {
-        Address address = addressRepository.findByUuid(addressUuid);
-        Cart.CustomerAddressDetail customerAddressDetail = AddressMapper.MAPPER.mapToCartAddress(address);
-        cart.setCustomerAddressDetail(customerAddressDetail);
-    }
+//    public String createCart(CartDto.UpdateCart cartDto) throws BadRequestException {
+//        Cart cart = createNewCart();
+//        cart = mapToCartItem(cart, cartDto);
+//        cartPriceCalculation(cart);
+//        cartRepository.save(cart);
+//        return cart.getUuid();
+//    }
 
-    private List<Cart.ItemDetail> mapItemToCart(List<String> itemUuids) {
-        List<Cart.ItemDetail> itemDetails = new ArrayList<>();
-        for (String itemUuid : itemUuids) {
-            Item item = itemRepository.findByUuid(itemUuid);
-            Cart.ItemDetail itemDetail = ItemMapper.MAPPER.mapToCartItem(item);
-            itemDetails.add(itemDetail);
-        }
-        return itemDetails;
-    }
-
-    @Override
-    public void update(String uuid, AbstractDto.Update updateDto) throws BadRequestException {
-        CartDto.UpdateCart updateCart = (CartDto.UpdateCart) updateDto;
+    public void updateCart(String uuid, CartDto.UpdateCart cartDto) throws BadRequestException {
         Cart cart = cartRepository.findByUuid(uuid);
         if (cart == null) {
-            cart = new Cart();
+            cart = createNewCart();
         }
-        List<Cart.ItemDetail> itemDetails = mapItemToCart(updateCart.getItemUuids());
-        cart.getItemDetailList().addAll(itemDetails);
-        saveCartAmount(cart, cart.getItemDetailList());
-        cartRepository.save(cart);
-    }
-
-    public void removeItemFromCart(String cartUuid, String itemUuid) {
-        Cart cart = cartRepository.findByUuid(cartUuid);
-        if (cart == null) {
-            cart = new Cart();
-        }
-        List<Cart.ItemDetail> cartItemRemoved = cart.getItemDetailList().stream().filter(x -> !x.getItemUuid().equalsIgnoreCase(itemUuid)).toList();
-        cart.setItemDetailList(cartItemRemoved);
-        saveCartAmount(cart, cartItemRemoved);
+        cart = mapToCartItem(cart, cartDto);
+        cart = cartPriceCalculation(cart);
         cartRepository.save(cart);
     }
 
     public void clearCart(String cartUuid) {
         Cart cart = cartRepository.findByUuid(cartUuid);
         if (cart == null) {
-            cart = new Cart();
+            return;
         }
-        cart.setItemDetailList(new ArrayList<>());
-        cart.setSubTotal(0.00);
-        cart.setOrderTotal(0.00);
-        cartRepository.save(cart);
+        cartRepository.delete(cart);
     }
 
-    public void updateItemQuantity(String cartUuid, String itemUuid, long quantity) {
+    public void removeItemFromCart(String cartUuid, String itemUuid) throws BadRequestException {
         Cart cart = cartRepository.findByUuid(cartUuid);
-        cart.getItemDetailList().stream().filter(x -> x.getItemUuid().equalsIgnoreCase(itemUuid)).findFirst().ifPresent(x -> x.setQuantity(quantity));
-        saveCartAmount(cart, cart.getItemDetailList());
+        if (cart == null) {
+            throw new BadRequestException("There is no valid cart");
+        }
+        Item item = itemRepository.findByUuid(itemUuid);
+        if (item == null) {
+            throw new BadRequestException("Please provide a valid item");
+        }
+        if (cart.getItemIds().contains(item.getId())) {
+            Cart.ItemDetail removedItemDetail = null;
+            for (Cart.ItemDetail itemDetail : cart.getItemDetailList()) {
+                if (itemDetail.getItemUuid().equals(itemUuid)) {
+                    removedItemDetail = itemDetail;
+                }
+            }
+            // Item Removed
+            cart.getItemIds().remove(item.getId());
+            cart.getItemDetailList().remove(removedItemDetail);
+        }
+        cart = cartPriceCalculation(cart);
         cartRepository.save(cart);
     }
 
-    @Override
-    public AbstractDto.Detail get(String uuid) throws BadRequestException {
-        return null;
+    public void updateItemQuantity(String cartUuid, String itemUuid, long quantity) throws BadRequestException {
+        Cart cart = cartRepository.findByUuid(cartUuid);
+        if (cart == null) {
+            throw new BadRequestException("Please provide a valid cart");
+        }
+        cart.getItemDetailList().stream()
+                .filter(x -> x.getItemUuid().equalsIgnoreCase(itemUuid)).findFirst().ifPresent(x -> x.setQuantity(quantity));
+        cart = cartPriceCalculation(cart);
+        cartRepository.save(cart);
     }
 
-    @Override
-    public DataTableResponsePacket list(Boolean deleted, Integer pageNumber, Integer pageSize, String search) {
-        return null;
+    private Cart mapToCartItem(Cart cart, CartDto.UpdateCart cartDto) throws BadRequestException {
+        Item item = itemRepository.findByUuid(cartDto.getItemUuid());
+        if (item == null) {
+            throw new BadRequestException("Invalid item selection");
+        }
+        if (item.isDeleted() || !item.isActive()) {
+            throw new BadRequestException("Invalid item selection, Please select a active item");
+        }
+        Cart.ItemDetail itemDetail = ItemMapper.MAPPER.mapToCartItem(item);
+        if (!cart.getItemIds().contains(item.getId())) {
+            cart.getItemIds().add(item.getId());
+            cart.getItemDetailList().add(itemDetail);
+        }
+        if (cartDto.getAddressUuid() != null) {
+            Address address = addressRepository.findByUuid(cartDto.getAddressUuid());
+            if (address == null) {
+                throw new BadRequestException("Invalid address selection");
+            }
+            cart.setCustomerAddressDetail(AddressMapper.MAPPER.mapToCartAddress(address));
+        }
+        if (cartDto.getCouponCodeUuid() != null) {
+            CouponCode couponCode = couponCodeRepository.findByUuid(cartDto.getCouponCodeUuid());
+            if (couponCode == null) {
+                throw new BadRequestException("Invalid coupon code selection");
+            }
+            cart.setCouponCodeId(couponCode.getId());
+        }
+        return cart;
     }
 
-    @Override
-    public void activate(String uuid) throws BadRequestException {
-
+    private Cart cartPriceCalculation(Cart cart) {
+        double cartSubTotal = 0;
+        double packingCharges = 0;
+        double deliveryCharges = ProjectConst.deliveryCharges;
+        // Set And Update Coupon Code Details
+        cart = calculateCouponCodeDiscountAmount(cart);
+        for (Cart.ItemDetail itemDetail : cart.getItemDetailList()) {
+            cartSubTotal += itemDetail.getItemTotal() * itemDetail.getQuantity();
+            packingCharges += ProjectConst.packingCharges * itemDetail.getQuantity();
+        }
+        // TODO // add > PackingCharges > DeliveryCharges > couponCodeDiscount
+        cart.setSubTotal(cartSubTotal);
+        cart.setPackingCharges(packingCharges);
+        cart.setDeliveryCharges(deliveryCharges);
+        cart.setOrderTotal(cartSubTotal + packingCharges);
+        return cart;
     }
 
-    @Override
-    public void inactivate(String uuid) throws BadRequestException {
-
+    private Cart calculateCouponCodeDiscountAmount(Cart cart) {
+        if (cart.getCouponCodeId() == null) return cart;
+        CouponCode couponCode = couponCodeRepository.findById(cart.getCouponCodeId()).orElse(null);
+        if (couponCode.getEndDate().isAfter(LocalDate.now())) {
+            cart.setCouponCodeId(null);
+            cart.setCouponCodeRefDetail(null);
+            cart.setCouponDiscountAmount(0.0);
+            return cart;
+        }
+        if (couponCode.getUsedCount() >= couponCode.getMaxUsePerUser()) {
+            cart.setCouponCodeId(null);
+            cart.setCouponCodeRefDetail(null);
+            cart.setCouponDiscountAmount(0.0);
+            return cart;
+        }
+        if (cart.getSubTotal() < couponCode.getMinOrderValue()) {
+            cart.setCouponCodeId(null);
+            cart.setCouponCodeRefDetail(null);
+            cart.setCouponDiscountAmount(0.0);
+            return cart;
+        }
+        // implement coupon code
+        double couponCodeDiscountAmount = 0.0;
+        if(couponCode.getDiscountType().equals(DiscountTypeEnum.Percentage)) {
+            if(!couponCode.getDiscountValue().equals(0.0)){
+                double couponDiscount = (couponCode.getDiscountValue() / 100.0) * cart.getSubTotal();
+                if(couponDiscount > couponCode.getMaxDiscountAmount()){
+                    couponDiscount = couponCode.getMaxDiscountAmount();
+                }
+                couponCodeDiscountAmount = couponDiscount;
+            }
+        } else if (couponCode.getDiscountType().equals(DiscountTypeEnum.Amount)) {
+            couponCodeDiscountAmount = couponCode.getDiscountValue();
+        }
+        // Increase Coupon Code Used Count
+        couponCode.setUsedCount(couponCode.getUsedCount() + 1);
+        // Update Coupon Detail To Cart
+        cart.setCouponCodeRefDetail(new CouponCode.CouponCodeRef(
+                couponCode.getUuid(), couponCode.getTitle(),
+                couponCode.getCouponCode(), couponCode.getDiscountType()));
+        cart.setCouponDiscountAmount(couponCodeDiscountAmount);
+        return cart;
     }
 
-    @Override
-    public void delete(String uuid) throws BadRequestException {
-
+    private Cart createNewCart() {
+//        SystemUser loggedInCustomer = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        // TODO > Remove this > loggedInCustomer
+        SystemUser loggedInCustomer = systemUserRepository.findAll().get(0);
+        Cart cart = cartRepository.findByCustomerId(loggedInCustomer.getId());
+        if (cart == null) {
+            cart = new Cart();
+            cart.setCustomerId(loggedInCustomer.getId());
+        }
+        cart.setCustomerDetail(new Cart.CustomerRefDetail(
+                loggedInCustomer.getUuid(), loggedInCustomer.getFirstName(),
+                loggedInCustomer.getLastName(), loggedInCustomer.getIsdCode(),
+                loggedInCustomer.getMobile()));
+        return cart;
     }
-
-    @Override
-    public void revive(String uuid) throws BadRequestException {
-
-    }
-
-    @Override
-    public List<KeyValueDto> listInKeyValue() throws BadRequestException {
-        return null;
-    }
-
 }

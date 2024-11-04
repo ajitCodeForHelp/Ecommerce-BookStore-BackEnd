@@ -5,6 +5,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
+import java.time.LocalDate;
 import java.util.List;
 
 public interface CouponCodeRepository extends MongoRepository<CouponCode, ObjectId> {
@@ -13,5 +14,10 @@ public interface CouponCodeRepository extends MongoRepository<CouponCode, Object
 
     List<CouponCode> findByDeleted(boolean deleted);
 
-    List<CouponCode> findByActive(boolean active);
+    @Query(value = "{" +
+            "  'active'  : { '$eq' : true }," +
+            "  'endDate' : { '$lt' : ?0 }" +
+            "}")
+    List<CouponCode> findActiveCouponCodeList(LocalDate localDate);
+
 }

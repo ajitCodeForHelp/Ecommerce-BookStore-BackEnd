@@ -6,11 +6,11 @@ import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.AbstractDto;
 import com.bt.ecommerce.primary.dto.CouponCodeDto;
 import com.bt.ecommerce.primary.mapper.CouponCodeMapper;
-import com.bt.ecommerce.primary.pojo.Category;
 import com.bt.ecommerce.primary.pojo.CouponCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -97,7 +97,8 @@ public class CouponCodeService extends _BaseService implements _BaseServiceImpl 
     }
 
     public List<CouponCodeDto.DetailCoupon> couponListForCustomer() {
-        List<CouponCode> couponCodes = couponCodeRepository.findByActive(true);
+        // Only currently active coupon will be send to the frontend data and later on we will be done
+        List<CouponCode> couponCodes = couponCodeRepository.findActiveCouponCodeList(LocalDate.now());
         return couponCodes.stream().map(CouponCodeMapper.MAPPER::mapToCouponCodeDetailDto).toList();
     }
 

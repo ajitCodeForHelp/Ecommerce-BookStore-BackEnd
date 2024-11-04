@@ -19,22 +19,31 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/customer/v1/cart")
 public class CustomerCartController extends _BaseController {
 
+
     @TranslateResponseMessage
-    @PostMapping("/createCart")
-    public ResponseEntity<ResponsePacket> createCart(@Valid @RequestBody CartDto.CreateCart cart) throws BadRequestException {
-        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+    @GetMapping({"/getCartDetail", "/getCartDetail/{cartUuid}"})
+    public ResponseEntity<ResponsePacket> getCartDetail(@PathVariable(value = "cartUuid", required = false) String cartUuid) throws BadRequestException {
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
-                .message("ecommerce.common.message.save")
-                .responsePacket(cartService.save(cart))
+                .message("ecommerce.common.message.get")
+                .responsePacket(cartService.getCartDetail(cartUuid))
                 .build(), HttpStatus.OK);
     }
+
+//    @TranslateResponseMessage
+//    @PostMapping("/createCart")
+//    public ResponseEntity<ResponsePacket> createCart(@Valid @RequestBody CartDto.UpdateCart cart) throws BadRequestException {
+//        return new ResponseEntity<>(ResponsePacket.builder()
+//                .errorCode(0)
+//                .message("ecommerce.common.message.save")
+//                .responsePacket(cartService.createCart(cart))
+//                .build(), HttpStatus.OK);
+//    }
 
     @TranslateResponseMessage
     @PutMapping("/updateCart/{cartUuid}")
     public ResponseEntity<ResponsePacket> updateCart(@PathVariable("cartUuid") String uuid, @Valid @RequestBody CartDto.UpdateCart cart) throws BadRequestException {
-        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        cartService.update(uuid, cart);
+        cartService.updateCart(uuid, cart);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.update")
@@ -44,8 +53,7 @@ public class CustomerCartController extends _BaseController {
     @TranslateResponseMessage
     @PutMapping("/removeItemFromCart/{cartUuid}/{itemUuid}")
     public ResponseEntity<ResponsePacket> removeItemFromCart(@PathVariable("cartUuid") String cardUuid,
-                                                             @PathVariable("itemUuid") String itemUuid) {
-        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+                                                             @PathVariable("itemUuid") String itemUuid) throws BadRequestException {
         cartService.removeItemFromCart(cardUuid, itemUuid);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
@@ -56,7 +64,6 @@ public class CustomerCartController extends _BaseController {
     @TranslateResponseMessage
     @PutMapping("/clearCart/{cartUuid}")
     public ResponseEntity<ResponsePacket> clearCart(@PathVariable("cartUuid") String cartUuid) {
-        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
         cartService.clearCart(cartUuid);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
@@ -68,8 +75,7 @@ public class CustomerCartController extends _BaseController {
     @PutMapping("/updateItemQuantity/{cartUuid}/{itemUuid}/{itemQuantity}")
     public ResponseEntity<ResponsePacket> updateItemQuantity(@PathVariable("cartUuid") String cartUuid,
                                                              @PathVariable("itemUuid") String itemUuid,
-                                                             @PathVariable("itemQuantity") long itemQuantity) {
-        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+                                                             @PathVariable("itemQuantity") long itemQuantity) throws BadRequestException {
         cartService.updateItemQuantity(cartUuid, itemUuid, itemQuantity);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)

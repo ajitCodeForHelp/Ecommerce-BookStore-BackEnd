@@ -18,11 +18,9 @@ public interface ItemRepository extends MongoRepository<Item, ObjectId> {
             "  '_uuid'  : { '$in' : ?0 }," +
             "}")
     List<Item> findByUuids(List<String> itemUuids);
-    @Query(value = "{" +
-            "  '$or' : [" +
-            "    { 'parentCategoryIds' : { '$in' : [?0] } }," +
-            "    { 'subCategoryIds'    : { '$in' : [?0] } }" +
-            "  ]" +
+    @Query(value = "" +
+            "{" +
+            "  'parentCategoryIds'  : { '$in' : [?0] }," +
             "}")
     List<Item> findByCategoryId(ObjectId categoryId);
 
