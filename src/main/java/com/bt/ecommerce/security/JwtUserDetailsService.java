@@ -1,7 +1,9 @@
 package com.bt.ecommerce.security;
 
 import com.bt.ecommerce.primary.pojo.enums.RoleEnum;
+import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.primary.pojo.user._BaseUser;
+import com.bt.ecommerce.primary.repository.CustomerRepository;
 import com.bt.ecommerce.primary.repository.SystemUserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -19,6 +21,9 @@ public class JwtUserDetailsService implements UserDetailsService {
 
     @Autowired
     protected SystemUserRepository systemUserRepository;
+
+    @Autowired
+    protected CustomerRepository customerRepository;
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
@@ -50,7 +55,10 @@ public class JwtUserDetailsService implements UserDetailsService {
         _BaseUser user = null;
         if (userType.equals(RoleEnum.ROLE_ADMIN.toString()) || userType.equals(RoleEnum.ROLE_SUB_ADMIN.toString())) {
             user = systemUserRepository.findByUuid(userId);
-        } else if (user == null) {
+        }else if(userType.equals(RoleEnum.ROLE_CUSTOMER.toString())){
+            user = customerRepository.findByUuid(userId);
+        }
+        else if (user == null) {
             throw new UsernameNotFoundException("UnAuthorize Access");
         }
         return user;

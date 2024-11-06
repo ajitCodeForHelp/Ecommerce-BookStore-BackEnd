@@ -15,6 +15,7 @@ public class _BaseService {
     @Autowired protected AddressRepository addressRepository;
     @Autowired protected EcommerceJsonRepository ecommerceJsonRepository;
     @Autowired protected CouponCodeRepository couponCodeRepository;
+    @Autowired protected CustomerRepository customerRepository;
     @Autowired protected BannerRepository bannerRepository;
     @Autowired protected OrderRepository orderRepository;
 

@@ -1,6 +1,5 @@
 package com.bt.ecommerce.primary.mapper;
 
-import com.bt.ecommerce.primary.dto.AbstractDto;
 import com.bt.ecommerce.primary.dto.CouponCodeDto;
 import com.bt.ecommerce.primary.pojo.CouponCode;
 import org.mapstruct.Mapper;

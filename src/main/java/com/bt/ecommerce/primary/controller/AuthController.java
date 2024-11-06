@@ -31,4 +31,16 @@ public class AuthController extends _BaseController {
                 .build(), HttpStatus.OK);
     }
 
+    @TranslateResponseMessage
+    @PostMapping("/customer-login")
+    public ResponseEntity<ResponsePacket> customerLogin(HttpServletRequest request, @Valid @RequestBody AuthDto.CustomerLogin login)
+            throws BadRequestException {
+        AuthDto.UserDetails userCustomerDetails = authService.loginCustomer(login.getUserName(), login.getPassword(), request.getRemoteAddr());
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.login")
+                .responsePacket(userCustomerDetails)
+                .build(), HttpStatus.OK);
+    }
+
 }
