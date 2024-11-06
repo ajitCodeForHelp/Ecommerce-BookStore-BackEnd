@@ -16,7 +16,8 @@ public class ItemDto extends AbstractDto{
     @Setter
     @Getter
     public static class SaveItem extends Save {
-        @NotNull private List<String> categoryUuids;
+        @NotNull private List<String> parentCategoryUuids;
+        private List<String> subCategoryUuids;
 
         @NotNull private String title;
         private String description;
@@ -30,7 +31,8 @@ public class ItemDto extends AbstractDto{
     @Setter
     @Getter
     public static class UpdateItem extends Update {
-        @NotNull private List<String> categoryUuids;
+        @NotNull private List<String> parentCategoryUuids;
+        private List<String> subCategoryUuids;
 
         @NotNull private String title;
         private String description;
@@ -62,8 +64,5 @@ public class ItemDto extends AbstractDto{
     public static class GetList extends _BasePageRequest {
         private String search;
     }
-
-
-
 
 }

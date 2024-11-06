@@ -14,8 +14,10 @@ import java.util.List;
 @Document(value = "item")
 public class Item extends _BasicEntity {
 
-    private List<ObjectId> categoryIds = new ArrayList<>();
-    private List<BasicParent> categoryDetails = new ArrayList<>();
+    private List<ObjectId> parentCategoryIds = new ArrayList<>();
+    private List<BasicParent> parentCategoryDetails = new ArrayList<>();
+    private List<ObjectId> subCategoryIds = new ArrayList<>();
+    private List<BasicParent> subCategoryDetails = new ArrayList<>();
 
 
     private String title;

@@ -30,7 +30,7 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
     public String save(AbstractDto.Save save) throws BadRequestException {
         ItemDto.SaveItem saveItemDto = (ItemDto.SaveItem) save;
         Item item = ItemMapper.MAPPER.mapToPojo(saveItemDto);
-        item = updateItemCategory(item, saveItemDto.getCategoryUuids());
+        item = updateItemCategory(item, saveItemDto.getParentCategoryUuids(), saveItemDto.getSubCategoryUuids());
         item = itemRepository.save(item);
         SpringBeanContext.getBean(EcommerceDataService.class).generateEcommerceDefaultData();
         return item.getUuid();
@@ -41,21 +41,33 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
         ItemDto.UpdateItem updateItemDto = (ItemDto.UpdateItem) update;
         Item item = findByUuid(uuid);
         item = ItemMapper.MAPPER.mapToPojo(item, updateItemDto);
-        item = updateItemCategory(item, updateItemDto.getCategoryUuids());
+        item = updateItemCategory(item, updateItemDto.getParentCategoryUuids(), updateItemDto.getSubCategoryUuids());
         itemRepository.save(item);
         SpringBeanContext.getBean(EcommerceDataService.class).generateEcommerceDefaultData();
     }
-    private Item updateItemCategory(Item item, List<String> categoryUuids) throws BadRequestException {
-        if (!TextUtils.isEmpty(categoryUuids)) {
-            List<Category> categoryList = categoryRepository.findByUuids(categoryUuids);
+    private Item updateItemCategory(Item item, List<String> parentCategoryUuids, List<String> subCategoryUuids) throws BadRequestException {
+        if (!TextUtils.isEmpty(parentCategoryUuids)) {
+            List<Category> categoryList = categoryRepository.findByUuids(parentCategoryUuids);
             if (categoryList == null || categoryList.isEmpty()) {
                 throw new BadRequestException("ecommerce.common.message.record_not_exist");
             }
-            item.setCategoryIds(categoryList.stream()
+            item.setParentCategoryIds(categoryList.stream()
                     .map(category -> category.getId())
                     .collect(Collectors.toList()));
-            item.setCategoryDetails(categoryList.stream()
+            item.setParentCategoryDetails(categoryList.stream()
                     .map(category -> new BasicParent(category.getUuid(), category.getTitle()))
+                    .collect(Collectors.toList()));
+        }
+        if (!TextUtils.isEmpty(subCategoryUuids)) {
+            List<Category> subCategoryList = categoryRepository.findByUuids(subCategoryUuids);
+            if (subCategoryList == null || subCategoryList.isEmpty()) {
+                throw new BadRequestException("ecommerce.common.message.record_not_exist");
+            }
+            item.setSubCategoryIds(subCategoryList.stream()
+                    .map(category -> category.getId())
+                    .collect(Collectors.toList()));
+            item.setSubCategoryDetails(subCategoryList.stream()
+                    .map(subCategory -> new BasicParent(subCategory.getUuid(), subCategory.getTitle()))
                     .collect(Collectors.toList()));
         }
         return item;
