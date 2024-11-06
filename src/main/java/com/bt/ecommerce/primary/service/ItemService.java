@@ -135,15 +135,17 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
     @Override
     public void delete(String uuid) throws BadRequestException {
         Item item = findByUuid(uuid);
-        itemRepository.delete(item);
+        item.setDeleted(true);
+        item.setActive(false);
+        itemRepository.save(item);
     }
 
     @Override
     public void revive(String uuid) throws BadRequestException {
-//        Item item = findByUuid(uuid);
-//        item.setDeleted(false);
-//        item.setModifiedAt(LocalDateTime.now());
-//        itemRepository.save(item);
+        Item item = findByUuid(uuid);
+        item.setDeleted(false);
+        item.setModifiedAt(LocalDateTime.now());
+        itemRepository.save(item);
     }
 
     public List<KeyValueDto> listInKeyValue() {

@@ -138,18 +138,18 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
     @Override
     public void delete(String uuid) throws BadRequestException {
         Category category = findByUuid(uuid);
-//        category.setDeleted(true);
-//        category.setActive(false);
-//        category.setModifiedAt(LocalDateTime.now());
-        categoryRepository.delete(category);
+        category.setDeleted(true);
+        category.setActive(false);
+        category.setModifiedAt(LocalDateTime.now());
+        categoryRepository.save(category);
     }
 
     @Override
     public void revive(String uuid) throws BadRequestException {
-//        Category category = findByUuid(uuid);
-//        category.setDeleted(false);
-//        category.setModifiedAt(LocalDateTime.now());
-//        categoryRepository.save(category);
+        Category category = findByUuid(uuid);
+        category.setDeleted(false);
+        category.setModifiedAt(LocalDateTime.now());
+        categoryRepository.save(category);
     }
 
     public List<KeyValueDto> listInKeyValue() {

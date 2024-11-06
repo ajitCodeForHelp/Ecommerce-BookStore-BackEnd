@@ -6,6 +6,7 @@ import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.AbstractDto;
 import com.bt.ecommerce.primary.dto.CouponCodeDto;
 import com.bt.ecommerce.primary.mapper.CouponCodeMapper;
+import com.bt.ecommerce.primary.pojo.Banner;
 import com.bt.ecommerce.primary.pojo.CouponCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -78,12 +79,17 @@ public class CouponCodeService extends _BaseService implements _BaseServiceImpl 
     @Override
     public void delete(String uuid) throws BadRequestException {
         CouponCode couponCode = findByUuid(uuid);
-        couponCodeRepository.delete(couponCode);
+        couponCode.setActive(false);
+        couponCode.setActive(true);
+        couponCodeRepository.save(couponCode);
     }
 
     @Override
     public void revive(String uuid) throws BadRequestException {
-
+        CouponCode couponCode = findByUuid(uuid);
+        couponCode.setDeleted(false);
+        couponCode.setModifiedAt(LocalDateTime.now());
+        couponCodeRepository.save(couponCode);
     }
 
     @Override
