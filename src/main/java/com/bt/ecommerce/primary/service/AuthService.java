@@ -43,13 +43,13 @@ public class AuthService extends _BaseService {
         return generateAuthTokenAndGetUserDetails(userAdmin, ipAddress);
     }
 
-//    public AuthDto.UserDetails loginCustomer(String userName, String password, String ipAddress) throws BadRequestException {
-//        Customer userCustomer = findByCustomerUsername(userName);
-//        validateUser(userCustomer, password);
-//        userCustomer.setLastLogin(LocalDateTime.now());
-//        customerRepository.save(userCustomer);
-//        return generateAuthTokenAndGetUserDetails(userCustomer, ipAddress);
-//    }
+    public AuthDto.UserDetails loginCustomer(String userName, String password, String ipAddress) throws BadRequestException {
+        Customer userCustomer = findByCustomerUsername(userName);
+        validateUser(userCustomer, password);
+        userCustomer.setLastLogin(LocalDateTime.now());
+        customerRepository.save(userCustomer);
+        return generateAuthTokenAndGetUserDetails(userCustomer, ipAddress);
+    }
 
     private void validateUser(_BaseUser user, String password) throws BadRequestException {
         if (!user.isActive() || user.isDeleted()) {
