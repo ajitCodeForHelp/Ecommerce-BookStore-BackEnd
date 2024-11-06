@@ -36,4 +36,14 @@ public class EcommerceController extends _BaseController {
                 .build(), HttpStatus.OK);
     }
 
+    @TranslateResponseMessage
+    @GetMapping("/commit-revert-testing")
+    protected ResponseEntity<ResponsePacket> commitRevertTest() {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.homepage_data")
+                .responsePacket(ecommerceService.getHomepageData())
+                .build(), HttpStatus.OK);
+    }
+
 }
