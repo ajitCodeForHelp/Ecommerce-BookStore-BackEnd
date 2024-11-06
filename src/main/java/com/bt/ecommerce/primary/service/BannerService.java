@@ -83,18 +83,18 @@ public class BannerService extends _BaseService implements _BaseServiceImpl {
     @Override
     public void delete(String uuid) throws BadRequestException {
         Banner banner = findByUuid(uuid);
-        banner.setDeleted(true);
-        banner.setActive(false);
-        banner.setModifiedAt(LocalDateTime.now());
-        bannerRepository.save(banner);
+//        banner.setDeleted(true);
+//        banner.setActive(false);
+//        banner.setModifiedAt(LocalDateTime.now());
+        bannerRepository.delete(banner);
     }
 
     @Override
     public void revive(String uuid) throws BadRequestException {
-        Banner banner = findByUuid(uuid);
-        banner.setDeleted(false);
-        banner.setModifiedAt(LocalDateTime.now());
-        bannerRepository.save(banner);
+//        Banner banner = findByUuid(uuid);
+//        banner.setDeleted(false);
+//        banner.setModifiedAt(LocalDateTime.now());
+//        bannerRepository.save(banner);
     }
 
     @Override

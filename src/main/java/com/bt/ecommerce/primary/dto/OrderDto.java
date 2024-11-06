@@ -2,6 +2,8 @@ package com.bt.ecommerce.primary.dto;
 
 import com.bt.ecommerce.primary.pojo.Cart;
 import com.bt.ecommerce.primary.pojo.CouponCode;
+import com.bt.ecommerce.primary.pojo.enums.DeliveryStatusEnum;
+import com.bt.ecommerce.primary.pojo.enums.PaymentStatusEnum;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,19 +14,16 @@ import java.util.List;
 @Getter
 @Setter
 @NoArgsConstructor
-public class CartDto extends AbstractDto{
+public class OrderDto extends AbstractDto{
 
     @Getter
     @Setter
-    public static class UpdateCart {
-        private String addressUuid;
-        private String itemUuid;
-        private String couponCodeUuid;
-    }
+    public static class DetailOrder {
+        private Long invoiceNumber;
+        private String orderId;
+        private DeliveryStatusEnum deliveryStatus;
+        private PaymentStatusEnum paymentStatus;
 
-    @Getter
-    @Setter
-    public static class DetailCart extends Detail{
         private Cart.CustomerRefDetail customerDetail;
         private Cart.CustomerAddressDetail customerAddressDetail;
         private List<Cart.ItemDetail> itemDetailList = new ArrayList<>();

@@ -1,11 +1,15 @@
 package com.bt.ecommerce.primary.pojo;
 
+import com.bt.ecommerce.primary.dto.CouponCodeDto;
 import com.bt.ecommerce.primary.pojo.common.BasicParent;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -13,21 +17,29 @@ import java.util.List;
 @Document(value = "cart")
 public class Cart extends _BasicEntity {
 
-    private CustomerDetail customerDetail;
+    private ObjectId customerId;
+    private CustomerRefDetail customerDetail;
     private CustomerAddressDetail customerAddressDetail;
 
-    private List<ItemDetail> itemDetailList;
+    private List<ObjectId> itemIds = new ArrayList<>();
+    private List<ItemDetail> itemDetailList = new ArrayList<>();
 
-    private double subTotal;
-    private double couponDiscountAmount;
-    private double orderTotal;
+    private double subTotal = 0.0;
+
+    private ObjectId couponCodeId;
+    private CouponCode.CouponCodeRef couponCodeRefDetail;
+    private double couponDiscountAmount = 0.0;
+    private double packingCharges = 0.0;
+    private double deliveryCharges = 0.0;
+    private double orderTotal = 0.0;
 
 
     @Setter
     @Getter
-    public static class CustomerDetail {
-        // TODO > modify this later on
-        private ObjectId userCustomerId;
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class CustomerRefDetail {
+        private String userCustomerUuid;
         private String userCustomerFirstName;
         private String userCustomerLastName;
         private String userCustomerIsdCode;
@@ -46,7 +58,7 @@ public class Cart extends _BasicEntity {
         private double sellingPrice; /// use for calculation
         private List<String> itemImageUrls;
 
-        private Long quantity;
+        private Long quantity = 1L;
         private double itemTotal;
     }
 
