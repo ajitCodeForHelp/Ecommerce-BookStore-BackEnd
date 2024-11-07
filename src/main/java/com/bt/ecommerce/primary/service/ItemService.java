@@ -159,6 +159,13 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
         itemRepository.save(item);
     }
 
+    public void updateStockOut(String uuid) throws BadRequestException {
+        Item item = findByUuid(uuid);
+        item.setStockOut(!item.isStockOut());
+        item.setModifiedAt(LocalDateTime.now());
+        itemRepository.save(item);
+    }
+
     public List<KeyValueDto> listInKeyValue() {
         List<Item> itemList = itemRepository.findByActiveAndDeleted();
         return itemList.stream()

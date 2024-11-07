@@ -39,7 +39,7 @@ public class SystemUserService extends _BaseService implements _BaseServiceImpl 
         if (checkUserExistWithEmail(saveStaffDto.getEmail())) {
             throw new BadRequestException("kpis_food.common.message.email_already_exist");
         }
-        staff.setParentAdminId(loggedInUser.getParentAdminId());
+        staff.setParentAdminId(loggedInUser.getId());
         staff.setParentAdminDetail(new BasicParent(loggedInUser.getUuid(), loggedInUser.fullName()));
 
         staff.setEmail(saveStaffDto.getEmail());

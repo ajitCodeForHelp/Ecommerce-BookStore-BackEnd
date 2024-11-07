@@ -10,6 +10,7 @@ import com.bt.ecommerce.primary.pojo.*;
 import com.bt.ecommerce.primary.pojo.enums.DiscountTypeEnum;
 import com.bt.ecommerce.primary.pojo.user.SystemUser;
 import com.bt.ecommerce.primary.repository.SequenceRepository;
+import com.bt.ecommerce.security.JwtUserDetailsService;
 import com.bt.ecommerce.utils.ProjectConst;
 import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -25,30 +26,18 @@ import java.util.stream.Collectors;
 @Service
 public class CartService extends _BaseService {
 
-    public CartDto.DetailCart getCartDetail(String cartUuid) throws BadRequestException {
-        Cart cart = null;
-        if (!TextUtils.isEmpty(cartUuid)) {
-            cart = cartRepository.findByUuid(cartUuid);
-        }
+    public CartDto.DetailCart getCartDetail(String deviceId) throws BadRequestException {
+        Cart cart = getCartByDeviceId(deviceId);
         if (cart == null) {
-            cart = createNewCart();
+            cart = createNewCart(deviceId);
         }
         cart = cartPriceCalculation(cart);
         return CartMapper.MAPPER.mapToDetailCartDto(cart);
     }
-
-//    public String createCart(CartDto.UpdateCart cartDto) throws BadRequestException {
-//        Cart cart = createNewCart();
-//        cart = mapToCartItem(cart, cartDto);
-//        cartPriceCalculation(cart);
-//        cartRepository.save(cart);
-//        return cart.getUuid();
-//    }
-
-    public void updateCart(String uuid, CartDto.UpdateCart cartDto) throws BadRequestException {
+    public void updateCart(String deviceId, String uuid, CartDto.UpdateCart cartDto) throws BadRequestException {
         Cart cart = cartRepository.findByUuid(uuid);
         if (cart == null) {
-            cart = createNewCart();
+            cart = createNewCart(deviceId);
         }
         cart = mapToCartItem(cart, cartDto);
         cart = cartPriceCalculation(cart);
@@ -213,13 +202,32 @@ public class CartService extends _BaseService {
         return cart;
     }
 
-    private Cart createNewCart() {
-//        SystemUser loggedInCustomer = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        SystemUser loggedInCustomer = systemUserRepository.findAll().get(0);
-        Cart cart = cartRepository.findByCustomerId(loggedInCustomer.getId());
-        if (cart == null) {
+    private Cart createNewCart(String deviceId) throws BadRequestException {
+        SystemUser loggedInCustomer = null;
+        Cart cart = null;
+        try {
+            loggedInCustomer = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+            loggedInCustomer = systemUserRepository.findAll().get(0);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (!TextUtils.isEmpty(deviceId)) {
+            cart = cartRepository.findByDeviceId(deviceId);
+        }
+        if (cart == null && loggedInCustomer != null) {
+            cart = cartRepository.findByCustomerId(loggedInCustomer.getId());
+        }
+        if (cart == null && (!TextUtils.isEmpty(deviceId) || loggedInCustomer != null)) {
             cart = new Cart();
-            cart.setCustomerId(loggedInCustomer.getId());
+            if (!TextUtils.isEmpty(deviceId)) {
+                cart.setDeviceId(deviceId);
+            }
+            if (loggedInCustomer != null) {
+                cart.setCustomerId(loggedInCustomer.getId());
+            }
+        }
+        if (cart == null) {
+            throw new BadRequestException("Invalid DeviceId Provided And Authorization");
         }
         cart.setCustomerDetail(new Cart.CustomerRefDetail(
                 loggedInCustomer.getUuid(), loggedInCustomer.getFirstName(),
@@ -248,10 +256,38 @@ public class CartService extends _BaseService {
         return order.getOrderId();
     }
 
+    public long getCartCount() {
+        return cartRepository.count();
+    }
+
     public List<CartDto.DetailCart> getCartList() throws BadRequestException {
         List<Cart> cartList = cartRepository.findAll();
         return cartList.stream()
                 .map(cart -> CartMapper.MAPPER.mapToDetailCartDto(cart))
                 .collect(Collectors.toList());
     }
+
+    public long getCartItemCount(String deviceId) {
+        Cart cart = getCartByDeviceId(deviceId);
+        if (cart == null) return 0;
+        return cart.getItemDetailList().size();
+    }
+
+    private Cart getCartByDeviceId(String deviceId) {
+        SystemUser loggedInCustomer = null;
+        Cart cart = null;
+        try {
+            loggedInCustomer = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        if (!TextUtils.isEmpty(deviceId)) {
+            cart = cartRepository.findByDeviceId(deviceId);
+        }
+        if (cart == null && loggedInCustomer != null) {
+            cart = cartRepository.findByCustomerId(loggedInCustomer.getId());
+        }
+        return cart;
+    }
+
 }

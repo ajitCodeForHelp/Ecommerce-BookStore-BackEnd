@@ -1,13 +1,13 @@
 package com.bt.ecommerce.primary.pojo.enums;
 
-public enum PaymentStatusEnum {
-    PENDING("PENDING"),
-    FAILED("FAILED"),
-    SUCCESS("SUCCESS"),
+public enum PaymentTypeEnum {
+    CASH_ON_DELIVERY("CASH_ON_DELIVERY"),
+    UPI("UPI"),
+    ONLINE("ONLINE"),
     ;
     String type;
 
-    PaymentStatusEnum(String type) {
+    PaymentTypeEnum(String type) {
         this.type = type;
     }
 
