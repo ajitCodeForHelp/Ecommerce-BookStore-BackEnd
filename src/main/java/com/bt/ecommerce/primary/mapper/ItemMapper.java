@@ -28,5 +28,6 @@ public interface ItemMapper {
     @Mapping(expression = "java(item.getTitle())", target = "label")
     KeyValueDto mapToKeyPairDto(Item item);
 
+    @Mapping(expression = "java(item.getUuid())", target = "itemUuid")
     Cart.ItemDetail mapToCartItem(Item item);
 }
