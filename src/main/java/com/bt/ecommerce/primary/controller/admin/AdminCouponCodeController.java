@@ -54,13 +54,13 @@ public class AdminCouponCodeController extends _BaseController {
     }
 
     @TranslateResponseMessage
-    @GetMapping("/list")
-    protected ResponseEntity<ResponsePacket> listData() throws BadRequestException {
+    @GetMapping("/list/{data}")
+    protected ResponseEntity<ResponsePacket> listData(@PathVariable("data") String data) throws BadRequestException {
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.get_all")
-                .responsePacket(couponCodeService.couponList())
+                .responsePacket(couponCodeService.couponList(data))
                 .build(), HttpStatus.OK);
     }
 

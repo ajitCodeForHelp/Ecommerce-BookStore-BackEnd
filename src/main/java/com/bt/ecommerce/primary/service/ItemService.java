@@ -45,6 +45,7 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
         itemRepository.save(item);
         SpringBeanContext.getBean(EcommerceDataService.class).generateEcommerceDefaultData();
     }
+
     private Item updateItemCategory(Item item, List<String> parentCategoryUuids, List<String> subCategoryUuids) throws BadRequestException {
         if (!TextUtils.isEmpty(parentCategoryUuids)) {
             List<Category> categoryList = categoryRepository.findByUuids(parentCategoryUuids);
@@ -109,8 +110,18 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
                 .collect(Collectors.toList()));
     }
 
-    public List<ItemDto.DetailItem> listData() {
-        List<Item> list = itemRepository.findAll();
+    public List<ItemDto.DetailItem> listData(String data) {
+        // Data >  Active | Inactive | Deleted | All
+        List<Item> list = null;
+        if (data.equals("Active")) {
+            list = itemRepository.findByActiveAndDeleted(true, false);
+        } else if (data.equals("Inactive")) {
+            list = itemRepository.findByActiveAndDeleted(false, false);
+        } else if (data.equals("Deleted")) {
+            list = itemRepository.findByDeleted(true);
+        } else {
+            list = itemRepository.findAll();
+        }
         return list.stream()
                 .map(item -> ItemMapper.MAPPER.mapToDetailDto(item))
                 .collect(Collectors.toList());

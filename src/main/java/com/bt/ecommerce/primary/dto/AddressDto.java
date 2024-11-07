@@ -1,5 +1,6 @@
 package com.bt.ecommerce.primary.dto;
 
+import com.bt.ecommerce.primary.pojo.common.BasicParent;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -47,7 +48,7 @@ public class AddressDto extends AbstractDto{
     @Getter
     @Setter
     public static class DetailAddress extends Detail{
-        private String customerUuid;
+        private BasicParent customerDetail;
         private Double latitude;
         private Double longitude;
         private String addressLine1;

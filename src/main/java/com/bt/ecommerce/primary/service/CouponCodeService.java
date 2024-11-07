@@ -6,7 +6,6 @@ import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.AbstractDto;
 import com.bt.ecommerce.primary.dto.CouponCodeDto;
 import com.bt.ecommerce.primary.mapper.CouponCodeMapper;
-import com.bt.ecommerce.primary.pojo.Banner;
 import com.bt.ecommerce.primary.pojo.CouponCode;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -97,9 +96,19 @@ public class CouponCodeService extends _BaseService implements _BaseServiceImpl 
         return null;
     }
 
-    public List<CouponCodeDto.DetailCoupon> couponList() {
-        List<CouponCode> couponCodes = couponCodeRepository.findByDeleted(false);
-        return couponCodes.stream().map(CouponCodeMapper.MAPPER::mapToCouponCodeDetailDto).toList();
+    public List<CouponCodeDto.DetailCoupon> couponList(String data) {
+        // Data >  Active | Inactive | Deleted | All
+        List<CouponCode> list = null;
+        if (data.equals("Active")) {
+            list = couponCodeRepository.findByActiveAndDeleted(true, false);
+        } else if (data.equals("Inactive")) {
+            list = couponCodeRepository.findByActiveAndDeleted(false, false);
+        } else if (data.equals("Deleted")) {
+            list = couponCodeRepository.findByDeleted(true);
+        } else {
+            list = couponCodeRepository.findAll();
+        }
+        return list.stream().map(CouponCodeMapper.MAPPER::mapToCouponCodeDetailDto).toList();
     }
 
     public List<CouponCodeDto.DetailCoupon> couponListForCustomer() {

@@ -6,7 +6,6 @@ import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.controller._BaseController;
 import com.bt.ecommerce.primary.dto.AddressDto;
-import com.bt.ecommerce.primary.dto.CouponCodeDto;
 import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.security.JwtUserDetailsService;
 import jakarta.validation.Valid;
@@ -55,13 +54,12 @@ public class CustomerAddressController extends _BaseController {
     }
 
     @TranslateResponseMessage
-    @GetMapping("/list")
-    protected ResponseEntity<ResponsePacket> listData() throws BadRequestException {
-        Customer loggedInUser = (Customer) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+    @GetMapping("/list/{data}")
+    protected ResponseEntity<ResponsePacket> listData(@PathVariable("data") String data) throws BadRequestException {
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.get_all")
-                .responsePacket(addressService.listAllCustomerAddress(loggedInUser))
+                .responsePacket(addressService.listAllCustomerAddress(data))
                 .build(), HttpStatus.OK);
     }
 

@@ -56,8 +56,18 @@ public class BannerService extends _BaseService implements _BaseServiceImpl {
                 .collect(Collectors.toList()));
     }
 
-    public List<BannerDto.DetailBanner> list() {
-        List<Banner> list = bannerRepository.findAll();
+    public List<BannerDto.DetailBanner> list(String data) {
+        // Data >  Active | Inactive | Deleted | All
+        List<Banner> list = null;
+        if (data.equals("Active")) {
+            list = bannerRepository.findByActiveAndDeleted(true, false);
+        } else if (data.equals("Inactive")) {
+            list = bannerRepository.findByActiveAndDeleted(false, false);
+        } else if (data.equals("Deleted")) {
+            list = bannerRepository.findByDeleted(true);
+        } else {
+            list = bannerRepository.findAll();
+        }
         return list.stream()
                 .map(banner -> BannerMapper.MAPPER.mapToPojo(banner))
                 .collect(Collectors.toList());

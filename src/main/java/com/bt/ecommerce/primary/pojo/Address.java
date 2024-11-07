@@ -1,21 +1,20 @@
 package com.bt.ecommerce.primary.pojo;
 
 
+import com.bt.ecommerce.primary.pojo.common.BasicParent;
 import com.bt.ecommerce.utils.TextUtils;
 import lombok.Getter;
 import lombok.Setter;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
-import org.springframework.data.mongodb.core.mapping.Field;
 
 @Setter
 @Getter
 @Document(value = "address")
 public class Address extends _BasicEntity {
 
-//    private String parentUuid;
-//    private String parentTable;
-
-    private String customerUuid;
+    private ObjectId customerId;
+    private BasicParent customerDetail;
 
     private Double latitude;
     private Double longitude;
@@ -48,10 +47,4 @@ public class Address extends _BasicEntity {
                 (!TextUtils.isEmpty(pinCode) ? "(" + pinCode + ")" : "");
     }
 
-//    @Transient
-//    private LocalCountry localCountry;
-//    @Transient
-//    private LocalState localState;
-//    @Transient
-//    private LocalCity localCity;
 }

@@ -82,6 +82,24 @@ public class SystemUserService extends _BaseService implements _BaseServiceImpl 
         return SystemUserMapper.MAPPER.mapToDetailDto(staff);
     }
 
+    public List<StaffDto.DetailStaff> listData(String data) {
+        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        // Data >  Active | Inactive | Deleted | All
+        List<SystemUser> list = null;
+        if(data.equals("Active")){
+            list = systemUserRepository.findByParentAdminIdAndActiveAndDeleted(loggedInUser.getId(), true, false);
+        } else if (data.equals("Inactive")) {
+            list = systemUserRepository.findByParentAdminIdAndActiveAndDeleted(loggedInUser.getId(), false, false);
+        } else if (data.equals("Deleted")) {
+            list = systemUserRepository.findByParentAdminIdAndDeleted(loggedInUser.getId(), true);
+        } else {
+            list = systemUserRepository.findAll();
+        }
+        return list.stream()
+                .map(staff -> SystemUserMapper.MAPPER.mapToDetailDto(staff))
+                .collect(Collectors.toList());
+    }
+
     @Override
     public DataTableResponsePacket list(Boolean deleted, Integer pageNumber, Integer pageSize, String search) {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
@@ -175,6 +193,4 @@ public class SystemUserService extends _BaseService implements _BaseServiceImpl 
     public void save(SystemUser userAdmin) {
         systemUserRepository.save(userAdmin);
     }
-
-
 }

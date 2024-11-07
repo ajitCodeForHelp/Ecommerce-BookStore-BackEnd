@@ -18,6 +18,7 @@ public interface ItemRepository extends MongoRepository<Item, ObjectId> {
             "  '_uuid'  : { '$in' : ?0 }," +
             "}")
     List<Item> findByUuids(List<String> itemUuids);
+
     @Query(value = "" +
             "{" +
             "  'parentCategoryIds'  : { '$in' : [?0] }," +
@@ -30,6 +31,19 @@ public interface ItemRepository extends MongoRepository<Item, ObjectId> {
             "  'deleted' : { '$eq' : false }," +
             "}")
     List<Item> findByActiveAndDeleted();
+
+    @Query(value = "" +
+            "{" +
+            "  'active'  : { '$eq' : ?0 }," +
+            "  'deleted' : { '$eq' : ?1 }," +
+            "}")
+    List<Item> findByActiveAndDeleted(boolean active, boolean deleted);
+
+    @Query(value = "" +
+            "{" +
+            "  'deleted' : { '$eq' : ?0 }," +
+            "}")
+    List<Item> findByDeleted(boolean deleted);
 
     @Query(value = "" +
             "{" +

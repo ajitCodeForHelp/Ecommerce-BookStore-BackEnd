@@ -2,12 +2,14 @@ package com.bt.ecommerce.primary.service;
 
 import com.bt.ecommerce.bean.DataTableResponsePacket;
 import com.bt.ecommerce.bean.KeyValueDto;
+import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.AbstractDto;
 import com.bt.ecommerce.primary.dto.AddressDto;
 import com.bt.ecommerce.primary.mapper.AddressMapper;
 import com.bt.ecommerce.primary.pojo.Address;
 import com.bt.ecommerce.primary.pojo.user.Customer;
+import com.bt.ecommerce.security.JwtUserDetailsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -16,7 +18,7 @@ import java.util.List;
 
 @Slf4j
 @Service
-public class AddressService extends _BaseService implements _BaseServiceImpl{
+public class AddressService extends _BaseService implements _BaseServiceImpl {
     @Override
     public String save(AbstractDto.Save saveDto) throws BadRequestException {
         AddressDto.SaveAddress saveAddress = (AddressDto.SaveAddress) saveDto;
@@ -90,9 +92,21 @@ public class AddressService extends _BaseService implements _BaseServiceImpl{
         return null;
     }
 
-    public List<AddressDto.DetailAddress> listAllCustomerAddress(Customer loggedInUser) {
-        List<Address> addresses = addressRepository.findByCustomerUuidAndActive(loggedInUser.getUuid(), true);
-        return addresses.stream().map(AddressMapper.MAPPER::mapToDetailAddress).toList();
+    public List<AddressDto.DetailAddress> listAllCustomerAddress(String data) {
+        Customer loggedInUser = (Customer) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        // Data >  Active | Inactive | Deleted | All
+        List<Address> list = null;
+        if (data.equals("Active")) {
+            list = addressRepository.findByCustomerIdAndActiveAndDeleted(loggedInUser.getId(), true, false);
+        } else if (data.equals("Inactive")) {
+            list = addressRepository.findByCustomerIdAndActiveAndDeleted(loggedInUser.getId(), false, false);
+        } else if (data.equals("Deleted")) {
+            list = addressRepository.findByCustomerIdAndDeleted(loggedInUser.getId(), true);
+        } else {
+            list = addressRepository.findByCustomerId(loggedInUser.getId());
+        }
+        return list.stream()
+                .map(AddressMapper.MAPPER::mapToDetailAddress).toList();
     }
 
     private Address findByUuid(String uuid) throws BadRequestException {
