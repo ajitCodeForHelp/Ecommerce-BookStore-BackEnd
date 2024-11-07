@@ -2,18 +2,12 @@ package com.bt.ecommerce.primary.service;
 
 import com.bt.ecommerce.bean.DataTableResponsePacket;
 import com.bt.ecommerce.bean.KeyValueDto;
-import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.AbstractDto;
 import com.bt.ecommerce.primary.dto.CustomerDto;
-import com.bt.ecommerce.primary.dto.StaffDto;
 import com.bt.ecommerce.primary.mapper.CustomerMapper;
-import com.bt.ecommerce.primary.mapper.SystemUserMapper;
-import com.bt.ecommerce.primary.pojo.common.BasicParent;
 import com.bt.ecommerce.primary.pojo.enums.RoleEnum;
 import com.bt.ecommerce.primary.pojo.user.Customer;
-import com.bt.ecommerce.primary.pojo.user.SystemUser;
-import com.bt.ecommerce.security.JwtUserDetailsService;
 import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -146,5 +140,22 @@ public class CustomerService extends _BaseService implements _BaseServiceImpl {
     @Override
     public List<KeyValueDto> listInKeyValue() throws BadRequestException {
         return null;
+    }
+
+    public List<CustomerDto.DetailCustomer> listData(String data) {
+        // Data >  Active | Inactive | Deleted | All
+        List<Customer> list = null;
+        if (data.equals("Active")) {
+            list = customerRepository.findByActiveAndDeleted(true, false);
+        } else if (data.equals("Inactive")) {
+            list = customerRepository.findByActiveAndDeleted(false, false);
+        } else if (data.equals("Deleted")) {
+            list = customerRepository.findByDeleted(true);
+        } else {
+            list = customerRepository.findAll();
+        }
+        return list.stream()
+                .map(customer -> CustomerMapper.MAPPER.mapToDetailDto(customer))
+                .collect(Collectors.toList());
     }
 }

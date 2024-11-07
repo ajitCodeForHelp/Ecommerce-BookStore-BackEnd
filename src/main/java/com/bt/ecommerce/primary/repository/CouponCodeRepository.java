@@ -20,4 +20,5 @@ public interface CouponCodeRepository extends MongoRepository<CouponCode, Object
             "}")
     List<CouponCode> findActiveCouponCodeList(LocalDate localDate);
 
+    List<CouponCode> findByActiveAndDeleted(boolean active, boolean deleted);
 }

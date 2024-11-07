@@ -12,11 +12,13 @@ import java.util.List;
 public interface CategoryRepository extends MongoRepository<Category, ObjectId> {
 
     Category findByUuid(String uuid);
+
     @Query(value = "" +
             "{" +
             "  '_uuid'  : { '$in' : ?0 }," +
             "}")
     List<Category> findByUuids(List<String> uuids);
+
     @Query(value = "" +
             "{" +
             "  '_id'  : { '$in' : ?0 }," +
@@ -35,6 +37,7 @@ public interface CategoryRepository extends MongoRepository<Category, ObjectId> 
             "  'deleted' : { '$eq' : false }" +
             "}")
     List<Category> findByAllCategory();
+
     @Query(value = "" +
             "{" +
             "  'active'  : { '$eq' : true }," +
@@ -71,6 +74,15 @@ public interface CategoryRepository extends MongoRepository<Category, ObjectId> 
     )
     Page<Category> findByDeleted(boolean deleted, String search, Pageable pageable);
 
+    List<Category> findByDeleted(boolean deleted);
+
+    @Query(value = "" +
+            "{" +
+            "  'deleted'  : { '$eq' : ?0 }," +
+            "  'displayCategory'  : { '$eq' : true }," +
+            "}")
+    List<Category> findByDeletedForDisplay(boolean deleted);
+
     @Query(value = "{ " +
             "   $and : [" +
             "       { deleted  : { $eq : ?0} }," +
@@ -94,4 +106,20 @@ public interface CategoryRepository extends MongoRepository<Category, ObjectId> 
             "   { displayCategory  : { $ne : true} }," +
             "}")
     List<Category> findByCategory();
+
+    @Query(value = "" +
+            "{" +
+            "  'active'  : { '$eq' : ?0 }," +
+            "  'deleted' : { '$eq' : ?1 }," +
+            "  'displayCategory' : { '$ne' : true }," +
+            "}")
+    List<Category> findByActiveAndDeleted(boolean active, boolean deleted);
+
+    @Query(value = "" +
+            "{" +
+            "  'active'  : { '$eq' : ?0 }," +
+            "  'deleted' : { '$eq' : ?1 }," +
+            "  'displayCategory' : { '$eq' : true }," +
+            "}")
+    List<Category> findByActiveAndDeletedForDisplay(boolean active, boolean deleted);
 }

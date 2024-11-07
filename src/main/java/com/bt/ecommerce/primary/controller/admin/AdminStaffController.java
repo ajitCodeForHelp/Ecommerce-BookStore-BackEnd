@@ -54,6 +54,16 @@ public class AdminStaffController extends _BaseController {
     }
 
     @TranslateResponseMessage
+    @GetMapping("/list-data/{data}")
+    protected ResponseEntity<ResponsePacket> listData(@PathVariable("data") String data) {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get_all")
+                .responsePacket(systemUserService.listData(data))
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
     @PostMapping("/list")
     protected ResponseEntity<ResponsePacket> list(@Valid @RequestBody StaffDto.GetList list) throws BadRequestException {
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();

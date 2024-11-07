@@ -32,6 +32,14 @@ public interface SystemUserRepository extends MongoRepository<SystemUser, Object
             "{'userType' : { $eq : 'ROLE_SUB_ADMIN'}} ]}")
     List<SystemUser> findByActiveAndDeleted();
 
+    @Query(value = "" +
+            "{" +
+            "  'parentAdminId'  : { '$eq' : ?0 }," +
+            "  'active'  : { '$eq' : ?1 }," +
+            "  'deleted' : { '$eq' : ?2 }," +
+            "}")
+    List<SystemUser> findByParentAdminIdAndActiveAndDeleted(ObjectId parentAdminId, boolean active, boolean deleted);
+
     @Query(value = "{ " +
             "   $and : [" +
             "       { deleted    : { $eq : ?0} }," +
@@ -48,4 +56,5 @@ public interface SystemUserRepository extends MongoRepository<SystemUser, Object
     )
     Page<SystemUser> findByDeleted(boolean deleted, String search, Pageable pageable);
 
+    List<SystemUser> findByParentAdminIdAndDeleted(ObjectId ParentAdminId, boolean deleted);
 }

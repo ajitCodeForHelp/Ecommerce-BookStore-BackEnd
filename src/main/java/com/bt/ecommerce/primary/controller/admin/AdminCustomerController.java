@@ -18,6 +18,17 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/admin/v1/customer")
 public class AdminCustomerController extends _BaseController {
+
+    @TranslateResponseMessage
+    @GetMapping("/list-data/{data}")
+    protected ResponseEntity<ResponsePacket> listData(@PathVariable("data") String data) {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get_all")
+                .responsePacket(customerService.listData(data))
+                .build(), HttpStatus.OK);
+    }
+
     @TranslateResponseMessage
     @PostMapping("/list")
     protected ResponseEntity<ResponsePacket> list(@Valid @RequestBody CustomerDto.GetList list) throws BadRequestException {

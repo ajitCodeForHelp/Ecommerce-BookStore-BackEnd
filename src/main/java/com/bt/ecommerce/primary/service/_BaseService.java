@@ -9,6 +9,7 @@ import java.util.List;
 
 public class _BaseService {
     @Autowired protected SystemUserRepository systemUserRepository;
+    @Autowired protected WebsiteCmsSettingRepository websiteCmsSettingRepository;
     @Autowired protected CategoryRepository categoryRepository;
     @Autowired protected ItemRepository itemRepository;
     @Autowired protected CartRepository cartRepository;

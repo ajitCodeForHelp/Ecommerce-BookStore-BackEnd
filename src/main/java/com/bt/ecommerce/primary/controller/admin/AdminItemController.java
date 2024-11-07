@@ -54,12 +54,12 @@ public class AdminItemController extends _BaseController {
     }
 
     @TranslateResponseMessage
-    @GetMapping("/list-data")
-    protected ResponseEntity<ResponsePacket> listData() {
+    @GetMapping("/list-data/{data}")
+    protected ResponseEntity<ResponsePacket> listData(@PathVariable("data") String data) {
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.get_all")
-                .responsePacket(itemService.listData())
+                .responsePacket(itemService.listData(data))
                 .build(), HttpStatus.OK);
     }
 

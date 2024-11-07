@@ -1,11 +1,12 @@
 package com.bt.ecommerce.primary.repository;
 
 import com.bt.ecommerce.primary.pojo.user.Customer;
-import com.bt.ecommerce.primary.pojo.user.SystemUser;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
+
+import java.util.List;
 
 public interface CustomerRepository extends MongoRepository<Customer, ObjectId> {
 
@@ -22,4 +23,8 @@ public interface CustomerRepository extends MongoRepository<Customer, ObjectId> 
     Customer findFirstByEmailAndId(String email, ObjectId id);
 
     Page<Customer> findByDeleted(Boolean deleted, String search, Pageable pageable);
+
+    List<Customer> findByActiveAndDeleted(boolean active, boolean deleted);
+
+    List<Customer> findByDeleted(boolean deleted);
 }

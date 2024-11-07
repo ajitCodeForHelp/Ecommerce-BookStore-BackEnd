@@ -1,13 +1,13 @@
 package com.bt.ecommerce.primary.pojo.enums;
 
 
-public enum SettingEnum {
-    NotificationEmailTo("NotificationEmailTo"),
+public enum WebsiteCmsSettingEnum {
+    PrivacyPolicy("PrivacyPolicy"),
+    TermsAndCondition("TermsAndCondition"),
     ;
-
     String type;
 
-    SettingEnum(String type) {
+    WebsiteCmsSettingEnum(String type) {
         this.type = type;
     }
 

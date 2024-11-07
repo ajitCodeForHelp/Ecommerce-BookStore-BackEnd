@@ -97,8 +97,18 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
                 .collect(Collectors.toList()));
     }
 
-    public List<CategoryDto.DetailCategory> list() {
-        List<Category> list = categoryRepository.findAll();
+    public List<CategoryDto.DetailCategory> list(String data) {
+        // Data >  Active | Inactive | Deleted | All
+        List<Category> list = null;
+        if (data.equals("Active")) {
+            list = categoryRepository.findByActiveAndDeleted(true, false);
+        } else if (data.equals("Inactive")) {
+            list = categoryRepository.findByActiveAndDeleted(false, false);
+        } else if (data.equals("Deleted")) {
+            list = categoryRepository.findByDeleted(true);
+        } else {
+            list = categoryRepository.findAll();
+        }
         return list.stream()
                 .map(category -> CategoryMapper.MAPPER.mapToDetailDto(category))
                 .collect(Collectors.toList());
@@ -112,8 +122,18 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
                 .collect(Collectors.toList()));
     }
 
-    public List<CategoryDto.DetailCategory> listDisplayCategory() {
-        List<Category> list = categoryRepository.findByDisplayCategory();
+    public List<CategoryDto.DetailCategory> listDisplayCategory(String data) {
+        // Data >  Active | Inactive | Deleted | All
+        List<Category> list = null;
+        if (data.equals("Active")) {
+            list = categoryRepository.findByActiveAndDeletedForDisplay(true, false);
+        } else if (data.equals("Inactive")) {
+            list = categoryRepository.findByActiveAndDeletedForDisplay(false, false);
+        } else if (data.equals("Deleted")) {
+            list = categoryRepository.findByDeletedForDisplay(true);
+        } else {
+            list = categoryRepository.findByDisplayCategory();
+        }
         return list.stream()
                 .map(category -> CategoryMapper.MAPPER.mapToDetailDto(category))
                 .collect(Collectors.toList());
