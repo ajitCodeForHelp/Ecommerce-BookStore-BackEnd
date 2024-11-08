@@ -2,8 +2,9 @@ package com.bt.ecommerce.primary.dto;
 
 import com.bt.ecommerce.primary.pojo.Cart;
 import com.bt.ecommerce.primary.pojo.CouponCode;
-import com.bt.ecommerce.primary.pojo.enums.DeliveryStatusEnum;
+import com.bt.ecommerce.primary.pojo.enums.OrderStatusEnum;
 import com.bt.ecommerce.primary.pojo.enums.PaymentStatusEnum;
+import com.bt.ecommerce.primary.pojo.enums.PaymentTypeEnum;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -21,8 +22,11 @@ public class OrderDto extends AbstractDto{
     public static class DetailOrder {
         private Long invoiceNumber;
         private String orderId;
-        private DeliveryStatusEnum deliveryStatus;
+        private String orderTrackingId;
+        private OrderStatusEnum orderStatus;
         private PaymentStatusEnum paymentStatus;
+        private PaymentTypeEnum paymentType;
+        // TODO > ADD More Order Data Later On In It
 
         private Cart.CustomerRefDetail customerDetail;
         private Cart.CustomerAddressDetail customerAddressDetail;

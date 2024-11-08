@@ -27,9 +27,15 @@ public class Item extends _BasicEntity {
     private List<String> itemImageUrls;
     private int sequenceNo;
     private double weight;
+    private Boolean stockOut = Boolean.FALSE;
     private String otherDataJson; // other book associated details
 
     // Todo Author ,Publications , Pages  , Publish Year ,Language
     // Todo Color , Size , Dynamic Specification  (JSON)
 
+
+    public boolean isStockOut() {
+        if (stockOut == null) return false;
+        return stockOut;
+    }
 }

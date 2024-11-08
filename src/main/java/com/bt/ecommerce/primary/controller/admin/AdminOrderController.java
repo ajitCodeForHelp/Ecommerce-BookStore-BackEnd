@@ -4,6 +4,7 @@ import com.bt.ecommerce.annotation.TranslateResponseMessage;
 import com.bt.ecommerce.bean.ResponsePacket;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.controller._BaseController;
+import com.bt.ecommerce.primary.pojo.enums.OrderStatusEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -21,6 +22,16 @@ public class AdminOrderController extends _BaseController {
                 .errorCode(0)
                 .message("ecommerce.common.message.get")
                 .responsePacket(cartService.getCartDetail(cartUuid))
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @PostMapping("/getCartCount")
+    public ResponseEntity<ResponsePacket> getCartCount() throws BadRequestException {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get")
+                .responsePacket(cartService.getCartCount())
                 .build(), HttpStatus.OK);
     }
 
@@ -46,6 +57,39 @@ public class AdminOrderController extends _BaseController {
     }
 
     @TranslateResponseMessage
+    @PutMapping("/updateOrderTrackingId/{orderId}/{orderTrackingId}")
+    public ResponseEntity<ResponsePacket> updateOrderTrackingId(
+            @PathVariable(value = "orderId") String orderId,
+            @PathVariable(value = "orderTrackingId") String orderTrackingId) throws BadRequestException {
+        orderService.updateOrderTrackingId(orderId, orderTrackingId);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.update")
+                .build(), HttpStatus.OK);
+    }
+    @TranslateResponseMessage
+    @PutMapping("/updateOrderStatus/{orderId}/{orderStatus}")
+    public ResponseEntity<ResponsePacket> updateOrderTrackingId(
+            @PathVariable(value = "orderId") String orderId,
+            @PathVariable(value = "orderStatus") OrderStatusEnum orderStatus) throws BadRequestException {
+        orderService.updateOrderStatus(orderId, orderStatus);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.update")
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @PostMapping("/getOrderCount")
+    public ResponseEntity<ResponsePacket> getOrderCount() throws BadRequestException {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get")
+                .responsePacket(orderService.getOrderCount())
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
     @PostMapping("/getOrderList")
     public ResponseEntity<ResponsePacket> getOrderList() throws BadRequestException {
         return new ResponseEntity<>(ResponsePacket.builder()
@@ -55,8 +99,7 @@ public class AdminOrderController extends _BaseController {
                 .build(), HttpStatus.OK);
     }
 
-
-    // TODO > Order History 
+    // TODO > Order History
 
 
 }

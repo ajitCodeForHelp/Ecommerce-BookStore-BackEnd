@@ -55,6 +55,7 @@ public class EcommerceBean {
         private List<String> itemImageUrls;
         private int sequenceNo;
         private double weight;
+        private Boolean stockOut;
         private String otherDataJson;
     }
 

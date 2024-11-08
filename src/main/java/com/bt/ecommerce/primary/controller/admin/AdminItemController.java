@@ -128,6 +128,16 @@ public class AdminItemController extends _BaseController {
                 .message("ecommerce.common.message.revive")
                 .build(), HttpStatus.OK);
     }
+    @TranslateResponseMessage
+    @PutMapping("/update-stock-out/{uuid}")
+    protected ResponseEntity<ResponsePacket> updateStockOut(@PathVariable("uuid") String uuid) throws BadRequestException {
+        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        itemService.updateStockOut(uuid);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.update")
+                .build(), HttpStatus.OK);
+    }
 
     @TranslateResponseMessage
     @PostMapping("/list-in-key-value")
