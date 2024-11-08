@@ -10,6 +10,9 @@ import com.bt.ecommerce.primary.mapper.SystemUserMapper;
 import com.bt.ecommerce.primary.pojo.common.BasicParent;
 import com.bt.ecommerce.primary.pojo.enums.RoleEnum;
 import com.bt.ecommerce.primary.pojo.user.SystemUser;
+import com.bt.ecommerce.primary.userAccess.dto.UrlDto;
+import com.bt.ecommerce.primary.userAccess.mapper.UrlMapper;
+import com.bt.ecommerce.primary.userAccess.pojo.Url;
 import com.bt.ecommerce.security.JwtUserDetailsService;
 import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -21,6 +24,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -86,7 +90,7 @@ public class SystemUserService extends _BaseService implements _BaseServiceImpl 
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
         // Data >  Active | Inactive | Deleted | All
         List<SystemUser> list = null;
-        if(data.equals("Active")){
+        if (data.equals("Active")) {
             list = systemUserRepository.findByParentAdminIdAndActiveAndDeleted(loggedInUser.getId(), true, false);
         } else if (data.equals("Inactive")) {
             list = systemUserRepository.findByParentAdminIdAndActiveAndDeleted(loggedInUser.getId(), false, false);
@@ -192,5 +196,44 @@ public class SystemUserService extends _BaseService implements _BaseServiceImpl 
 
     public void save(SystemUser userAdmin) {
         systemUserRepository.save(userAdmin);
+    }
+
+    public void assignUrl(String uuid, List<String> urlUuidList) throws BadRequestException {
+        SystemUser systemUser = findByUuid(uuid);
+        if (TextUtils.isEmpty(urlUuidList)) return;
+        List<Url> urlList = urlRepository.findByUuids(urlUuidList);
+        List<String> userAssignUrlUuids = new ArrayList<>();
+        for (Url url : urlList) {
+            if (url.isActive()) {
+                userAssignUrlUuids.add(url.getUuid());
+            }
+        }
+        systemUser.setUrlUuidList(userAssignUrlUuids);
+        systemUserRepository.save(systemUser);
+    }
+
+    public List<UrlDto.DetailUrl> getAssignUrls(SystemUser loggedInUser) {
+        if (TextUtils.isEmpty(loggedInUser.getUrlUuidList())) return null;
+        List<Url> urlList = urlRepository.findByUuids(loggedInUser.getUrlUuidList());
+        List<UrlDto.DetailUrl> userAssignUrlList = new ArrayList<>();
+        for (Url url : urlList) {
+            if (url.isActive()) {
+                userAssignUrlList.add(UrlMapper.MAPPER.mapToDetailDto(url));
+            }
+        }
+        return userAssignUrlList;
+    }
+
+    public void changePassword(String oldPassword, String newPassword) throws BadRequestException {
+        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        if (!loggedInUser.getPwdText().equals(oldPassword)) {
+            throw new BadRequestException("OldPassword Not Matched.");
+        }
+        if (TextUtils.isEmpty(newPassword)) {
+            throw new BadRequestException("Invalid New Password Provided.");
+        }
+        loggedInUser.setPwdText(newPassword);
+        loggedInUser.setPwdSecure(TextUtils.getEncodedPassword(newPassword));
+        systemUserRepository.save(loggedInUser);
     }
 }

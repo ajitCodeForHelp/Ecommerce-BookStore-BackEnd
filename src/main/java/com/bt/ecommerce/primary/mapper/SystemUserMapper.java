@@ -25,4 +25,5 @@ public interface SystemUserMapper {
     @Mapping(expression = "java(staff.fullName())", target = "label")
     KeyValueDto mapToKeyPairDto(SystemUser staff);
 
+    StaffDto.DetailStaff mapToProfileDto(SystemUser loggedInUser);
 }

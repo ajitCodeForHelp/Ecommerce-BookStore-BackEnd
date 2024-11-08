@@ -1,12 +1,13 @@
-package com.bt.ecommerce.primary.controller.admin;
+package com.bt.ecommerce.primary.userAccess.controller;
 
 import com.bt.ecommerce.annotation.TranslateResponseMessage;
 import com.bt.ecommerce.bean.ResponsePacket;
 import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.controller._BaseController;
-import com.bt.ecommerce.primary.dto.StaffDto;
 import com.bt.ecommerce.primary.pojo.user.SystemUser;
+import com.bt.ecommerce.primary.userAccess.dto.ModuleDto;
+import com.bt.ecommerce.primary.userAccess.dto.UrlDto;
 import com.bt.ecommerce.security.JwtUserDetailsService;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
@@ -18,26 +19,26 @@ import java.util.List;
 
 @Slf4j
 @RestController
-@RequestMapping("/admin/v1/staff")
-public class AdminStaffController extends _BaseController {
+@RequestMapping("/admin/v1/module")
+public class AdminModuleController extends _BaseController {
 
     @TranslateResponseMessage
     @PostMapping("/save")
-    protected ResponseEntity<ResponsePacket> save(@Valid @RequestBody StaffDto.SaveStaff create) throws BadRequestException {
+    protected ResponseEntity<ResponsePacket> save(@Valid @RequestBody ModuleDto.SaveModule create) throws BadRequestException {
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.save")
-                .responsePacket(systemUserService.save(create))
+                .responsePacket(moduleService.save(create))
                 .build(), HttpStatus.OK);
     }
 
     @TranslateResponseMessage
     @PutMapping("/update/{uuid}")
     protected ResponseEntity<ResponsePacket> edit(@PathVariable("uuid") String uuid,
-                                                  @Valid @RequestBody StaffDto.UpdateStaff update) throws BadRequestException {
+                                                  @Valid @RequestBody ModuleDto.UpdateModule update) throws BadRequestException {
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        systemUserService.update(uuid, update);
+        moduleService.update(uuid, update);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.update")
@@ -51,39 +52,17 @@ public class AdminStaffController extends _BaseController {
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.get")
-                .responsePacket(systemUserService.get(uuid))
+                .responsePacket(moduleService.get(uuid))
                 .build(), HttpStatus.OK);
     }
 
     @TranslateResponseMessage
     @GetMapping("/list-data/{data}")
-    protected ResponseEntity<ResponsePacket> listData(@PathVariable("data") String data) {
+    protected ResponseEntity<ResponsePacket> listData(@PathVariable("data") String data) throws BadRequestException {
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.get_all")
-                .responsePacket(systemUserService.listData(data))
-                .build(), HttpStatus.OK);
-    }
-
-    @TranslateResponseMessage
-    @PostMapping("/list")
-    protected ResponseEntity<ResponsePacket> list(@Valid @RequestBody StaffDto.GetList list) throws BadRequestException {
-        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        return new ResponseEntity<>(ResponsePacket.builder()
-                .errorCode(0)
-                .message("ecommerce.common.message.get_all")
-                .responsePacket(systemUserService.list(false, list.getPageNumber(), list.getPageSize(), list.getSearch()))
-                .build(), HttpStatus.OK);
-    }
-
-    @TranslateResponseMessage
-    @PostMapping("/deleted-list")
-    protected ResponseEntity<ResponsePacket> deletedList(@Valid @RequestBody StaffDto.GetList list) throws BadRequestException {
-        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        return new ResponseEntity<>(ResponsePacket.builder()
-                .errorCode(0)
-                .message("ecommerce.common.message.get_all_deleted_records")
-                .responsePacket(systemUserService.list(true, list.getPageNumber(), list.getPageSize(), list.getSearch()))
+                .responsePacket(moduleService.listData(data))
                 .build(), HttpStatus.OK);
     }
 
@@ -91,7 +70,7 @@ public class AdminStaffController extends _BaseController {
     @PutMapping("/activate/{uuid}")
     protected ResponseEntity<ResponsePacket> activate(@PathVariable("uuid") String uuid) throws BadRequestException {
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        systemUserService.activate(uuid);
+        moduleService.activate(uuid);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.active")
@@ -102,7 +81,7 @@ public class AdminStaffController extends _BaseController {
     @PutMapping("/inactivate/{uuid}")
     protected ResponseEntity<ResponsePacket> inactivate(@PathVariable("uuid") String uuid) throws BadRequestException {
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        systemUserService.inactivate(uuid);
+        moduleService.inactivate(uuid);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.inactive")
@@ -113,7 +92,7 @@ public class AdminStaffController extends _BaseController {
     @DeleteMapping("/delete/{uuid}")
     protected ResponseEntity<ResponsePacket> delete(@PathVariable("uuid") String uuid) throws BadRequestException {
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        systemUserService.delete(uuid);
+        moduleService.delete(uuid);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.deleted")
@@ -124,7 +103,7 @@ public class AdminStaffController extends _BaseController {
     @PutMapping("/revive/{uuid}")
     protected ResponseEntity<ResponsePacket> revive(@PathVariable("uuid") String uuid) throws BadRequestException {
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        systemUserService.revive(uuid);
+        moduleService.revive(uuid);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.revive")
@@ -137,30 +116,82 @@ public class AdminStaffController extends _BaseController {
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.get_key_value_list")
-                .responsePacket(systemUserService.listInKeyValue())
+                .responsePacket(moduleService.listInKeyValue())
+                .build(), HttpStatus.OK);
+    }
+
+
+    @TranslateResponseMessage
+    @GetMapping("/module-url-list")
+    public ResponseEntity<ResponsePacket> moduleUrlList() throws BadRequestException {
+        /**
+         * Use For Urls Assignment To User
+         * /module-url-list > Only Give Active Non-Deleted Module And Url
+         * **/
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("Module Url List.")
+                .responsePacket(moduleService.getModuleUrlList())
+                .build(), HttpStatus.OK);
+    }
+
+    // ################################ Module Url Operation ############################################################
+
+    @TranslateResponseMessage
+    @PostMapping("/{moduleUuid}/save-module-urls")
+    protected ResponseEntity<ResponsePacket> saveModuleUrls(@PathVariable("moduleUuid") String moduleUuid,
+                                                            @Valid @RequestBody List<UrlDto.SaveUrl> urlList) throws BadRequestException {
+        moduleService.saveModuleUrls(moduleUuid, urlList);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.save")
                 .build(), HttpStatus.OK);
     }
 
     @TranslateResponseMessage
-    @PutMapping("/assign-url/{uuid}")
-    protected ResponseEntity<ResponsePacket> assignUrl(@PathVariable("uuid") String uuid,
-                                                       @Valid @RequestBody List<String> urlUuidList) throws BadRequestException {
-        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        systemUserService.assignUrl(uuid, urlUuidList);
+    @PutMapping("/{moduleUuid}/update-module-url/{urlUuid}")
+    protected ResponseEntity<ResponsePacket> updateModuleUrl(
+            @PathVariable("moduleUuid") String moduleUuid,
+            @PathVariable("urlUuid") String urlUuid,
+            @Valid @RequestBody UrlDto.UpdateUrl updateUrl) throws BadRequestException {
+        moduleService.updateModuleUrl(moduleUuid, urlUuid, updateUrl);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
-                .message("ecommerce.common.message.update")
+                .message("ecommerce.common.message.active")
                 .build(), HttpStatus.OK);
     }
 
     @TranslateResponseMessage
-    @PutMapping("/get-assign-url/{uuid}")
-    protected ResponseEntity<ResponsePacket> getAssignUrl(@PathVariable("uuid") String uuid) throws BadRequestException {
-        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        systemUserService.getAssignUrls(loggedInUser);
+    @PutMapping("/{moduleUuid}/activate-module-url/{urlUuid}")
+    protected ResponseEntity<ResponsePacket> activateModuleUrl(@PathVariable("moduleUuid") String moduleUuid,
+                                                               @PathVariable("urlUuid") String urlUuid) throws BadRequestException {
+        moduleService.activateModuleUrl(moduleUuid, urlUuid);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
-                .message("Assign url details")
+                .message("ecommerce.common.message.active")
                 .build(), HttpStatus.OK);
     }
+
+    @TranslateResponseMessage
+    @PutMapping("/{moduleUuid}/deactivate-module-url/{urlUuid}")
+    protected ResponseEntity<ResponsePacket> deactivateModuleUrl(@PathVariable("moduleUuid") String moduleUuid,
+                                                                 @PathVariable("urlUuid") String urlUuid) throws BadRequestException {
+        moduleService.deactivateModuleUrl(moduleUuid, urlUuid);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.active")
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @DeleteMapping("/{moduleUuid}/delete-module-url/{urlUuid}")
+    protected ResponseEntity<ResponsePacket> deleteModuleUrl(@PathVariable("moduleUuid") String moduleUuid,
+                                                             @PathVariable("urlUuid") String urlUuid) throws BadRequestException {
+        moduleService.deactivateModuleUrl(moduleUuid, urlUuid);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.deleted")
+                .build(), HttpStatus.OK);
+    }
+
 }

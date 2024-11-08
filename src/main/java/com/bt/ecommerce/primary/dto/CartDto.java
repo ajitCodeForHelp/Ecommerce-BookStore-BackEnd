@@ -37,4 +37,11 @@ public class CartDto extends AbstractDto{
         private double deliveryCharges = 0.0;
         private double orderTotal = 0.0;
     }
+
+    @Getter
+    @Setter
+    public static class CartItemCount {
+        private int itemCount = 0;
+        private double itemTotal = 0.0;
+    }
 }
