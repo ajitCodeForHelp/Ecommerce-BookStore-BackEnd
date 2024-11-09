@@ -1,6 +1,7 @@
 package com.bt.ecommerce.primary.controller;
 
 import com.bt.ecommerce.primary.service.*;
+import com.bt.ecommerce.primary.userAccess.service.ModuleService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -19,6 +20,7 @@ public class _BaseController {
     @Autowired protected EcommerceService ecommerceService;
     @Autowired protected CouponCodeService couponCodeService;
     @Autowired protected AddressService addressService;
+    @Autowired protected ModuleService moduleService;
     @Autowired protected CustomerService customerService;
     @Autowired protected BannerService bannerService;
     @Autowired protected OrderService orderService;

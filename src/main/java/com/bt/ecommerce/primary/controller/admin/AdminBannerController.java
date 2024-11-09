@@ -1,9 +1,10 @@
-package com.bt.ecommerce.primary.controller;
+package com.bt.ecommerce.primary.controller.admin;
 
 import com.bt.ecommerce.annotation.TranslateResponseMessage;
 import com.bt.ecommerce.bean.ResponsePacket;
 import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
+import com.bt.ecommerce.primary.controller._BaseController;
 import com.bt.ecommerce.primary.dto.BannerDto;
 import com.bt.ecommerce.primary.pojo.user.SystemUser;
 import com.bt.ecommerce.security.JwtUserDetailsService;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @RestController
 @RequestMapping("/admin/v1/banner")
-public class BannerController extends _BaseController {
+public class AdminBannerController extends _BaseController {
 
     @TranslateResponseMessage
     @PostMapping("/create")

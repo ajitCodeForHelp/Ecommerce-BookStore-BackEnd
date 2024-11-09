@@ -10,7 +10,6 @@ import com.bt.ecommerce.primary.pojo.*;
 import com.bt.ecommerce.primary.pojo.enums.DiscountTypeEnum;
 import com.bt.ecommerce.primary.pojo.user.SystemUser;
 import com.bt.ecommerce.primary.repository.SequenceRepository;
-import com.bt.ecommerce.security.JwtUserDetailsService;
 import com.bt.ecommerce.utils.ProjectConst;
 import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -28,12 +27,10 @@ public class CartService extends _BaseService {
 
     public CartDto.DetailCart getCartDetail(String deviceId) throws BadRequestException {
         Cart cart = getCartByDeviceId(deviceId);
-        if (cart == null) {
-            cart = createNewCart(deviceId);
-        }
         cart = cartPriceCalculation(cart);
         return CartMapper.MAPPER.mapToDetailCartDto(cart);
     }
+
     public void updateCart(String deviceId, String uuid, CartDto.UpdateCart cartDto) throws BadRequestException {
         Cart cart = cartRepository.findByUuid(uuid);
         if (cart == null) {
@@ -206,7 +203,7 @@ public class CartService extends _BaseService {
         SystemUser loggedInCustomer = null;
         Cart cart = null;
         try {
-            loggedInCustomer = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+            // loggedInCustomer = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
             loggedInCustomer = systemUserRepository.findAll().get(0);
         } catch (Exception e) {
             e.printStackTrace();
@@ -217,26 +214,27 @@ public class CartService extends _BaseService {
         if (cart == null && loggedInCustomer != null) {
             cart = cartRepository.findByCustomerId(loggedInCustomer.getId());
         }
-        if (cart == null && (!TextUtils.isEmpty(deviceId) || loggedInCustomer != null)) {
+        if (cart == null) {
             cart = new Cart();
             if (!TextUtils.isEmpty(deviceId)) {
                 cart.setDeviceId(deviceId);
             }
             if (loggedInCustomer != null) {
                 cart.setCustomerId(loggedInCustomer.getId());
+                cart.setCustomerDetail(new Cart.CustomerRefDetail(
+                        loggedInCustomer.getUuid(), loggedInCustomer.getFirstName(),
+                        loggedInCustomer.getLastName(), loggedInCustomer.getIsdCode(),
+                        loggedInCustomer.getMobile()));
             }
         }
         if (cart == null) {
             throw new BadRequestException("Invalid DeviceId Provided And Authorization");
         }
-        cart.setCustomerDetail(new Cart.CustomerRefDetail(
-                loggedInCustomer.getUuid(), loggedInCustomer.getFirstName(),
-                loggedInCustomer.getLastName(), loggedInCustomer.getIsdCode(),
-                loggedInCustomer.getMobile()));
         return cart;
     }
 
     public String placeOrder(String cartUuid) throws BadRequestException {
+        // TODO > InOrder To Place Order You Need To Login > Then Update > Customer Details Into It.
         Cart cart = cartRepository.findByUuid(cartUuid);
         if (cart == null) {
             throw new BadRequestException("There is no valid cart");
@@ -244,7 +242,6 @@ public class CartService extends _BaseService {
         if (TextUtils.isEmpty(cart.getItemDetailList())) {
             throw new BadRequestException("there is no valid item in your cart");
         }
-
         cart = cartPriceCalculation(cart);
         Order order = CartMapper.MAPPER.mapToOrder(cart);
         // Generate > invoice number | order number
@@ -267,17 +264,21 @@ public class CartService extends _BaseService {
                 .collect(Collectors.toList());
     }
 
-    public long getCartItemCount(String deviceId) {
+    public CartDto.CartItemCount getCartItemCount(String deviceId) throws BadRequestException {
         Cart cart = getCartByDeviceId(deviceId);
-        if (cart == null) return 0;
-        return cart.getItemDetailList().size();
+        CartDto.CartItemCount cartItemCount = new CartDto.CartItemCount();
+        if (cart == null) return cartItemCount;
+        cartItemCount.setItemCount(cart.getItemDetailList().size());
+        cartItemCount.setItemTotal(cart.getSubTotal());
+        return cartItemCount;
     }
 
-    private Cart getCartByDeviceId(String deviceId) {
+    private Cart getCartByDeviceId(String deviceId) throws BadRequestException {
         SystemUser loggedInCustomer = null;
         Cart cart = null;
         try {
-            loggedInCustomer = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+            // loggedInCustomer = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+            loggedInCustomer = systemUserRepository.findAll().get(0);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -286,6 +287,9 @@ public class CartService extends _BaseService {
         }
         if (cart == null && loggedInCustomer != null) {
             cart = cartRepository.findByCustomerId(loggedInCustomer.getId());
+        }
+        if (cart == null) {
+            cart = createNewCart(deviceId);
         }
         return cart;
     }

@@ -63,4 +63,11 @@ public interface ItemRepository extends MongoRepository<Item, ObjectId> {
             "}"
     )
     Page<Item> findByDeleted(boolean deleted, String search, Pageable pageable);
+
+    @Query(value = "" +
+            "{" +
+            "  'active' : { '$eq' : true }," +
+            "  'title'  : { $regularExpression : { pattern : ?0, options : 'i'} } " +
+            "}")
+    List<Item> findByTitle(String search, Pageable pageable);
 }

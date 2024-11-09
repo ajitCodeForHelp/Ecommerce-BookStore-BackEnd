@@ -36,4 +36,14 @@ public class EcommerceController extends _BaseController {
                 .build(), HttpStatus.OK);
     }
 
+    @TranslateResponseMessage
+    @GetMapping("/item-search")
+    protected ResponseEntity<ResponsePacket> itemSearch(String search) {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("Item Search Data")
+                .responsePacket(itemService.itemSearch(search))
+                .build(), HttpStatus.OK);
+    }
+
 }
