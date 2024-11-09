@@ -79,7 +79,7 @@ public class CouponCodeService extends _BaseService implements _BaseServiceImpl 
     public void delete(String uuid) throws BadRequestException {
         CouponCode couponCode = findByUuid(uuid);
         couponCode.setActive(false);
-        couponCode.setActive(true);
+        couponCode.setDeleted(true);
         couponCodeRepository.save(couponCode);
     }
 
