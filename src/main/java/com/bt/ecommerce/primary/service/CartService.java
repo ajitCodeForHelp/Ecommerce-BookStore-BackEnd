@@ -204,7 +204,7 @@ public class CartService extends _BaseService {
         Cart cart = null;
         try {
             // loggedInCustomer = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-            loggedInCustomer = systemUserRepository.findAll().get(0);
+//            loggedInCustomer = systemUserRepository.findAll().get(0);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -278,7 +278,7 @@ public class CartService extends _BaseService {
         Cart cart = null;
         try {
             // loggedInCustomer = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-            loggedInCustomer = systemUserRepository.findAll().get(0);
+//            loggedInCustomer = systemUserRepository.findAll().get(0);
         } catch (Exception e) {
             e.printStackTrace();
         }
