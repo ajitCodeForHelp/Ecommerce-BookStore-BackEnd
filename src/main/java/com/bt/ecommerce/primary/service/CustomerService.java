@@ -29,10 +29,10 @@ public class CustomerService extends _BaseService implements _BaseServiceImpl {
         CustomerDto.SaveCustomer saveCustomer = (CustomerDto.SaveCustomer) saveDto;
         Customer customer = CustomerMapper.MAPPER.mapToPojo(saveCustomer);
         if (checkUserExistWithMobile(saveCustomer.getIsdCode(), saveCustomer.getMobile())) {
-            throw new BadRequestException("kpis_food.common.message.mobile_already_exist");
+            throw new BadRequestException("ecommerce.common.message.mobile_already_exist");
         }
         if (checkUserExistWithEmail(saveCustomer.getEmail())) {
-            throw new BadRequestException("kpis_food.common.message.email_already_exist");
+            throw new BadRequestException("ecommerce.common.message.email_already_exist");
         }
         customer.setEmail(saveCustomer.getEmail());
         customer.setUsername(saveCustomer.getEmail());
@@ -60,13 +60,13 @@ public class CustomerService extends _BaseService implements _BaseServiceImpl {
         {
             Customer userExistWithMobile = findFirstByIsdAndMobileAndId(updateCustomerDto.getIsdCode(), updateCustomerDto.getMobile(), customer.getId());
             if (userExistWithMobile != null) {
-                throw new BadRequestException("kpis_food.common.message.mobile_already_exist");
+                throw new BadRequestException("ecommerce.common.message.mobile_already_exist");
             }
         }
         {
             Customer userExistWithEmail = findFirstByEmailAndId(updateCustomerDto.getEmail(), customer.getId());
             if (userExistWithEmail != null) {
-                throw new BadRequestException("kpis_food.common.message.mobile_already_exist");
+                throw new BadRequestException("ecommerce.common.message.mobile_already_exist");
             }
         }
         customer.setEmail(updateCustomerDto.getEmail());

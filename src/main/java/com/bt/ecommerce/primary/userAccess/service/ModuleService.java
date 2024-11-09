@@ -30,7 +30,7 @@ public class ModuleService extends _BaseService {
         saveModuleObj.setTitle(TextUtils.validateTitle(saveModuleObj.getTitle()));
         Module module = moduleRepository.findByTitle(saveModuleObj.getTitle());
         if (module != null) {
-            throw new BadRequestException("kpis_food.common.message.module_already_exist");
+            throw new BadRequestException("ecommerce.common.message.module_already_exist");
         }
         module = ModuleMapper.MAPPER.mapToPojo(saveModuleObj);
         module = moduleRepository.save(module);
@@ -43,7 +43,7 @@ public class ModuleService extends _BaseService {
         Module module = moduleRepository.findByUuid(uuid);
         Module moduleAlreadyExist = moduleRepository.findByTitleAndNotId(updateModuleObj.getTitle(), module.getId());
         if (moduleAlreadyExist != null) {
-            throw new BadRequestException("kpis_food.common.message.module_already_exist");
+            throw new BadRequestException("ecommerce.common.message.module_already_exist");
         }
         module = ModuleMapper.MAPPER.mapToPojo(module, updateModuleObj);
         moduleRepository.save(module);
@@ -123,7 +123,7 @@ public class ModuleService extends _BaseService {
     public void saveModuleUrls(String moduleUuid, List<UrlDto.SaveUrl> urlDtoList) throws BadRequestException {
         Module module = moduleRepository.findByUuid(moduleUuid);
         if (TextUtils.isEmpty(urlDtoList)) {
-            throw new BadRequestException("kpis_food.common.message.invalid_url_data");
+            throw new BadRequestException("ecommerce.common.message.invalid_url_data");
         }
         validateModuleUrl(urlDtoList);
         List<Url> urlList = new ArrayList<>();
@@ -137,7 +137,7 @@ public class ModuleService extends _BaseService {
         Module module = moduleRepository.findByUuid(moduleUuid);
         Url url = urlRepository.findByUuid(urlUuid);
         if (!url.getModuleId().equals(module.getId())) {
-            throw new BadRequestException("kpis_food.common.message.invalid_url_access");
+            throw new BadRequestException("ecommerce.common.message.invalid_url_access");
         }
         url = UrlMapper.MAPPER.mapToPojo(url, updateUrl);
         urlRepository.save(url);
@@ -147,7 +147,7 @@ public class ModuleService extends _BaseService {
         Module module = moduleRepository.findByUuid(moduleUuid);
         Url url = urlRepository.findByUuid(urlUuid);
         if (!url.getModuleId().equals(module.getId())) {
-            throw new BadRequestException("kpis_food.common.message.invalid_url_access");
+            throw new BadRequestException("ecommerce.common.message.invalid_url_access");
         }
         url.setActive(true);
         urlRepository.save(url);
@@ -157,7 +157,7 @@ public class ModuleService extends _BaseService {
         Module module = moduleRepository.findByUuid(moduleUuid);
         Url url = urlRepository.findByUuid(urlUuid);
         if (!url.getModuleId().equals(module.getId())) {
-            throw new BadRequestException("kpis_food.common.message.invalid_url_access");
+            throw new BadRequestException("ecommerce.common.message.invalid_url_access");
         }
         url.setActive(false);
         urlRepository.save(url);
@@ -167,7 +167,7 @@ public class ModuleService extends _BaseService {
         Module module = moduleRepository.findByUuid(moduleUuid);
         Url url = urlRepository.findByUuid(urlUuid);
         if (!url.getModuleId().equals(module.getId())) {
-            throw new BadRequestException("kpis_food.common.message.invalid_url_access");
+            throw new BadRequestException("ecommerce.common.message.invalid_url_access");
         }
         urlRepository.delete(url);
     }
@@ -183,7 +183,7 @@ public class ModuleService extends _BaseService {
         for (UrlDto.SaveUrl saveUrlDto : urlDtoList) {
             Url url = urlRepository.findByTitle(saveUrlDto.getTitle());
             if (url != null) {
-                throw new BadRequestException("kpis_food.common.message.url_already_exist");
+                throw new BadRequestException("ecommerce.common.message.url_already_exist");
             }
         }
     }

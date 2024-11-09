@@ -13,6 +13,7 @@ public interface CartMapper {
 
     @Mapping(expression = "java(com.bt.ecommerce.utils.DateUtils.getTimeStamp(cart.getCreatedAt()))", target = "createdAtTimeStamp")
     @Mapping(expression = "java(com.bt.ecommerce.utils.DateUtils.getTimeStamp(cart.getModifiedAt()))", target = "modifiedAtTimeStamp")
+    @Mapping(expression = "java(cart.getUuid())", target = "cartUuid")
     CartDto.DetailCart mapToDetailCartDto(Cart cart);
 
     Order mapToOrder(Cart cart);

@@ -38,10 +38,10 @@ public class SystemUserService extends _BaseService implements _BaseServiceImpl 
         StaffDto.SaveStaff saveStaffDto = (StaffDto.SaveStaff) save;
         SystemUser staff = SystemUserMapper.MAPPER.mapToPojo(saveStaffDto);
         if (checkUserExistWithMobile(saveStaffDto.getIsdCode(), saveStaffDto.getMobile())) {
-            throw new BadRequestException("kpis_food.common.message.mobile_already_exist");
+            throw new BadRequestException("ecommerce.common.message.mobile_already_exist");
         }
         if (checkUserExistWithEmail(saveStaffDto.getEmail())) {
-            throw new BadRequestException("kpis_food.common.message.email_already_exist");
+            throw new BadRequestException("ecommerce.common.message.email_already_exist");
         }
         staff.setParentAdminId(loggedInUser.getId());
         staff.setParentAdminDetail(new BasicParent(loggedInUser.getUuid(), loggedInUser.fullName()));
@@ -64,13 +64,13 @@ public class SystemUserService extends _BaseService implements _BaseServiceImpl 
         {
             SystemUser userExistWithMobile = findFirstByIsdAndMobileAndId(updateStaffDto.getIsdCode(), updateStaffDto.getMobile(), staff.getId());
             if (userExistWithMobile != null) {
-                throw new BadRequestException("kpis_food.common.message.mobile_already_exist");
+                throw new BadRequestException("ecommerce.common.message.mobile_already_exist");
             }
         }
         {
             SystemUser userExistWithEmail = findFirstByEmailAndId(updateStaffDto.getEmail(), staff.getId());
             if (userExistWithEmail != null) {
-                throw new BadRequestException("kpis_food.common.message.mobile_already_exist");
+                throw new BadRequestException("ecommerce.common.message.mobile_already_exist");
             }
         }
         staff.setEmail(updateStaffDto.getEmail());

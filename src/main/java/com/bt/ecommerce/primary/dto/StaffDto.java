@@ -13,7 +13,7 @@ public class StaffDto extends AbstractDto{
     @Setter
     @Getter
     public static class SaveStaff extends Save {
-        @NotNull private String jobRole;
+        private String jobRole;
 
         @NotNull private String firstName;
         @NotNull private String lastName;
@@ -26,7 +26,7 @@ public class StaffDto extends AbstractDto{
     @Setter
     @Getter
     public static class UpdateStaff extends Update {
-        @NotNull private String jobRole;
+        private String jobRole;
 
         @NotNull private String firstName;
         @NotNull private String lastName;

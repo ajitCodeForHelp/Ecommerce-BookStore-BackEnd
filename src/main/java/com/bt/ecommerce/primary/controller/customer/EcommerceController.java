@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/customer/v1/category")
+@RequestMapping("/customer/v1/homePage")
 public class EcommerceController extends _BaseController {
 
     @TranslateResponseMessage
@@ -43,6 +43,16 @@ public class EcommerceController extends _BaseController {
                 .errorCode(0)
                 .message("Item Search Data")
                 .responsePacket(itemService.itemSearch(search))
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @GetMapping("/banner-data")
+    protected ResponseEntity<ResponsePacket> bannerData() {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.bannerData")
+                .responsePacket(bannerService.list("Active"))
                 .build(), HttpStatus.OK);
     }
 
