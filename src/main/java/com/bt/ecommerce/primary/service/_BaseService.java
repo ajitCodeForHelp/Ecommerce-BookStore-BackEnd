@@ -21,6 +21,7 @@ public class _BaseService {
     @Autowired protected CustomerRepository customerRepository;
     @Autowired protected BannerRepository bannerRepository;
     @Autowired protected OrderRepository orderRepository;
+    @Autowired protected SettingRepository settingRepository;
     @Autowired protected ModuleRepository moduleRepository;
     @Autowired protected UrlRepository urlRepository;
 
