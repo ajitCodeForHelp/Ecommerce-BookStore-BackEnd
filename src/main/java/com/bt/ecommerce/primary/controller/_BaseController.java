@@ -24,5 +24,6 @@ public class _BaseController {
     @Autowired protected CustomerService customerService;
     @Autowired protected BannerService bannerService;
     @Autowired protected OrderService orderService;
+    @Autowired protected SettingService settingService;
 
 }
