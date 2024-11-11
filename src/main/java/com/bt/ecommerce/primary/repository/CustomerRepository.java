@@ -27,4 +27,6 @@ public interface CustomerRepository extends MongoRepository<Customer, ObjectId> 
     List<Customer> findByActiveAndDeleted(boolean active, boolean deleted);
 
     List<Customer> findByDeleted(boolean deleted);
+
+    Customer findFirstByIsdCodeAndMobile(String isdCode, String mobile);
 }

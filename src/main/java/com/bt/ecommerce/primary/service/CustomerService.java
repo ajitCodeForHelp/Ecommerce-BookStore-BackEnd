@@ -24,28 +24,56 @@ import java.util.stream.Collectors;
 @Slf4j
 @Service
 public class CustomerService extends _BaseService implements _BaseServiceImpl {
-    @Override
-    public String save(AbstractDto.Save saveDto) throws BadRequestException {
-        CustomerDto.SaveCustomer saveCustomer = (CustomerDto.SaveCustomer) saveDto;
-        Customer customer = CustomerMapper.MAPPER.mapToPojo(saveCustomer);
-        if (checkUserExistWithMobile(saveCustomer.getIsdCode(), saveCustomer.getMobile())) {
-            throw new BadRequestException("kpis_food.common.message.mobile_already_exist");
-        }
-        if (checkUserExistWithEmail(saveCustomer.getEmail())) {
-            throw new BadRequestException("kpis_food.common.message.email_already_exist");
-        }
-        customer.setEmail(saveCustomer.getEmail());
-        customer.setUsername(saveCustomer.getEmail());
-        customer.setPwdText(saveCustomer.getPassword());
-        customer.setPwdSecure(TextUtils.getEncodedPassword(saveCustomer.getPassword()));
-        customer.setUserType(RoleEnum.ROLE_CUSTOMER);
-        customer.setUniqueKey(TextUtils.getUniqueKey());
-        customer = customerRepository.save(customer);
-        return customer.getUuid();
+
+    public void generateOtp(CustomerDto.GenerateOtp generateOtp) {
+        Customer customer = saveOrfindCustomer(generateOtp.getIsdCode(), generateOtp.getMobile());
+        // Todo:> Generate an Otp and send it to the customer
     }
 
-    public boolean checkUserExistWithMobile(String isdCode, String mobile) {
-        return customerRepository.existsByIsdCodeAndMobile(isdCode, mobile);
+    private Customer saveOrfindCustomer(String isdCode, String mobile) {
+        Customer customer = customerRepository.findFirstByIsdCodeAndMobile(isdCode, mobile);
+        if (customer == null) {
+            customer = new Customer();
+            customer.setIsdCode(isdCode);
+            customer.setMobile(mobile);
+            customer.setUserType(RoleEnum.ROLE_CUSTOMER);
+            customer.setUniqueKey(TextUtils.getUniqueKey());
+            customerRepository.save(customer);
+        }
+        return customer;
+    }
+
+    public CustomerDto.DetailCustomer loginWithOtp(CustomerDto.LoginCustomer loginCustomer) throws BadRequestException {
+        Customer customer = findUserWithMobile(loginCustomer.getIsdCode(), loginCustomer.getMobile());
+        if (customer == null) {
+            throw new BadRequestException("ecommerce.common.message.record_not_exist");
+        }
+        // Todo:> Verify the otp
+        if (!loginCustomer.getPassword().isEmpty()) {
+            customer.setPwdText(loginCustomer.getPassword());
+            customer.setPwdSecure(TextUtils.getEncodedPassword(loginCustomer.getPassword()));
+        }
+
+        customer = customerRepository.save(customer);
+        // Todo:> Generate auth for customer login
+        return CustomerMapper.MAPPER.mapToDetailDto(customer);
+    }
+
+    public CustomerDto.DetailCustomer loginWithPassword(CustomerDto.LoginCustomer loginCustomer) throws BadRequestException {
+        Customer customer = findUserWithMobile(loginCustomer.getIsdCode(), loginCustomer.getMobile());
+        if (customer == null) {
+            throw new BadRequestException("ecommerce.common.message.record_not_exist");
+        }
+        if (customer.getPwdSecure().isEmpty()) {
+            throw new BadRequestException("ecommerce.common.message.password_not_set");
+        }
+        TextUtils.matchPassword(loginCustomer.getPassword(), customer.getPwdSecure());
+        // Todo:> Generate auth for customer login
+        return CustomerMapper.MAPPER.mapToDetailDto(customer);
+    }
+
+    public Customer findUserWithMobile(String isdCode, String mobile) {
+        return customerRepository.findFirstByIsdCodeAndMobile(isdCode, mobile);
     }
 
     public boolean checkUserExistWithEmail(String email) {
@@ -53,26 +81,17 @@ public class CustomerService extends _BaseService implements _BaseServiceImpl {
     }
 
     @Override
+    public String save(AbstractDto.Save saveDto) throws BadRequestException {
+        return null;
+    }
+
+    @Override
     public void update(String uuid, AbstractDto.Update updateDto) throws BadRequestException {
         CustomerDto.UpdateCustomer updateCustomerDto = (CustomerDto.UpdateCustomer) updateDto;
         Customer customer = findByUuid(uuid);
         customer = CustomerMapper.MAPPER.mapToPojo(customer, updateCustomerDto);
-        {
-            Customer userExistWithMobile = findFirstByIsdAndMobileAndId(updateCustomerDto.getIsdCode(), updateCustomerDto.getMobile(), customer.getId());
-            if (userExistWithMobile != null) {
-                throw new BadRequestException("kpis_food.common.message.mobile_already_exist");
-            }
-        }
-        {
-            Customer userExistWithEmail = findFirstByEmailAndId(updateCustomerDto.getEmail(), customer.getId());
-            if (userExistWithEmail != null) {
-                throw new BadRequestException("kpis_food.common.message.mobile_already_exist");
-            }
-        }
         customer.setEmail(updateCustomerDto.getEmail());
         customer.setUsername(updateCustomerDto.getEmail());
-        customer.setUserType(RoleEnum.ROLE_CUSTOMER);
-        customer.setUniqueKey(TextUtils.getUniqueKey());
         customerRepository.save(customer);
     }
 
@@ -103,7 +122,7 @@ public class CustomerService extends _BaseService implements _BaseServiceImpl {
         Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
         Page<Customer> pageData = customerRepository.findByDeleted(deleted, search, pageable);
         return getDataTableResponsePacket(pageData, pageData.getContent().stream()
-                .map(customer -> CustomerMapper.MAPPER.mapToDetailDto(customer))
+                .map(CustomerMapper.MAPPER::mapToDetailDto)
                 .collect(Collectors.toList()));
     }
 
@@ -158,4 +177,5 @@ public class CustomerService extends _BaseService implements _BaseServiceImpl {
                 .map(customer -> CustomerMapper.MAPPER.mapToDetailDto(customer))
                 .collect(Collectors.toList());
     }
+
 }

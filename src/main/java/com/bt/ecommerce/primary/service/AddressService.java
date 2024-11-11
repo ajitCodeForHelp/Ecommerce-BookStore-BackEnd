@@ -8,6 +8,7 @@ import com.bt.ecommerce.primary.dto.AbstractDto;
 import com.bt.ecommerce.primary.dto.AddressDto;
 import com.bt.ecommerce.primary.mapper.AddressMapper;
 import com.bt.ecommerce.primary.pojo.Address;
+import com.bt.ecommerce.primary.pojo.common.BasicParent;
 import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.security.JwtUserDetailsService;
 import lombok.extern.slf4j.Slf4j;
@@ -21,8 +22,16 @@ import java.util.List;
 public class AddressService extends _BaseService implements _BaseServiceImpl {
     @Override
     public String save(AbstractDto.Save saveDto) throws BadRequestException {
+        Customer loggedInUser = (Customer) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
         AddressDto.SaveAddress saveAddress = (AddressDto.SaveAddress) saveDto;
         Address address = AddressMapper.MAPPER.mapToSaveAddress(saveAddress);
+        address.setCustomerId(loggedInUser.getId());
+
+        BasicParent parent = new BasicParent();
+        parent.setParentTitle(loggedInUser.fullName());
+        parent.setParentUuid(loggedInUser.getUuid());
+        address.setCustomerDetail(parent);
+
         addressRepository.save(address);
         return address.getUuid();
     }
@@ -36,20 +45,16 @@ public class AddressService extends _BaseService implements _BaseServiceImpl {
     }
 
     private void mapToUpdateAddress(Address address, AddressDto.UpdateAddress updateAddress) {
+        address.setFirstName(updateAddress.getFirstName());
+        address.setLastName(updateAddress.getLastName());
+        address.setMobileNumber(updateAddress.getMobileNumber());
         address.setLatitude(updateAddress.getLatitude());
         address.setLongitude(updateAddress.getLongitude());
-        address.setAddressLine1(updateAddress.getAddressLine1());
-        address.setAddressLine2(updateAddress.getAddressLine2());
-        address.setAddressLine3(updateAddress.getAddressLine3());
-        address.setCountryId(updateAddress.getCountryId());
         address.setCountryTitle(updateAddress.getCountryTitle());
-        address.setStateId(updateAddress.getStateId());
         address.setStateTitle(updateAddress.getStateTitle());
-        address.setCityId(updateAddress.getCityId());
         address.setCityTitle(updateAddress.getCityTitle());
         address.setPinCode(updateAddress.getPinCode());
-        address.setAddressType(updateAddress.getAddressType());
-
+//        address.setAddressType(updateAddress.getAddressType());
     }
 
     @Override

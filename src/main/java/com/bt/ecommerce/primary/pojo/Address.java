@@ -16,31 +16,23 @@ public class Address extends _BasicEntity {
     private ObjectId customerId;
     private BasicParent customerDetail;
 
+    private String firstName;
+    private String lastName;
+    private String mobileNumber;
     private Double latitude;
     private Double longitude;
-
-    private String addressLine1;
-    private String addressLine2;
-    private String addressLine3;
-
-    private Long countryId;
+    private String addressLine;
     private String countryTitle;
-
-    private Long stateId;
     private String stateTitle;
-
-    private Long cityId;
     private String cityTitle;
 
     private String pinCode;
 
-    private String addressType; // Office / Home / Other
+//    private String addressType; // Office / Home / Other
 
     @Override
     public String toString() {
-        return (!TextUtils.isEmpty(addressLine1) ? addressLine1 + ", " : "") +
-                (!TextUtils.isEmpty(addressLine2) ? addressLine2 + ", " : "") +
-                (!TextUtils.isEmpty(addressLine3) ? addressLine3 + ", " : "") +
+        return (!TextUtils.isEmpty(addressLine) ? addressLine + ", " : "") +
                 (!TextUtils.isEmpty(cityTitle) ? cityTitle + ", " : "") +
                 (!TextUtils.isEmpty(stateTitle) ? stateTitle + ", " : "") +
                 (!TextUtils.isEmpty(countryTitle) ? countryTitle + ", " : "") +

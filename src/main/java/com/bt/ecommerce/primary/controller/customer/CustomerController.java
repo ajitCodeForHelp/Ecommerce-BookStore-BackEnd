@@ -8,6 +8,7 @@ import com.bt.ecommerce.primary.controller._BaseController;
 import com.bt.ecommerce.primary.dto.CustomerDto;
 import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.security.JwtUserDetailsService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -20,12 +21,32 @@ import org.springframework.web.bind.annotation.*;
 public class CustomerController extends _BaseController {
 
     @TranslateResponseMessage
-    @PostMapping("/save")
-    protected ResponseEntity<ResponsePacket> save(@Valid @RequestBody CustomerDto.SaveCustomer create) throws BadRequestException {
+    @PostMapping("/generateOtp")
+    protected ResponseEntity<ResponsePacket> generateOtp(@Valid @RequestBody CustomerDto.GenerateOtp generateOtp) throws BadRequestException {
+        customerService.generateOtp(generateOtp);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
-                .message("ecommerce.common.message.save")
-                .responsePacket(customerService.save(create))
+                .message("ecommerce.common.message.otp_sent")
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @PostMapping("/loginCustomerWithOtp")
+    protected ResponseEntity<ResponsePacket> loginWithOtp(HttpServletRequest request, @Valid @RequestBody CustomerDto.LoginCustomer login) throws BadRequestException {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.login")
+                .responsePacket(customerService.loginWithOtp(login))
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @PostMapping("/loginCustomerWithPassword")
+    protected ResponseEntity<ResponsePacket> loginWithPassword(HttpServletRequest request,@Valid @RequestBody CustomerDto.LoginCustomer login) throws BadRequestException {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.login")
+                .responsePacket(customerService.loginWithPassword(login))
                 .build(), HttpStatus.OK);
     }
 
