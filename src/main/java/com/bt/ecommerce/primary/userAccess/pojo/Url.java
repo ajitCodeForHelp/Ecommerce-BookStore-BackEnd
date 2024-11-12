@@ -38,5 +38,7 @@ public class Url extends _BasicEntity {
         protected boolean active;
         private String title;
         private String url;
+        private MethodTypeEnum methodType;
+        private AccessTypeEnum accessType;
     }
 }
