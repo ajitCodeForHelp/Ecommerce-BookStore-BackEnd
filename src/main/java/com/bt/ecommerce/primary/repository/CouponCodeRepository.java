@@ -16,7 +16,7 @@ public interface CouponCodeRepository extends MongoRepository<CouponCode, Object
 
     @Query(value = "{" +
             "  'active'  : { '$eq' : true }," +
-            "  'endDate' : { '$lt' : ?0 }" +
+            "  'endDate' : { '$gt' : ?0 }" +
             "}")
     List<CouponCode> findActiveCouponCodeList(LocalDate localDate);
 
