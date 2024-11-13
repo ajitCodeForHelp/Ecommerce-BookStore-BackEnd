@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/guest-customer/v1/category")
+@RequestMapping("/guest-customer/v1/homePage")
 public class EcommerceController extends _BaseController {
 
     @TranslateResponseMessage
