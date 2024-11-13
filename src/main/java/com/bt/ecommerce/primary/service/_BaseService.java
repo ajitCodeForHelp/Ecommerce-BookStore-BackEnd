@@ -1,7 +1,6 @@
 package com.bt.ecommerce.primary.service;
 
 import com.bt.ecommerce.bean.DataTableResponsePacket;
-import com.bt.ecommerce.primary.pojo.CustomerItemNotification;
 import com.bt.ecommerce.primary.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -21,7 +20,7 @@ public class _BaseService {
     @Autowired protected BannerRepository bannerRepository;
     @Autowired protected OrderRepository orderRepository;
     @Autowired protected DynamicFieldRepository dynamicFieldRepository;
-    @Autowired protected CustomerItemNotificationRepository customerItemNotificationRepository;
+    @Autowired protected StockInNotificationRepository stockInNotificationRepository;
     @Autowired protected OneTimePasswordRepository oneTimePasswordRepository;
 
 

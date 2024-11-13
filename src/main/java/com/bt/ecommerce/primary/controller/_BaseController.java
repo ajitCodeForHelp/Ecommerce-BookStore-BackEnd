@@ -23,7 +23,7 @@ public class _BaseController {
     @Autowired protected BannerService bannerService;
     @Autowired protected OrderService orderService;
     @Autowired protected DynamicFieldService dynamicFieldService;
-    @Autowired protected CustomerItemNotificationService customerItemNotificationService;
+    @Autowired protected StockInNotificationService stockInNotificationService;
     @Autowired protected OneTimePasswordService oneTimePasswordService;
 
 }
