@@ -236,4 +236,18 @@ public class SystemUserService extends _BaseService implements _BaseServiceImpl 
         loggedInUser.setPwdSecure(TextUtils.getEncodedPassword(newPassword));
         systemUserRepository.save(loggedInUser);
     }
+
+    public List<UrlDto.DetailUrl> getAssignUrlsForStaff(String staffUuid) throws BadRequestException {
+        SystemUser staffUser = findByUuid(staffUuid);
+        if (TextUtils.isEmpty(staffUser.getUrlUuidList())) return null;
+        List<Url> urlList = urlRepository.findByUuids(staffUser.getUrlUuidList());
+        List<UrlDto.DetailUrl> userAssignUrlList = new ArrayList<>();
+        for (Url url : urlList) {
+            if (url.isActive()) {
+                userAssignUrlList.add(UrlMapper.MAPPER.mapToDetailDto(url));
+            }
+        }
+        return userAssignUrlList;
+    }
+
 }

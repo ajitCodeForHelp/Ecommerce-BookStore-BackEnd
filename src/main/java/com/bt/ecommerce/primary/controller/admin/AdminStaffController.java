@@ -157,7 +157,7 @@ public class AdminStaffController extends _BaseController {
     @PutMapping("/get-assign-url/{uuid}")
     protected ResponseEntity<ResponsePacket> getAssignUrl(@PathVariable("uuid") String uuid) throws BadRequestException {
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        systemUserService.getAssignUrls(loggedInUser);
+        systemUserService.getAssignUrlsForStaff(uuid);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("Assign url details")
