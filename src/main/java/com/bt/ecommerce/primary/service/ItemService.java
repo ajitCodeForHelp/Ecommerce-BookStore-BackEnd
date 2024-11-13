@@ -159,6 +159,13 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
         itemRepository.save(item);
     }
 
+    public void updateStockOut(String uuid) throws BadRequestException {
+        Item item = findByUuid(uuid);
+        item.setStockOut(!item.isStockOut());
+        item.setModifiedAt(LocalDateTime.now());
+        itemRepository.save(item);
+    }
+
     public List<KeyValueDto> listInKeyValue() {
         List<Item> itemList = itemRepository.findByActiveAndDeleted();
         return itemList.stream()
@@ -172,5 +179,17 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
             throw new BadRequestException("ecommerce.common.message.record_not_exist");
         }
         return item;
+    }
+
+    public List<KeyValueDto> itemSearch(String search) {
+        // Only Send 10 Record In Search Field
+        Pageable pageable = PageRequest.of(0, 10);
+        if (TextUtils.isEmpty(search)) return null;
+        List<Item> itemList = itemRepository.findByTitle(search, pageable);
+        if (TextUtils.isEmpty(itemList)) return null;
+        return itemList.stream()
+                .map(item -> ItemMapper.MAPPER.mapToKeyPairDto(item))
+                .collect(Collectors.toList());
+
     }
 }

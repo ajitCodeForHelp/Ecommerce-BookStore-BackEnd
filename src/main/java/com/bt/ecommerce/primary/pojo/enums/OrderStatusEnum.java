@@ -1,13 +1,13 @@
 package com.bt.ecommerce.primary.pojo.enums;
 
-public enum DeliveryStatusEnum {
+public enum OrderStatusEnum {
     ORDER("ORDER"),
     DISPATCHED("DISPATCHED"),
     DELIVERED("DELIVERED"),
     ;
     String type;
 
-    DeliveryStatusEnum(String type) {
+    OrderStatusEnum(String type) {
         this.type = type;
     }
 

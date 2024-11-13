@@ -19,9 +19,17 @@ public interface ItemRepository extends MongoRepository<Item, ObjectId> {
             "}")
     List<Item> findByUuids(List<String> itemUuids);
 
-    @Query(value = "" +
-            "{" +
-            "  'parentCategoryIds'  : { '$in' : [?0] }," +
+//    @Query(value = "" +
+//            "{" +
+//            "  'parentCategoryIds'  : { '$in' : [?0] }," +
+//            "}")
+//    List<Item> findByCategoryId(ObjectId categoryId);
+
+    @Query(value = "{" +
+            "  '$or' : [" +
+            "    { 'parentCategoryIds' : { '$in' : [?0] } }," +
+            "    { 'subCategoryIds'    : { '$in' : [?0] } }" +
+            "  ]" +
             "}")
     List<Item> findByCategoryId(ObjectId categoryId);
 
@@ -63,4 +71,11 @@ public interface ItemRepository extends MongoRepository<Item, ObjectId> {
             "}"
     )
     Page<Item> findByDeleted(boolean deleted, String search, Pageable pageable);
+
+    @Query(value = "" +
+            "{" +
+            "  'active' : { '$eq' : true }," +
+            "  'title'  : { $regularExpression : { pattern : ?0, options : 'i'} } " +
+            "}")
+    List<Item> findByTitle(String search, Pageable pageable);
 }

@@ -17,6 +17,7 @@ import java.util.List;
 @Document(value = "cart")
 public class Cart extends _BasicEntity {
 
+    private String deviceId;
     private ObjectId customerId;
     private CustomerRefDetail customerDetail;
     private CustomerAddressDetail customerAddressDetail;

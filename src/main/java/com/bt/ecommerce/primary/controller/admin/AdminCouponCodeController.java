@@ -96,4 +96,15 @@ public class AdminCouponCodeController extends _BaseController {
                 .message("ecommerce.common.message.deleted")
                 .build(), HttpStatus.OK);
     }
+    @TranslateResponseMessage
+    @PutMapping("/revive/{uuid}")
+    protected ResponseEntity<ResponsePacket> revive(@PathVariable("uuid") String uuid) throws BadRequestException {
+        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        couponCodeService.revive(uuid);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.revive")
+                .build(), HttpStatus.OK);
+    }
+
 }

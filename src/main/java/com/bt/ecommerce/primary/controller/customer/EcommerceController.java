@@ -36,4 +36,24 @@ public class EcommerceController extends _BaseController {
                 .build(), HttpStatus.OK);
     }
 
+    @TranslateResponseMessage
+    @GetMapping("/item-search")
+    protected ResponseEntity<ResponsePacket> itemSearch(String search) {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("Item Search Data")
+                .responsePacket(itemService.itemSearch(search))
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @GetMapping("/banner-data")
+    protected ResponseEntity<ResponsePacket> bannerData() {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.bannerData")
+                .responsePacket(bannerService.list("Active"))
+                .build(), HttpStatus.OK);
+    }
+
 }

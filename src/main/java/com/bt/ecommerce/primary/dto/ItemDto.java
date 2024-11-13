@@ -57,6 +57,7 @@ public class ItemDto extends AbstractDto{
         private int sequenceNo;
         private double weight;
         private String otherDataJson;
+        private Boolean stockOut;
     }
 
     @Setter

@@ -16,31 +16,33 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/guest-customer/v1/cart")
 public class CustomerCartController extends _BaseController {
 
-
     @TranslateResponseMessage
-    @GetMapping({"/getCartDetail", "/getCartDetail/{cartUuid}"})
-    public ResponseEntity<ResponsePacket> getCartDetail(@PathVariable(value = "cartUuid", required = false) String cartUuid) throws BadRequestException {
+    @GetMapping("/getCartItemCount/{deviceId}")
+    public ResponseEntity<ResponsePacket> getCartItemCount(@PathVariable(value = "deviceId") String deviceId) throws BadRequestException {
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.get")
-                .responsePacket(cartService.getCartDetail(cartUuid))
+                .responsePacket(cartService.getCartItemCount(deviceId))
                 .build(), HttpStatus.OK);
     }
 
-//    @TranslateResponseMessage
-//    @PostMapping("/createCart")
-//    public ResponseEntity<ResponsePacket> createCart(@Valid @RequestBody CartDto.UpdateCart cart) throws BadRequestException {
-//        return new ResponseEntity<>(ResponsePacket.builder()
-//                .errorCode(0)
-//                .message("ecommerce.common.message.save")
-//                .responsePacket(cartService.createCart(cart))
-//                .build(), HttpStatus.OK);
-//    }
+    @TranslateResponseMessage
+//    @GetMapping({"/getCartDetail", "/getCartDetail/{cartUuid}"})
+    @GetMapping("/getCartDetail/{deviceId}")
+    public ResponseEntity<ResponsePacket> getCartDetail(@PathVariable(value = "deviceId") String deviceId) throws BadRequestException {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get")
+                .responsePacket(cartService.getCartDetail(deviceId))
+                .build(), HttpStatus.OK);
+    }
 
     @TranslateResponseMessage
-    @PutMapping("/updateCart/{cartUuid}")
-    public ResponseEntity<ResponsePacket> updateCart(@PathVariable("cartUuid") String uuid, @Valid @RequestBody CartDto.UpdateCart cart) throws BadRequestException {
-        cartService.updateCart(uuid, cart);
+    @PutMapping("/updateCart/{deviceId}/{cartUuid}")
+    public ResponseEntity<ResponsePacket> updateCart(@PathVariable("deviceId") String deviceId,
+                                                     @PathVariable("cartUuid") String uuid,
+                                                     @Valid @RequestBody CartDto.UpdateCart cart) throws BadRequestException {
+        cartService.updateCart(deviceId, uuid, cart);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.update")
