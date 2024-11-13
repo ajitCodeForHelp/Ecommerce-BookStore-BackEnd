@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
 @RestController
-@RequestMapping("/customer/v1/couponCode")
+@RequestMapping("/guest-customer/v1/couponCode")
 public class CustomerCouponCodeController extends _BaseController {
 
     @TranslateResponseMessage

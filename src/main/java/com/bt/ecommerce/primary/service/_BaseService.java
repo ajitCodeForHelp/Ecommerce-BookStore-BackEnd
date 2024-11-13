@@ -22,6 +22,7 @@ public class _BaseService {
     @Autowired protected OrderRepository orderRepository;
     @Autowired protected DynamicFieldRepository dynamicFieldRepository;
     @Autowired protected CustomerItemNotificationRepository customerItemNotificationRepository;
+    @Autowired protected OneTimePasswordRepository oneTimePasswordRepository;
 
 
     protected DataTableResponsePacket getDataTableResponsePacket(Page pageData, List data) {

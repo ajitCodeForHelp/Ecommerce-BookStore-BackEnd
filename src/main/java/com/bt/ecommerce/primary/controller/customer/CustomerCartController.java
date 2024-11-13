@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/customer/v1/cart")
+@RequestMapping("/guest-customer/v1/cart")
 public class CustomerCartController extends _BaseController {
 
 

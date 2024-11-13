@@ -13,7 +13,6 @@ import org.mapstruct.factory.Mappers;
 public interface CustomerMapper {
     CustomerMapper MAPPER = Mappers.getMapper(CustomerMapper.class);
 
-    Customer mapToPojo(CustomerDto.SaveCustomer saveCustomer);
     Customer mapToPojo(@MappingTarget Customer customer, CustomerDto.UpdateCustomer update);
 
     CustomerDto.DetailCustomer mapToDetailDto(Customer customer);

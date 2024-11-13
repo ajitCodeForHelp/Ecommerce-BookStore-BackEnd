@@ -16,9 +16,11 @@ public class Address extends _BasicEntity {
     private ObjectId customerId;
     private BasicParent customerDetail;
 
+    // Order Delivery User Details
     private String firstName;
     private String lastName;
     private String mobileNumber;
+
     private Double latitude;
     private Double longitude;
     private String addressLine;
@@ -27,8 +29,6 @@ public class Address extends _BasicEntity {
     private String cityTitle;
 
     private String pinCode;
-
-//    private String addressType; // Office / Home / Other
 
     @Override
     public String toString() {

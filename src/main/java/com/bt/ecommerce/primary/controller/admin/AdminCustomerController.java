@@ -5,10 +5,8 @@ import com.bt.ecommerce.bean.ResponsePacket;
 import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.controller._BaseController;
-import com.bt.ecommerce.primary.dto.CustomerDto;
 import com.bt.ecommerce.primary.pojo.user.SystemUser;
 import com.bt.ecommerce.security.JwtUserDetailsService;
-import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -30,31 +28,8 @@ public class AdminCustomerController extends _BaseController {
     }
 
     @TranslateResponseMessage
-    @PostMapping("/list")
-    protected ResponseEntity<ResponsePacket> list(@Valid @RequestBody CustomerDto.GetList list) throws BadRequestException {
-        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        return new ResponseEntity<>(ResponsePacket.builder()
-                .errorCode(0)
-                .message("ecommerce.common.message.get_all")
-                .responsePacket(customerService.list(false, list.getPageNumber(), list.getPageSize(), list.getSearch()))
-                .build(), HttpStatus.OK);
-    }
-
-    @TranslateResponseMessage
-    @PostMapping("/deleted-list")
-    protected ResponseEntity<ResponsePacket> deletedList(@Valid @RequestBody CustomerDto.GetList list) throws BadRequestException {
-        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        return new ResponseEntity<>(ResponsePacket.builder()
-                .errorCode(0)
-                .message("ecommerce.common.message.get_all_deleted_records")
-                .responsePacket(customerService.list(true, list.getPageNumber(), list.getPageSize(), list.getSearch()))
-                .build(), HttpStatus.OK);
-    }
-
-    @TranslateResponseMessage
     @PutMapping("/activate/{uuid}")
     protected ResponseEntity<ResponsePacket> activate(@PathVariable("uuid") String uuid) throws BadRequestException {
-        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
         customerService.activate(uuid);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
@@ -65,7 +40,6 @@ public class AdminCustomerController extends _BaseController {
     @TranslateResponseMessage
     @PutMapping("/inactivate/{uuid}")
     protected ResponseEntity<ResponsePacket> inactivate(@PathVariable("uuid") String uuid) throws BadRequestException {
-        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
         systemUserService.inactivate(uuid);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
@@ -81,6 +55,16 @@ public class AdminCustomerController extends _BaseController {
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.deleted")
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @DeleteMapping("/revive/{uuid}")
+    protected ResponseEntity<ResponsePacket> revive(@PathVariable("uuid") String uuid) throws BadRequestException {
+        systemUserService.revive(uuid);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.revive")
                 .build(), HttpStatus.OK);
     }
 }

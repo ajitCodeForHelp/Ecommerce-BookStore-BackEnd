@@ -18,7 +18,11 @@ import java.util.Map;
 @Slf4j
 @Service
 public class AuthService extends _BaseService {
-    @Autowired protected JwtTokenUtil jwtTokenUtil;
+    @Autowired
+    protected JwtTokenUtil jwtTokenUtil;
+    @Autowired
+    protected CustomerService customerService;
+
     public SystemUser findByUsername(String userName) throws BadRequestException {
         SystemUser pojo = systemUserRepository.findFirstByUsername(userName);
         if (pojo == null) {
@@ -29,7 +33,7 @@ public class AuthService extends _BaseService {
 
     public Customer findByCustomerUsername(String username) throws BadRequestException {
         Customer customer = customerRepository.findFirstByUsername(username);
-        if(customer == null){
+        if (customer == null) {
             throw new BadRequestException("ecommerce.common.message.record_not_exist");
         }
         return customer;
@@ -51,10 +55,20 @@ public class AuthService extends _BaseService {
         return generateAuthTokenAndGetUserDetails(userCustomer, ipAddress);
     }
 
-    private void validateUser(_BaseUser user, String password) throws BadRequestException {
-        if (!user.isActive() || user.isDeleted()) {
+    public AuthDto.UserDetails loginOtpCustomer(AuthDto.CustomerOtpLogin login, String ipAddress) throws BadRequestException {
+        // Verify Otp And Save Customer If Not Exist And Validate.
+        customerService.validateLoginWithOtp(login);
+        Customer userCustomer = findByCustomerUsername(login.getMobile());
+        if (!userCustomer.isActive() || userCustomer.isDeleted()) {
             throw new BadRequestException("ecommerce.common.message.user_disable");
         }
+        userCustomer.setLastLogin(LocalDateTime.now());
+        customerRepository.save(userCustomer);
+        return generateAuthTokenAndGetUserDetails(userCustomer, ipAddress);
+    }
+
+    private void validateUser(_BaseUser user, String password) throws BadRequestException {
+
         if (!TextUtils.matchPassword(password, user.getPwdSecure())) {
             throw new BadRequestException("Invalid Credential");
         }
@@ -67,7 +81,7 @@ public class AuthService extends _BaseService {
     private AuthDto.UserDetails generateAuthTokenAndGetUserDetails(_BaseUser user, String ipAddress) {
         // Replace With Mapper.
         AuthDto.UserDetails adminDetail = new AuthDto.UserDetails();
-        adminDetail.setFirstName(user.getFirstName());
+        adminDetail.setFirstName((user.getFirstName() != null) ? user.getFirstName() : user.getMobile());
         adminDetail.setLastName(user.getLastName());
         adminDetail.setUserType(user.getUserType());
 

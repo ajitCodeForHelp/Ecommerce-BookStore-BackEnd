@@ -10,29 +10,36 @@ public class AuthDto {
     @Setter
     @Getter
     public static class AdminLogin {
-        @NotNull
-        private String userName;
-        @NotNull
-        private String password;
+        @NotNull private String userName;
+        @NotNull private String password;
     }
 
     @Getter
     @Setter
     public static class CustomerLogin{
-        @NotNull
-        private String userName;
-        @NotNull
-        private String password;
+        @NotNull private String userName;
+        @NotNull private String password;
     }
 
     @Setter
     @Getter
-    public static class ClientLogin {
-        @NotNull
-        private String userName;
-        @NotNull
-        private String password;
+    public static class CustomerOtpLogin {
+        @NotNull private String isdCode;
+        @NotNull private String mobile;
+        @NotNull private String otp;
     }
+
+    @Setter
+    @Getter
+    public static class ForgotPassword {
+        // First customer enter a mobile number and new password then otp sent to the that mobile number
+        // if otp matched then new password will be updated
+        @NotNull private String isdCode;
+        @NotNull private String mobile;
+        @NotNull private String newPassword;
+        @NotNull private String otp;
+    }
+
 
     @Setter
     @Getter

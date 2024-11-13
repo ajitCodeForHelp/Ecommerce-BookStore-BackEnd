@@ -24,5 +24,6 @@ public class _BaseController {
     @Autowired protected OrderService orderService;
     @Autowired protected DynamicFieldService dynamicFieldService;
     @Autowired protected CustomerItemNotificationService customerItemNotificationService;
+    @Autowired protected OneTimePasswordService oneTimePasswordService;
 
 }

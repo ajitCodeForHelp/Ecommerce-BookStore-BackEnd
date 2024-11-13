@@ -17,27 +17,17 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/customer/v1")
-public class CustomerController extends _BaseController {
+@RequestMapping("/guest-customer/v1")
+public class OneTimePasswordController extends _BaseController {
 
     @TranslateResponseMessage
-    @PutMapping("/update-profile")
-    protected ResponseEntity<ResponsePacket> updateProfile(
-            @Valid @RequestBody CustomerDto.UpdateCustomer update) throws BadRequestException {
-        customerService.updateProfile(update);
+    @PostMapping("/generateOtp")
+    protected ResponseEntity<ResponsePacket> generateOtp(@Valid @RequestBody CustomerDto.GenerateOtp generateOtp) throws BadRequestException {
+        oneTimePasswordService.generateOtp(generateOtp);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
-                .message("ecommerce.common.message.update")
+                .message("ecommerce.common.message.otp_sent")
                 .build(), HttpStatus.OK);
     }
 
-    @TranslateResponseMessage
-    @GetMapping("/get")
-    protected ResponseEntity<ResponsePacket> get() throws BadRequestException {
-        return new ResponseEntity<>(ResponsePacket.builder()
-                .errorCode(0)
-                .message("ecommerce.common.message.get")
-                .responsePacket(customerService.get())
-                .build(), HttpStatus.OK);
-    }
 }
