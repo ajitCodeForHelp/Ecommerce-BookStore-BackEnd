@@ -21,9 +21,15 @@ public class _BaseService {
     @Autowired protected CustomerRepository customerRepository;
     @Autowired protected BannerRepository bannerRepository;
     @Autowired protected OrderRepository orderRepository;
+
+    @Autowired protected DynamicFieldRepository dynamicFieldRepository;
+    @Autowired protected StockInNotificationRepository stockInNotificationRepository;
+    @Autowired protected OneTimePasswordRepository oneTimePasswordRepository;
+
     @Autowired protected SettingRepository settingRepository;
     @Autowired protected ModuleRepository moduleRepository;
     @Autowired protected UrlRepository urlRepository;
+
 
 
     protected DataTableResponsePacket getDataTableResponsePacket(Page pageData, List data) {

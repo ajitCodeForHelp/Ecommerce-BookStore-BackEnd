@@ -1,20 +1,15 @@
 package com.bt.ecommerce.primary.service;
 
-import com.bt.ecommerce.bean.DataTableResponsePacket;
-import com.bt.ecommerce.bean.KeyValueDto;
 import com.bt.ecommerce.exception.BadRequestException;
-import com.bt.ecommerce.primary.dto.AbstractDto;
+import com.bt.ecommerce.primary.dto.AuthDto;
 import com.bt.ecommerce.primary.dto.CustomerDto;
 import com.bt.ecommerce.primary.mapper.CustomerMapper;
 import com.bt.ecommerce.primary.pojo.enums.RoleEnum;
+import com.bt.ecommerce.primary.pojo.enums.VerificationTypeEnum;
 import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.types.ObjectId;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -23,65 +18,66 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class CustomerService extends _BaseService implements _BaseServiceImpl {
-    @Override
-    public String save(AbstractDto.Save saveDto) throws BadRequestException {
-        CustomerDto.SaveCustomer saveCustomer = (CustomerDto.SaveCustomer) saveDto;
-        Customer customer = CustomerMapper.MAPPER.mapToPojo(saveCustomer);
-        if (checkUserExistWithMobile(saveCustomer.getIsdCode(), saveCustomer.getMobile())) {
-            throw new BadRequestException("ecommerce.common.message.mobile_already_exist");
+public class CustomerService extends _BaseService {
+
+    @Autowired
+    private OneTimePasswordService oneTimePasswordService;
+
+    public void validateLoginWithOtp(AuthDto.CustomerOtpLogin login) throws BadRequestException {
+        boolean otpVerify = oneTimePasswordService.verifyOtp(login.getMobile(), login.getOtp(), VerificationTypeEnum.Login);
+        if (!otpVerify) {
+            throw new BadRequestException("Otp Verification Failed");
         }
-        if (checkUserExistWithEmail(saveCustomer.getEmail())) {
-            throw new BadRequestException("ecommerce.common.message.email_already_exist");
+        Customer customer = customerRepository.findFirstByIsdCodeAndMobile(login.getIsdCode(), login.getMobile());
+        if (customer == null) {
+            // Register This Customer
+            customer = registerCustomer(login.getIsdCode(), login.getMobile());
         }
-        customer.setEmail(saveCustomer.getEmail());
-        customer.setUsername(saveCustomer.getEmail());
-        customer.setPwdText(saveCustomer.getPassword());
-        customer.setPwdSecure(TextUtils.getEncodedPassword(saveCustomer.getPassword()));
-        customer.setUserType(RoleEnum.ROLE_CUSTOMER);
-        customer.setUniqueKey(TextUtils.getUniqueKey());
-        customer = customerRepository.save(customer);
-        return customer.getUuid();
+        if(customer == null){
+            throw new BadRequestException("Invalid User Request");
+        }
     }
 
-    public boolean checkUserExistWithMobile(String isdCode, String mobile) {
-        return customerRepository.existsByIsdCodeAndMobile(isdCode, mobile);
-    }
-
-    public boolean checkUserExistWithEmail(String email) {
-        return customerRepository.existsByEmail(email);
-    }
-
-    @Override
-    public void update(String uuid, AbstractDto.Update updateDto) throws BadRequestException {
-        CustomerDto.UpdateCustomer updateCustomerDto = (CustomerDto.UpdateCustomer) updateDto;
-        Customer customer = findByUuid(uuid);
-        customer = CustomerMapper.MAPPER.mapToPojo(customer, updateCustomerDto);
-        {
-            Customer userExistWithMobile = findFirstByIsdAndMobileAndId(updateCustomerDto.getIsdCode(), updateCustomerDto.getMobile(), customer.getId());
-            if (userExistWithMobile != null) {
-                throw new BadRequestException("ecommerce.common.message.mobile_already_exist");
-            }
+    public void forgotPassword(AuthDto.ForgotPassword passwordDto) throws BadRequestException {
+        boolean otpVerify = oneTimePasswordService.verifyOtp(passwordDto.getMobile(), passwordDto.getOtp(), VerificationTypeEnum.ForgotPassword);
+        if (!otpVerify) {
+            throw new BadRequestException("Password Reset Otp Verification Failed");
         }
-        {
-            Customer userExistWithEmail = findFirstByEmailAndId(updateCustomerDto.getEmail(), customer.getId());
-            if (userExistWithEmail != null) {
-                throw new BadRequestException("ecommerce.common.message.mobile_already_exist");
-            }
+        Customer customer = customerRepository.findFirstByIsdCodeAndMobile(passwordDto.getIsdCode(), passwordDto.getMobile());
+        if (customer == null) {
+            // Register This Customer
+            customer = registerCustomer(passwordDto.getIsdCode(), passwordDto.getMobile());
         }
-        customer.setEmail(updateCustomerDto.getEmail());
-        customer.setUsername(updateCustomerDto.getEmail());
-        customer.setUserType(RoleEnum.ROLE_CUSTOMER);
-        customer.setUniqueKey(TextUtils.getUniqueKey());
+        if(customer == null){
+            throw new BadRequestException("Invalid User Request");
+        }
+        customer.setPwdText(passwordDto.getNewPassword());
+        customer.setPwdSecure(TextUtils.getEncodedPassword(customer.getPwdText()));
         customerRepository.save(customer);
     }
 
-    public Customer findFirstByIsdAndMobileAndId(String isdCode, String mobile, ObjectId id) {
-        return customerRepository.findFirstByIsdCodeAndMobileAndId(isdCode, mobile, id);
+    private Customer registerCustomer(String isdCode , String mobile){
+        Customer customer = new Customer();
+        customer.setIsdCode(isdCode);
+        customer.setMobile(mobile);
+        customer.setUsername(mobile);
+        customer.setUserType(RoleEnum.ROLE_CUSTOMER);
+        customer.setUniqueKey(TextUtils.getUniqueKey());
+        return customerRepository.save(customer);
     }
 
-    public Customer findFirstByEmailAndId(String email, ObjectId id) {
-        return customerRepository.findFirstByEmailAndId(email, id);
+
+    public void updateProfile(CustomerDto.UpdateCustomer updateDto) throws BadRequestException {
+        // TODO > Get Logged In Customer
+        Customer customer = findByUuid("sdfsdf");
+        customer = CustomerMapper.MAPPER.mapToPojo(customer, updateDto);
+        customerRepository.save(customer);
+    }
+
+    public CustomerDto.DetailCustomer get() throws BadRequestException {
+        // TODO > Get Logged In Customer
+        Customer customer = findByUuid("sdfsdf");
+        return CustomerMapper.MAPPER.mapToDetailDto(customer);
     }
 
     private Customer findByUuid(String uuid) throws BadRequestException {
@@ -92,56 +88,8 @@ public class CustomerService extends _BaseService implements _BaseServiceImpl {
         return customer;
     }
 
-    @Override
-    public AbstractDto.Detail get(String uuid) throws BadRequestException {
-        Customer customer = findByUuid(uuid);
-        return CustomerMapper.MAPPER.mapToDetailDto(customer);
-    }
 
-    @Override
-    public DataTableResponsePacket list(Boolean deleted, Integer pageNumber, Integer pageSize, String search) {
-        Pageable pageable = PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "createdAt"));
-        Page<Customer> pageData = customerRepository.findByDeleted(deleted, search, pageable);
-        return getDataTableResponsePacket(pageData, pageData.getContent().stream()
-                .map(customer -> CustomerMapper.MAPPER.mapToDetailDto(customer))
-                .collect(Collectors.toList()));
-    }
-
-    @Override
-    public void activate(String uuid) throws BadRequestException {
-        Customer customer = findByUuid(uuid);
-        customer.setActive(true);
-        customer.setModifiedAt(LocalDateTime.now());
-        customerRepository.save(customer);
-    }
-
-    @Override
-    public void inactivate(String uuid) throws BadRequestException {
-        Customer customer = findByUuid(uuid);
-        customer.setActive(false);
-        customer.setModifiedAt(LocalDateTime.now());
-        customerRepository.save(customer);
-    }
-
-    @Override
-    public void delete(String uuid) throws BadRequestException {
-        Customer customer = findByUuid(uuid);
-        customer.setActive(false);
-        customer.setDeleted(true);
-        customer.setModifiedAt(LocalDateTime.now());
-        customerRepository.save(customer);
-    }
-
-    @Override
-    public void revive(String uuid) throws BadRequestException {
-
-    }
-
-    @Override
-    public List<KeyValueDto> listInKeyValue() throws BadRequestException {
-        return null;
-    }
-
+    //############################################### Admin Side Api ################################
     public List<CustomerDto.DetailCustomer> listData(String data) {
         // Data >  Active | Inactive | Deleted | All
         List<Customer> list = null;
@@ -158,4 +106,35 @@ public class CustomerService extends _BaseService implements _BaseServiceImpl {
                 .map(customer -> CustomerMapper.MAPPER.mapToDetailDto(customer))
                 .collect(Collectors.toList());
     }
+
+    public void activate(String uuid) throws BadRequestException {
+        Customer customer = findByUuid(uuid);
+        customer.setActive(true);
+        customer.setModifiedAt(LocalDateTime.now());
+        customerRepository.save(customer);
+    }
+
+    public void inactivate(String uuid) throws BadRequestException {
+        Customer customer = findByUuid(uuid);
+        customer.setActive(false);
+        customer.setModifiedAt(LocalDateTime.now());
+        customerRepository.save(customer);
+    }
+
+    public void delete(String uuid) throws BadRequestException {
+        Customer customer = findByUuid(uuid);
+        customer.setActive(false);
+        customer.setDeleted(true);
+        customer.setModifiedAt(LocalDateTime.now());
+        customerRepository.save(customer);
+    }
+
+    public void revive(String uuid) throws BadRequestException {
+        Customer customer = findByUuid(uuid);
+        customer.setDeleted(false);
+        customer.setModifiedAt(LocalDateTime.now());
+        customerRepository.save(customer);
+    }
+
+
 }

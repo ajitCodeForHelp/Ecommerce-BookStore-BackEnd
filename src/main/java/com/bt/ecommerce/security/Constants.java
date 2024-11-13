@@ -7,7 +7,7 @@ public class Constants {
             "/auth/**",
             "/public/**",
             "/guest/**",
-            "/customer/**",
+            "/guest-customer/**",
             "/",
 
             "/swagger-ui/index.html",
@@ -25,5 +25,5 @@ public class Constants {
             "/csrf",
     };
     public static final String[] MONITORING_PATTERNS = new String[]{"/actuator/**"};
-    public static final String[] PROTECTED_PATTERNS = new String[]{"/admin/**"};
+    public static final String[] PROTECTED_PATTERNS = new String[]{"/admin/**", "/customer/**"};
 }

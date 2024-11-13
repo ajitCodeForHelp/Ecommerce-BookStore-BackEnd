@@ -12,55 +12,50 @@ public class AddressDto extends AbstractDto{
 
     @Getter
     @Setter
-    public static class SaveAddress extends Save{
-        private String customerUuid;
+    public static class SaveAddress extends Save {
+        // In Case Order Is Delivery To Other Person
+        private String firstName;
+        private String lastName;
+        private String mobileNumber;
+
         private Double latitude;
         private Double longitude;
-        private String addressLine1;
-        private String addressLine2;
-        private String addressLine3;
-        private Long countryId;
+        private String addressLine;
         private String countryTitle;
-        private Long stateId;
         private String stateTitle;
-        private Long cityId;
         private String cityTitle;
         private String pinCode;
-        private String addressType;
     }
     @Getter
     @Setter
     public static class UpdateAddress extends Update{
+        // In Case Order Is Delivery To Other Person
+        private String firstName;
+        private String lastName;
+        private String mobileNumber;
+
         private Double latitude;
         private Double longitude;
-        private String addressLine1;
-        private String addressLine2;
-        private String addressLine3;
-        private Long countryId;
+        private String addressLine;
         private String countryTitle;
-        private Long stateId;
         private String stateTitle;
-        private Long cityId;
         private String cityTitle;
         private String pinCode;
-        private String addressType;
     }
     @Getter
     @Setter
-    public static class DetailAddress extends Detail{
+    public static class DetailAddress extends Detail {
         private BasicParent customerDetail;
+        private String firstName;
+        private String lastName;
+        private String mobileNumber;
+
         private Double latitude;
         private Double longitude;
-        private String addressLine1;
-        private String addressLine2;
-        private String addressLine3;
-        private Long countryId;
+        private String addressLine;
         private String countryTitle;
-        private Long stateId;
         private String stateTitle;
-        private Long cityId;
         private String cityTitle;
         private String pinCode;
-        private String addressType;
     }
 }
