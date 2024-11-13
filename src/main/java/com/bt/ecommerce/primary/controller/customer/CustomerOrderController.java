@@ -14,6 +14,15 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/customer/v1/order")
 public class CustomerOrderController extends _BaseController {
 
+    @TranslateResponseMessage
+    @PostMapping("/placeOrder/{cartUuid}")
+    public ResponseEntity<ResponsePacket> placeOrder(@PathVariable("cartUuid") String cartUuid) throws BadRequestException {
+        cartService.placeOrder(cartUuid);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.place_order")
+                .build(), HttpStatus.OK);
+    }
 
     @TranslateResponseMessage
     @GetMapping("/getOrderDetail/{orderId}")

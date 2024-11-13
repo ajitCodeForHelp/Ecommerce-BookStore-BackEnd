@@ -18,31 +18,34 @@ public class CustomerCartController extends _BaseController {
 
     @TranslateResponseMessage
     @GetMapping("/getCartItemCount/{deviceId}")
-    public ResponseEntity<ResponsePacket> getCartItemCount(@PathVariable(value = "deviceId") String deviceId) throws BadRequestException {
+    public ResponseEntity<ResponsePacket> getCartItemCount(@RequestHeader("Authorization") String authorization,
+            @PathVariable(value = "deviceId") String deviceId) throws BadRequestException {
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.get")
-                .responsePacket(cartService.getCartItemCount(deviceId))
+                .responsePacket(cartService.getCartItemCount(authorization, deviceId))
                 .build(), HttpStatus.OK);
     }
 
     @TranslateResponseMessage
 //    @GetMapping({"/getCartDetail", "/getCartDetail/{cartUuid}"})
     @GetMapping("/getCartDetail/{deviceId}")
-    public ResponseEntity<ResponsePacket> getCartDetail(@PathVariable(value = "deviceId") String deviceId) throws BadRequestException {
+    public ResponseEntity<ResponsePacket> getCartDetail(@RequestHeader("Authorization") String authorizationToken,
+                                                        @PathVariable(value = "deviceId") String deviceId) throws BadRequestException {
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.get")
-                .responsePacket(cartService.getCartDetail(deviceId))
+                .responsePacket(cartService.getCartDetail(authorizationToken, deviceId))
                 .build(), HttpStatus.OK);
     }
 
     @TranslateResponseMessage
     @PutMapping("/updateCart/{deviceId}/{cartUuid}")
-    public ResponseEntity<ResponsePacket> updateCart(@PathVariable("deviceId") String deviceId,
+    public ResponseEntity<ResponsePacket> updateCart(@RequestHeader("Authorization") String authorizationToken,
+                                                     @PathVariable("deviceId") String deviceId,
                                                      @PathVariable("cartUuid") String uuid,
                                                      @Valid @RequestBody CartDto.UpdateCart cart) throws BadRequestException {
-        cartService.updateCart(deviceId, uuid, cart);
+        cartService.updateCart(authorizationToken, deviceId, uuid, cart);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.update")
@@ -82,13 +85,4 @@ public class CustomerCartController extends _BaseController {
                 .build(), HttpStatus.OK);
     }
 
-    @TranslateResponseMessage
-    @PostMapping("/placeOrder/{cartUuid}")
-    public ResponseEntity<ResponsePacket> placeOrder(@PathVariable("cartUuid") String cartUuid) throws BadRequestException {
-        cartService.placeOrder(cartUuid);
-        return new ResponseEntity<>(ResponsePacket.builder()
-                .errorCode(0)
-                .message("ecommerce.common.message.place_order")
-                .build(), HttpStatus.OK);
-    }
 }

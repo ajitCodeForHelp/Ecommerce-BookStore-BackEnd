@@ -21,7 +21,7 @@ public class AdminOrderController extends _BaseController {
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.get")
-                .responsePacket(cartService.getCartDetail(cartUuid))
+                .responsePacket(cartService.get(cartUuid))
                 .build(), HttpStatus.OK);
     }
 
@@ -45,6 +45,7 @@ public class AdminOrderController extends _BaseController {
                 .build(), HttpStatus.OK);
     }
 
+    // ###############################ORDER API##############################
 
     @TranslateResponseMessage
     @GetMapping("/getOrderDetail/{orderId}")
