@@ -18,7 +18,7 @@ public class CustomerCartController extends _BaseController {
 
     @TranslateResponseMessage
     @GetMapping("/getCartItemCount/{deviceId}")
-    public ResponseEntity<ResponsePacket> getCartItemCount(@RequestHeader("Authorization") String authorization,
+    public ResponseEntity<ResponsePacket> getCartItemCount(@RequestHeader(value = "Authorization", required = false) String authorization,
             @PathVariable(value = "deviceId") String deviceId) throws BadRequestException {
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
@@ -30,8 +30,8 @@ public class CustomerCartController extends _BaseController {
     @TranslateResponseMessage
 //    @GetMapping({"/getCartDetail", "/getCartDetail/{cartUuid}"})
     @GetMapping("/getCartDetail/{deviceId}")
-    public ResponseEntity<ResponsePacket> getCartDetail(@RequestHeader("Authorization") String authorizationToken,
-                                                        @PathVariable(value = "deviceId") String deviceId) throws BadRequestException {
+    public ResponseEntity<ResponsePacket> getCartDetail(@RequestHeader(value = "Authorization", required = false) String authorizationToken,
+                                                        @PathVariable(value = "deviceId" ,required = false) String deviceId) throws BadRequestException {
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.get")
@@ -41,8 +41,8 @@ public class CustomerCartController extends _BaseController {
 
     @TranslateResponseMessage
     @PutMapping("/updateCart/{deviceId}/{cartUuid}")
-    public ResponseEntity<ResponsePacket> updateCart(@RequestHeader("Authorization") String authorizationToken,
-                                                     @PathVariable("deviceId") String deviceId,
+    public ResponseEntity<ResponsePacket> updateCart(@RequestHeader(value = "Authorization", required = false) String authorizationToken,
+                                                     @PathVariable(value = "deviceId", required = false) String deviceId,
                                                      @PathVariable("cartUuid") String uuid,
                                                      @Valid @RequestBody CartDto.UpdateCart cart) throws BadRequestException {
         cartService.updateCart(authorizationToken, deviceId, uuid, cart);
