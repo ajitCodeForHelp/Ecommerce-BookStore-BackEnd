@@ -22,7 +22,7 @@ public class OneTimePasswordService extends _BaseService {
         oneTimePassword.setOtpSentOn(generateOtp.getMobile());
         // TODO > Update Otp code dynamically
         oneTimePassword.setOtpCode(TextUtils.generate4DigitOTP());
-        oneTimePassword.setVerificationType(VerificationTypeEnum.Login);
+        oneTimePassword.setVerificationType(generateOtp.getVerificationType());
         oneTimePassword.setExpiredAt(LocalDateTime.now().plusMinutes(10));
         oneTimePassword = oneTimePasswordRepository.save(oneTimePassword);
         return oneTimePassword.getOtpCode();

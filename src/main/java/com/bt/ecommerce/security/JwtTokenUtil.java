@@ -39,6 +39,13 @@ public class JwtTokenUtil implements Serializable {
         final Claims claims = getAllClaimsFromToken(token);
         return claimsResolver.apply(claims);
     }
+    public String validateToken(String authToken){
+        String[] s = authToken.split(" ");
+        if(s.length > 1){ authToken = s[1];
+        } else { authToken = s[0]; }
+        Claims claims = getAllClaimsFromToken(authToken);
+        return (String) claims.get("username");
+    }
 
     private Claims getAllClaimsFromToken(String token) {
         return Jwts.parser().setSigningKey(secret.getBytes(Charset.forName("UTF-8")))

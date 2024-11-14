@@ -12,7 +12,7 @@ public class StockInNotificationDto extends AbstractDto{
     @Getter
     @Setter
     public static class SaveItemNotification extends Save{
-        @NotNull private String itemId;
+        @NotNull private String itemUuid;
         // Delivery Person Details
         @NotNull private String customerIsdCode;
         @NotNull private String customerMobile;

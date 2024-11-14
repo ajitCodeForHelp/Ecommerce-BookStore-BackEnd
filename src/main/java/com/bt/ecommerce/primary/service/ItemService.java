@@ -163,7 +163,11 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
         Item item = findByUuid(uuid);
         item.setStockOut(!item.isStockOut());
         item.setModifiedAt(LocalDateTime.now());
-        itemRepository.save(item);
+        item = itemRepository.save(item);
+        if (!item.isStockOut()) {
+            // Item Available In Stock Then Send A Alert To Interested User
+            SpringBeanContext.getBean(StockInNotificationService.class).notifyAllInterestedCustomer(item.getId());
+        }
     }
 
     public List<KeyValueDto> listInKeyValue() {
