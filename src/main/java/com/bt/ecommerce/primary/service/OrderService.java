@@ -1,12 +1,15 @@
 package com.bt.ecommerce.primary.service;
 
+import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.OrderDto;
 import com.bt.ecommerce.primary.mapper.OrderMapper;
 import com.bt.ecommerce.primary.pojo.Order;
 import com.bt.ecommerce.primary.pojo.enums.OrderStatusEnum;
 import com.bt.ecommerce.primary.pojo.enums.PaymentStatusEnum;
+import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.primary.pojo.user.SystemUser;
+import com.bt.ecommerce.security.JwtUserDetailsService;
 import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -68,8 +71,8 @@ public class OrderService extends _BaseService {
     }
 
     public List<OrderDto.DetailOrder> getCustomerOrderList() throws BadRequestException {
-        SystemUser systemUser = systemUserRepository.findAll().get(0);
-        List<Order> orderList = orderRepository.findByCustomerId(systemUser.getId());
+        Customer loggedInCustomer = (Customer) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        List<Order> orderList = orderRepository.findByCustomerId(loggedInCustomer.getId());
         return orderList.stream()
                 .map(order -> OrderMapper.MAPPER.mapToDetailOrderDto(order))
                 .collect(Collectors.toList());

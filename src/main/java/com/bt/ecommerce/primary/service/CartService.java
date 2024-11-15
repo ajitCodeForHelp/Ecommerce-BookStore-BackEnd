@@ -160,7 +160,7 @@ public class CartService extends _BaseService {
     private Cart calculateCouponCodeDiscountAmount(Cart cart) {
         if (cart.getCouponCodeId() == null) return cart;
         CouponCode couponCode = couponCodeRepository.findById(cart.getCouponCodeId()).orElse(null);
-        if (couponCode.getEndDate().isAfter(LocalDate.now())) {
+        if (couponCode.getEndDate().isBefore(LocalDate.now())) {
             cart.setCouponCodeId(null);
             cart.setCouponCodeRefDetail(null);
             cart.setCouponDiscountAmount(0.0);
@@ -288,7 +288,7 @@ public class CartService extends _BaseService {
     }
 
     public CartDto.CartItemCount getCartItemCount(String authorizationToken, String deviceId) throws BadRequestException {
-        Cart cart = getCartByDeviceId(deviceId, authorizationToken);
+        Cart cart = getCartByDeviceId(authorizationToken,deviceId);
         CartDto.CartItemCount cartItemCount = new CartDto.CartItemCount();
         if (cart == null) return cartItemCount;
         cartItemCount.setItemCount(cart.getItemDetailList().size());
