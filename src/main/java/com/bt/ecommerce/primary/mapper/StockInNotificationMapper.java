@@ -9,6 +9,8 @@ import org.mapstruct.factory.Mappers;
 public interface StockInNotificationMapper {
     StockInNotificationMapper MAPPER = Mappers.getMapper(StockInNotificationMapper.class);
 
+    StockInNotificationDto.DetailItemNotification mapToDetailDto(StockInNotification customer);
+
 //    StockInNotification mapToPojo(StockInNotificationDto.SaveCustomerItemNotification saveCustomerItemNotification);
 //
 //    StockInNotificationDto.DetailCustomerItemNotification mapToDetailDto(StockInNotification customerItemNotification);
