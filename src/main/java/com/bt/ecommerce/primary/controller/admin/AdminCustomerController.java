@@ -40,7 +40,7 @@ public class AdminCustomerController extends _BaseController {
     @TranslateResponseMessage
     @PutMapping("/inactivate/{uuid}")
     protected ResponseEntity<ResponsePacket> inactivate(@PathVariable("uuid") String uuid) throws BadRequestException {
-        systemUserService.inactivate(uuid);
+        customerService.inactivate(uuid);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.inactive")
@@ -51,7 +51,7 @@ public class AdminCustomerController extends _BaseController {
     @DeleteMapping("/delete/{uuid}")
     protected ResponseEntity<ResponsePacket> delete(@PathVariable("uuid") String uuid) throws BadRequestException {
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        systemUserService.delete(uuid);
+        customerService.delete(uuid);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.deleted")
@@ -61,7 +61,7 @@ public class AdminCustomerController extends _BaseController {
     @TranslateResponseMessage
     @DeleteMapping("/revive/{uuid}")
     protected ResponseEntity<ResponsePacket> revive(@PathVariable("uuid") String uuid) throws BadRequestException {
-        systemUserService.revive(uuid);
+        customerService.revive(uuid);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.revive")

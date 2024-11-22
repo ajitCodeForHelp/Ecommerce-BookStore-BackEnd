@@ -22,8 +22,6 @@ public class FileController extends _BaseController {
 
     @PostMapping("/upload")
     public ResponseEntity<ResponsePacket> uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
-
-        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.file_uploaded_successfully")
