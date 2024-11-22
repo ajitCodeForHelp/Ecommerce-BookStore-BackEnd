@@ -8,8 +8,5 @@ import org.mapstruct.factory.Mappers;
 @Mapper(componentModel = "spring")
 public interface StockInNotificationMapper {
     StockInNotificationMapper MAPPER = Mappers.getMapper(StockInNotificationMapper.class);
-
-//    StockInNotification mapToPojo(StockInNotificationDto.SaveCustomerItemNotification saveCustomerItemNotification);
-//
-//    StockInNotificationDto.DetailCustomerItemNotification mapToDetailDto(StockInNotification customerItemNotification);
+    StockInNotificationDto.DetailCustomerItemNotification mapToDetailDto(StockInNotification stockInNotification);
 }

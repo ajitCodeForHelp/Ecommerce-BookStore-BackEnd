@@ -1,5 +1,6 @@
 package com.bt.ecommerce.primary.dto;
 
+import com.bt.ecommerce.primary.pojo.common.BasicParent;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,12 +18,11 @@ public class StockInNotificationDto extends AbstractDto{
         @NotNull private String customerIsdCode;
         @NotNull private String customerMobile;
     }
-//    @Getter
-//    @Setter
-//    public static class DetailCustomerItemNotification extends Detail{
-//        private String itemId;
-//        private ItemDto.UpdateItem itemDetail;
-//        private String customerIsdCode;
-//        private String customerMobile;
-//    }
+    @Getter
+    @Setter
+    public static class DetailCustomerItemNotification extends Detail{
+        private BasicParent itemDetails;
+        private String customerMobile;
+        private Boolean notifiedToCustomer;
+    }
 }

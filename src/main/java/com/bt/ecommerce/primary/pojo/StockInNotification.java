@@ -18,4 +18,6 @@ public class StockInNotification extends _BasicEntity{
 
     private String customerIsdCode;
     private String customerMobile;
+
+    private Boolean notifiedToCustomer = false;
 }
