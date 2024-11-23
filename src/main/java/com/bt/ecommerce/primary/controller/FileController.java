@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 @Slf4j
 @RestController
-@RequestMapping("/admin/v1/file")
+@RequestMapping("/v1/file")
 public class FileController extends _BaseController {
 
 

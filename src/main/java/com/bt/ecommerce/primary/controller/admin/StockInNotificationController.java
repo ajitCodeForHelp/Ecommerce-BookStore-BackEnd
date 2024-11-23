@@ -57,7 +57,7 @@ public class StockInNotificationController extends _BaseController {
         stockInNotificationService.notifyToCustomer(uuid);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
-                .message("ecommerce.common.message.inactive")
+                .message("ecommerce.common.message.notified")
                 .build(), HttpStatus.OK);
     }
 

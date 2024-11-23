@@ -23,6 +23,7 @@ public class Constants {
             "/*/api/guest/**",
             "/webjars/springfox-swagger-ui/**",
             "/csrf",
+            "/v1/**",
     };
     public static final String[] MONITORING_PATTERNS = new String[]{"/actuator/**"};
     public static final String[] PROTECTED_PATTERNS = new String[]{"/admin/**", "/customer/**"  ,"/ops/**"};
