@@ -231,16 +231,6 @@ public class CartService extends _BaseService {
                     loggedInCustomer.getLastName(), loggedInCustomer.getIsdCode(),
                     loggedInCustomer.getMobile()));
         }
-        if (!TextUtils.isEmpty(deviceId)) {
-            cart.setDeviceId(deviceId);
-        }
-        if (loggedInCustomer != null) {
-            cart.setCustomerId(loggedInCustomer.getId());
-            cart.setCustomerDetail(new Cart.CustomerRefDetail(
-                    loggedInCustomer.getUuid(), loggedInCustomer.getFirstName(),
-                    loggedInCustomer.getLastName(), loggedInCustomer.getIsdCode(),
-                    loggedInCustomer.getMobile()));
-        }
         cart = cartRepository.save(cart);
         if (cart == null) {
             throw new BadRequestException("Invalid DeviceId Provided And Authorization");
