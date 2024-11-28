@@ -1,5 +1,6 @@
 package com.bt.ecommerce.primary.service;
 
+import com.bt.ecommerce.utils.ProjectUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,7 +40,7 @@ public class S3Service {
         S3Client s3Client = createS3Client();
 
         // Determine the file type and directory
-        String fileType = determineFileType(file);
+        String fileType = ProjectUtils.determineFileType(file);
         String directory = fileType.equals("images") ? "images" :
                 fileType.equals("pdfs") ? "pdfs" :
                         fileType.equals("videos") ? "videos" :
@@ -60,42 +61,10 @@ public class S3Service {
         );
 
         // Return the S3 key
-        String awsUrl = generatePublicUrl(s3Key);
+        String awsUrl = ProjectUtils.generatePublicUrl(bucketName, region,s3Key);
         return awsUrl;
     }
 
-    private String determineFileType(MultipartFile file) {
-        String contentType = file.getContentType();
-        if (contentType != null) {
-            // Check for image files
-            if (contentType.startsWith("image/")) {
-                return "images";
-            }
-            // Check for PDF files
-            else if (contentType.equals("application/pdf")) {
-                return "pdfs";
-            }
-            // Check for video files
-            else if (contentType.startsWith("video/")) {
-                return "videos";
-            }
-            // Check for document files (Word, Excel, PowerPoint, Text)
-            else if (contentType.equals("application/msword") ||
-                    contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document") || // Word .docx
-                    contentType.equals("application/vnd.ms-excel") ||
-                    contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") || // Excel .xlsx
-                    contentType.equals("application/vnd.ms-powerpoint") ||
-                    contentType.equals("application/vnd.openxmlformats-officedocument.presentationml.presentation") || // PowerPoint .pptx
-                    contentType.equals("text/plain")) { // Text documents .txt
-                return "documents";
-            }
-        }
-        // Default case: return "others" for unknown file types
-        return "others";
-    }
 
-    private String generatePublicUrl(String s3Key) {
-        return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + s3Key;
-    }
 }
 
