@@ -69,6 +69,8 @@ dependencies {
     // https://mvnrepository.com/artifact/com.cloudinary/cloudinary-http44
     implementation group: 'com.cloudinary', name: 'cloudinary-http44', version: '1.29.0'
 
+    implementation 'software.amazon.awssdk:s3:2.20.85' // Update the version if needed
+
 }
 
 test {
