@@ -24,6 +24,7 @@ public class ItemDto extends AbstractDto{
         @NotNull private double Mrp;
         @NotNull private double sellingPrice;
         private List<String> itemImageUrls;
+        private Boolean offerApplicable;
         private int sequenceNo;
         private double weight;
         private String otherDataJson;
@@ -39,6 +40,7 @@ public class ItemDto extends AbstractDto{
         @NotNull private double Mrp;
         @NotNull private double sellingPrice;
         private List<String> itemImageUrls;
+        private Boolean offerApplicable;
         private int sequenceNo;
         private double weight;
         private String otherDataJson;
@@ -54,6 +56,7 @@ public class ItemDto extends AbstractDto{
         private double Mrp;
         private double sellingPrice;
         private List<String> itemImageUrls;
+        private Boolean offerApplicable;
         private int sequenceNo;
         private double weight;
         private String otherDataJson;

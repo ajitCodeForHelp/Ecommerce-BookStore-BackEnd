@@ -62,6 +62,26 @@ public class CustomerCartController extends _BaseController {
                 .message("ecommerce.common.message.cart_item_removed")
                 .build(), HttpStatus.OK);
     }
+    @TranslateResponseMessage
+    @PutMapping("/applyCouponCode/{cartUuid}/{couponCodeUuid}")
+    public ResponseEntity<ResponsePacket> applyCouponCode(@PathVariable("cartUuid") String cardUuid,
+                                                             @PathVariable("couponCodeUuid") String couponCodeUuid) throws BadRequestException {
+        cartService.applyCouponCode(cardUuid, couponCodeUuid);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.cart_coupon_code_apply")
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @PutMapping("/removeCouponCode/{cartUuid}")
+    public ResponseEntity<ResponsePacket> removeCouponCode(@PathVariable("cartUuid") String cardUuid) throws BadRequestException {
+        cartService.removeCouponCode(cardUuid);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.cart_coupon_code_remove")
+                .build(), HttpStatus.OK);
+    }
 
     @TranslateResponseMessage
     @PutMapping("/clearCart/{cartUuid}")

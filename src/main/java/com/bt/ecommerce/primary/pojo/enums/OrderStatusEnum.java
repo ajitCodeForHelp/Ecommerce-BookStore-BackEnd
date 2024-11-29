@@ -4,6 +4,8 @@ public enum OrderStatusEnum {
     ORDER("ORDER"),
     DISPATCHED("DISPATCHED"),
     DELIVERED("DELIVERED"),
+    CANCELLED("CANCELLED"),
+    REFUND("REFUND"),
     ;
     String type;
 

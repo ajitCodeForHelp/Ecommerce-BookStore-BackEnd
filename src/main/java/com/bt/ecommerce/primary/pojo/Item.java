@@ -27,6 +27,7 @@ public class Item extends _BasicEntity {
     private List<String> itemImageUrls;
     private int sequenceNo;
     private double weight;
+    private Boolean offerApplicable = Boolean.FALSE;
     private Boolean stockOut = Boolean.FALSE;
     private String otherDataJson; // other book associated details
 
@@ -37,5 +38,9 @@ public class Item extends _BasicEntity {
     public boolean isStockOut() {
         if (stockOut == null) return false;
         return stockOut;
+    }
+    public boolean isOfferApplicable() {
+        if (offerApplicable == null) return false;
+        return offerApplicable;
     }
 }

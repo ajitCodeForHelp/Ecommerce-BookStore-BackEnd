@@ -48,8 +48,9 @@ public class EcommerceDataService extends _BaseService {
         Map<String, Category> categoryMap = new HashMap<>();
         // <ParentCategoryUuid, List<SubCategory>
         Map<String, List<Category>> subCategoryMap = new HashMap<>();
-        // TODO >> Remove Those Which Are Not Having Any Item
         for (Category category : categoryList) {
+            // If Category Doesn't Have Any Item Then Skip This
+            if(itemRepository.findByCategoryId(category.getId()).size() == 0) continue;
             if (category.getParentCategoryId() == null) {
                 categoryMap.put(category.getUuid(), category);
             } else {

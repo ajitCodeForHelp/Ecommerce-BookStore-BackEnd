@@ -14,7 +14,7 @@ import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -41,6 +41,29 @@ public class OrderService extends _BaseService {
         }
         order.setOrderTrackingId(orderTrackingId);
         orderRepository.save(order);
+    }
+
+    public void updateOrdersTrackingId(List<OrderDto.UpdateOrdersTrackingIds> request) throws BadRequestException {
+        Map<String, String> orderTrackingIdMap = new HashMap<>();
+        for (OrderDto.UpdateOrdersTrackingIds updateOrdersTrackingIds : request) {
+            orderTrackingIdMap.put(updateOrdersTrackingIds.getOrderId(), updateOrdersTrackingIds.getOrderTrackingId());
+        }
+        List<Order> orderList = orderRepository.findByOrderIds(orderTrackingIdMap.keySet().stream().toList());
+        if (TextUtils.isEmpty(orderList)) {
+            throw new BadRequestException("Invalid OrderId Provided");
+        }
+        for (Order order : orderList) {
+            if (!order.getOrderStatus().equals(OrderStatusEnum.ORDER)) {
+                throw new BadRequestException("Invalid Update Request, Order Already Dispatched");
+            }
+            String orderTrackingId = orderTrackingIdMap.get(order.getOrderId());
+            if (TextUtils.isEmpty(orderTrackingId)) {
+                throw new BadRequestException("Invalid OrderTrackingId Provided");
+            }
+            order.setOrderTrackingId(orderTrackingId);
+        }
+        // Update All Order Tracking Ids
+        orderRepository.saveAll(orderList);
     }
 
     public void updateOrderStatus(String orderId, OrderStatusEnum orderStatus) throws BadRequestException {
