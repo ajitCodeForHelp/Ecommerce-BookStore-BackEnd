@@ -4,11 +4,17 @@ import com.bt.ecommerce.annotation.TranslateResponseMessage;
 import com.bt.ecommerce.bean.ResponsePacket;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.controller._BaseController;
+import com.bt.ecommerce.primary.dto.CommonDto;
+import com.bt.ecommerce.primary.dto.OrderDto;
+import com.bt.ecommerce.primary.dto.OrderDto.UpdateOrdersTrackingIds;
 import com.bt.ecommerce.primary.pojo.enums.OrderStatusEnum;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -68,9 +74,21 @@ public class AdminOrderController extends _BaseController {
                 .message("ecommerce.common.message.update")
                 .build(), HttpStatus.OK);
     }
+
+    @TranslateResponseMessage
+    @PutMapping("/updateOrdersTrackingId")
+    public ResponseEntity<ResponsePacket> updateOrdersTrackingId(
+            @Valid @RequestBody List<UpdateOrdersTrackingIds> request) throws BadRequestException {
+        orderService.updateOrdersTrackingId(request);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.update")
+                .build(), HttpStatus.OK);
+    }
+
     @TranslateResponseMessage
     @PutMapping("/updateOrderStatus/{orderId}/{orderStatus}")
-    public ResponseEntity<ResponsePacket> updateOrderTrackingId(
+    public ResponseEntity<ResponsePacket> updateOrderStatus(
             @PathVariable(value = "orderId") String orderId,
             @PathVariable(value = "orderStatus") OrderStatusEnum orderStatus) throws BadRequestException {
         orderService.updateOrderStatus(orderId, orderStatus);
@@ -79,6 +97,7 @@ public class AdminOrderController extends _BaseController {
                 .message("ecommerce.common.message.update")
                 .build(), HttpStatus.OK);
     }
+
 
     @TranslateResponseMessage
     @PostMapping("/getOrderCount")

@@ -20,7 +20,9 @@ public class AddressDto extends AbstractDto{
 
         private Double latitude;
         private Double longitude;
-        private String addressLine;
+        private String addressLine1;
+        private String addressLine2;
+        private String landMark;
         private String countryTitle;
         private String stateTitle;
         private String cityTitle;
@@ -36,7 +38,9 @@ public class AddressDto extends AbstractDto{
 
         private Double latitude;
         private Double longitude;
-        private String addressLine;
+        private String addressLine1;
+        private String addressLine2;
+        private String landMark;
         private String countryTitle;
         private String stateTitle;
         private String cityTitle;
@@ -52,7 +56,9 @@ public class AddressDto extends AbstractDto{
 
         private Double latitude;
         private Double longitude;
-        private String addressLine;
+        private String addressLine1;
+        private String addressLine2;
+        private String landMark;
         private String countryTitle;
         private String stateTitle;
         private String cityTitle;

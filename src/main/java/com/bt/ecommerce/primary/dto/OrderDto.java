@@ -40,4 +40,12 @@ public class OrderDto extends AbstractDto{
         private double deliveryCharges = 0.0;
         private double orderTotal = 0.0;
     }
+
+    @Setter
+    @Getter
+    @NoArgsConstructor
+    public class UpdateOrdersTrackingIds {
+        private String orderId;
+        private String orderTrackingId;
+    }
 }

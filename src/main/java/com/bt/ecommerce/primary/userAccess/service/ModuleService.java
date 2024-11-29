@@ -47,6 +47,7 @@ public class ModuleService extends _BaseService {
         }
         module = ModuleMapper.MAPPER.mapToPojo(module, updateModuleObj);
         moduleRepository.save(module);
+        updateModuleUrlDetail(module);
     }
 
     public ModuleDto.DetailModule get(String uuid) throws BadRequestException {
@@ -131,6 +132,7 @@ public class ModuleService extends _BaseService {
             urlList.add(mapToUrl(module, saveUrlDto));
         }
         urlRepository.saveAll(urlList);
+        updateModuleUrlDetail(module);
     }
 
     public void updateModuleUrl(String moduleUuid, String urlUuid, UrlDto.UpdateUrl updateUrl) throws BadRequestException {
@@ -141,6 +143,7 @@ public class ModuleService extends _BaseService {
         }
         url = UrlMapper.MAPPER.mapToPojo(url, updateUrl);
         urlRepository.save(url);
+        updateModuleUrlDetail(module);
     }
 
     public void activateModuleUrl(String moduleUuid, String urlUuid) throws BadRequestException {
@@ -217,5 +220,13 @@ public class ModuleService extends _BaseService {
             detailModuleList.add(detailModule);
         }
         return detailModuleList;
+    }
+    private void updateModuleUrlDetail(Module module){
+        List<Url> moduleUrlList = urlRepository.findByModuleId(module.getId());
+        if(TextUtils.isEmpty(moduleUrlList)) return;
+        for (Url url : moduleUrlList) {
+           url.setModuleDetail(new BasicParent(module.getUuid(), module.getTitle()));
+        }
+        urlRepository.saveAll(moduleUrlList);
     }
 }

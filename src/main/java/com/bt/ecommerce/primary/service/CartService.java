@@ -178,11 +178,17 @@ public class CartService extends _BaseService {
             cart.setCouponDiscountAmount(0.0);
             return cart;
         }
+        double couponApplicableCartSubTotal = 0;
+        for (Cart.ItemDetail itemDetail : cart.getItemDetailList()) {
+            if(!itemDetail.getOfferApplicable()) continue;
+            couponApplicableCartSubTotal += itemDetail.getItemTotal() * itemDetail.getQuantity();
+        }
+        if(couponApplicableCartSubTotal == 0) return cart;
         // implement coupon code
         double couponCodeDiscountAmount = 0.0;
         if (couponCode.getDiscountType().equals(DiscountTypeEnum.Percentage)) {
             if (!couponCode.getDiscountValue().equals(0.0)) {
-                double couponDiscount = (couponCode.getDiscountValue() / 100.0) * cart.getSubTotal();
+                double couponDiscount = (couponCode.getDiscountValue() / 100.0) * couponApplicableCartSubTotal;
                 if (couponDiscount > couponCode.getMaxDiscountAmount()) {
                     couponDiscount = couponCode.getMaxDiscountAmount();
                 }
@@ -192,7 +198,7 @@ public class CartService extends _BaseService {
             couponCodeDiscountAmount = couponCode.getDiscountValue();
         }
         // Increase Coupon Code Used Count
-        couponCode.setUsedCount(couponCode.getUsedCount() + 1);
+        // couponCode.setUsedCount(couponCode.getUsedCount() + 1);
         // Update Coupon Detail To Cart
         cart.setCouponCodeRefDetail(new CouponCode.CouponCodeRef(
                 couponCode.getUuid(), couponCode.getTitle(),
@@ -272,9 +278,13 @@ public class CartService extends _BaseService {
 
     public List<CartDto.DetailCart> getCartList() throws BadRequestException {
         List<Cart> cartList = cartRepository.findAll();
-        return cartList.stream()
-                .map(cart -> CartMapper.MAPPER.mapToDetailCartDto(cart))
-                .collect(Collectors.toList());
+        List<CartDto.DetailCart> detailCartList = new ArrayList<>();
+        for (Cart cart : cartList) {
+            // Skip The Empty Cart
+            if(TextUtils.isEmpty(cart.getItemDetailList())) continue;
+            detailCartList.add(CartMapper.MAPPER.mapToDetailCartDto(cart));
+        }
+        return detailCartList;
     }
 
     public CartDto.CartItemCount getCartItemCount(String authorizationToken, String deviceId) throws BadRequestException {
@@ -317,4 +327,40 @@ public class CartService extends _BaseService {
         return CartMapper.MAPPER.mapToDetailCartDto(cart);
     }
 
+    public void applyCouponCode(String cartUuid, String couponCodeUuid) throws BadRequestException {
+        if (TextUtils.isEmpty(cartUuid)) {
+            throw new BadRequestException("Invalid cart id provided.");
+        }
+        Cart cart = cartRepository.findByUuid(cartUuid);
+        if (!TextUtils.isEmpty(couponCodeUuid)) {
+            CouponCode couponCode = couponCodeRepository.findByUuid(couponCodeUuid);
+            if (couponCode == null) {
+                throw new BadRequestException("Invalid coupon code selection");
+            }
+            cart.setCouponCodeId(couponCode.getId());
+            cart.setCouponCodeRefDetail(new CouponCode.CouponCodeRef(
+                    couponCode.getUuid(), couponCode.getTitle(),
+                    couponCode.getCouponCode(), couponCode.getDiscountType()));
+
+        }
+        cart = calculateCouponCodeDiscountAmount(cart);
+        cart = cartPriceCalculation(cart);
+        cartRepository.save(cart);
+    }
+
+    public void removeCouponCode(String cartUuid) throws BadRequestException {
+        if (TextUtils.isEmpty(cartUuid)) {
+            throw new BadRequestException("Invalid cart id provided.");
+        }
+        Cart cart = cartRepository.findByUuid(cartUuid);
+        if (cart.getCouponCodeId() == null) {
+            throw new BadRequestException("Invalid Request No Coupon Code Applied");
+        }
+        cart.setCouponCodeId(null);
+        cart.setCouponCodeRefDetail(null);
+        cart.setCouponDiscountAmount(0.0);
+        cart = calculateCouponCodeDiscountAmount(cart);
+        cart = cartPriceCalculation(cart);
+        cartRepository.save(cart);
+    }
 }
