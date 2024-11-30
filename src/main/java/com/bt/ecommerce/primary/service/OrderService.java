@@ -3,8 +3,10 @@ package com.bt.ecommerce.primary.service;
 import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.OrderDto;
+import com.bt.ecommerce.primary.mapper.OrderHistoryMapper;
 import com.bt.ecommerce.primary.mapper.OrderMapper;
 import com.bt.ecommerce.primary.pojo.Order;
+import com.bt.ecommerce.primary.pojo.OrderHistory;
 import com.bt.ecommerce.primary.pojo.enums.OrderStatusEnum;
 import com.bt.ecommerce.primary.pojo.enums.PaymentStatusEnum;
 import com.bt.ecommerce.primary.pojo.user.Customer;
@@ -24,10 +26,15 @@ public class OrderService extends _BaseService {
     public OrderDto.DetailOrder getOrderDetail(String orderId) throws BadRequestException {
         Order order = orderRepository.findByOrderId(orderId);
         if (order == null) {
-            throw new BadRequestException("Invalid OrderId Provided");
+            OrderHistory orderHistory = orderHistoryRepository.findByOrderId(orderId);
+            if(orderHistory == null){
+                throw new BadRequestException("Invalid OrderId Provided");
+            }
+            return OrderHistoryMapper.MAPPER.mapToDetailOrderDto(orderHistory);
         }
         return OrderMapper.MAPPER.mapToDetailOrderDto(order);
     }
+
     public void updateOrderTrackingId(String orderId, String orderTrackingId) throws BadRequestException {
         Order order = orderRepository.findByOrderId(orderId);
         if (order == null) {
@@ -82,30 +89,28 @@ public class OrderService extends _BaseService {
                 throw new BadRequestException("Update OrderTrackingId In Order First");
             }
         }
-        if (orderStatus.equals(OrderStatusEnum.DELIVERED)) {
-            if (!order.getOrderStatus().equals(OrderStatusEnum.DISPATCHED)) {
-                throw new BadRequestException("Order Must Be In DISPATCHED Status");
-            }
-            // TODO > What is about > setPaymentStatus
-            order.setPaymentStatus(PaymentStatusEnum.SUCCESS);
-        }
+        // if (orderStatus.equals(OrderStatusEnum.DELIVERED)) {
+        //     if (!order.getOrderStatus().equals(OrderStatusEnum.DISPATCHED)) {
+        //         throw new BadRequestException("Order Must Be In DISPATCHED Status");
+        //     }
+        //     // TODO > What is about > setPaymentStatus
+        //     order.setPaymentStatus(PaymentStatusEnum.SUCCESS);
+        // }
         order.setOrderStatus(orderStatus);
         order = updateOrderStatusLog(order, orderStatus);
-        orderRepository.save(order);
+        order = orderRepository.save(order);
+
+        if (order.getOrderStatus().equals(OrderStatusEnum.DISPATCHED)) {
+            // Move Order To History
+            SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory();
+        }
     }
 
-    public List<OrderDto.DetailOrder> getCustomerOrderList() throws BadRequestException {
-        Customer loggedInCustomer = (Customer) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        List<Order> orderList = orderRepository.findByCustomerId(loggedInCustomer.getId());
-        return orderList.stream()
-                .map(order -> OrderMapper.MAPPER.mapToDetailOrderDto(order))
-                .collect(Collectors.toList());
-    }
     public long getOrderCount() {
         return orderRepository.count();
     }
 
-    public List<OrderDto.DetailOrder> getOrderList() throws BadRequestException {
+    public List<OrderDto.DetailOrder> getOrderList() {
         List<Order> orderList = orderRepository.findAll();
         return orderList.stream()
                 .map(order -> OrderMapper.MAPPER.mapToDetailOrderDto(order))
@@ -119,5 +124,20 @@ public class OrderService extends _BaseService {
         orderStatusLogList.add(orderStatusLog);
         order.setOrderStatusLogList(orderStatusLogList);
         return order;
+    }
+
+    public List<OrderDto.DetailOrder> getCustomerOrderList() {
+        // User Customer Order List Contains Live Order + History Orders
+        Customer loggedInCustomer = (Customer) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        List<Order> orderList = orderRepository.findByCustomerId(loggedInCustomer.getId());
+        List<OrderDto.DetailOrder> customerOrderDtoList = new ArrayList<>();
+        if (!TextUtils.isEmpty(orderList)) {
+            customerOrderDtoList = orderList.stream()
+                    .map(order -> OrderMapper.MAPPER.mapToDetailOrderDto(order))
+                    .collect(Collectors.toList());
+        }
+        customerOrderDtoList.addAll(
+                SpringBeanContext.getBean(OrderHistoryService.class).customerUserHistoryList(loggedInCustomer.getId()));
+        return customerOrderDtoList;
     }
 }

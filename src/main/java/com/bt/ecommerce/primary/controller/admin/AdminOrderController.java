@@ -119,7 +119,25 @@ public class AdminOrderController extends _BaseController {
                 .build(), HttpStatus.OK);
     }
 
-    // TODO > Order History
+    //  Admin > Order History
+    @TranslateResponseMessage
+    @PostMapping("/getOrderHistoryCount")
+    public ResponseEntity<ResponsePacket> getOrderHistoryCount() {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get")
+                .responsePacket(orderHistoryService.getOrderHistoryCount())
+                .build(), HttpStatus.OK);
+    }
 
+    @TranslateResponseMessage
+    @PostMapping("/getOrderHistoryList")
+    public ResponseEntity<ResponsePacket> getOrderHistoryList() {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get_all")
+                .responsePacket(orderHistoryService.orderHistoryList())
+                .build(), HttpStatus.OK);
+    }
 
 }
