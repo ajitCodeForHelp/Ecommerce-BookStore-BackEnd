@@ -1,6 +1,7 @@
 package com.bt.ecommerce.primary.repository;
 
 import com.bt.ecommerce.primary.pojo.Order;
+import com.bt.ecommerce.primary.pojo.enums.OrderStatusEnum;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
@@ -17,4 +18,6 @@ public interface OrderRepository extends MongoRepository<Order, ObjectId> {
             "  'orderId' : { '$in' : ?0 }," +
             "}")
     List<Order> findByOrderIds(List<String> orderIds);
+
+    List<Order> findByOrderStatus(OrderStatusEnum orderStatus);
 }
