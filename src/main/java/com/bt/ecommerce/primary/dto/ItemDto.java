@@ -27,7 +27,10 @@ public class ItemDto extends AbstractDto{
         private Boolean offerApplicable;
         private int sequenceNo;
         private double weight;
+        private String publisherId;
+        private String taxId;
         private String otherDataJson;
+
     }
     @Setter
     @Getter
@@ -43,6 +46,8 @@ public class ItemDto extends AbstractDto{
         private Boolean offerApplicable;
         private int sequenceNo;
         private double weight;
+        private String publisherId;
+        private String taxId;
         private String otherDataJson;
     }
     @Setter
@@ -50,6 +55,8 @@ public class ItemDto extends AbstractDto{
     public static class DetailItem extends Detail {
         private List<BasicParent> parentCategoryDetails;
         private List<BasicParent> subCategoryDetails;
+        private BasicParent publisherDetails;
+        private BasicParent taxDetails;
 
         private String title;
         private String description;

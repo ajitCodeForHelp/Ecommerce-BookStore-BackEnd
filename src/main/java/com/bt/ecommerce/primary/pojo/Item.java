@@ -19,6 +19,11 @@ public class Item extends _BasicEntity {
     private List<ObjectId> subCategoryIds = new ArrayList<>();
     private List<BasicParent> subCategoryDetails = new ArrayList<>();
 
+    private ObjectId publisherId;
+    private BasicParent publisherDetails;
+
+    private ObjectId taxId;
+    private BasicParent taxDetails;
 
     private String title;
     private String description;

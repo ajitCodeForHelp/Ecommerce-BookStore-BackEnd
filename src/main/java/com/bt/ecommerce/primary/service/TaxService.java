@@ -99,6 +99,7 @@ public class TaxService extends _BaseService implements _BaseServiceImpl{
                 .collect(Collectors.toList());    }
 
 
+
     public List<TaxDto.DetailTax> taxList(String data) {
         // Data >  Active | Inactive | Deleted | All
         List<Tax> list = null;
