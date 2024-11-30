@@ -27,8 +27,8 @@ public class ItemDto extends AbstractDto{
         private Boolean offerApplicable;
         private int sequenceNo;
         private double weight;
-        private String publisherId;
-        private String taxId;
+        private String publisherUuid;
+        private String taxUuid;
         private String otherDataJson;
 
     }
@@ -46,8 +46,8 @@ public class ItemDto extends AbstractDto{
         private Boolean offerApplicable;
         private int sequenceNo;
         private double weight;
-        private String publisherId;
-        private String taxId;
+        private String publisherUuid;
+        private String taxUuid;
         private String otherDataJson;
     }
     @Setter

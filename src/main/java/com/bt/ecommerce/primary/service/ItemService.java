@@ -32,7 +32,7 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
     public String save(AbstractDto.Save save) throws BadRequestException {
         ItemDto.SaveItem saveItemDto = (ItemDto.SaveItem) save;
         Item item = ItemMapper.MAPPER.mapToPojo(saveItemDto);
-        item = updateItemCategory(item, saveItemDto.getParentCategoryUuids(), saveItemDto.getSubCategoryUuids() ,saveItemDto.getTaxId(),saveItemDto.getPublisherId());
+        item = updateItemCategory(item, saveItemDto.getParentCategoryUuids(), saveItemDto.getSubCategoryUuids() ,saveItemDto.getTaxUuid(),saveItemDto.getPublisherUuid());
         item = itemRepository.save(item);
         return item.getUuid();
     }
@@ -42,7 +42,7 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
         ItemDto.UpdateItem updateItemDto = (ItemDto.UpdateItem) update;
         Item item = findByUuid(uuid);
         item = ItemMapper.MAPPER.mapToPojo(item, updateItemDto);
-        item = updateItemCategory(item, updateItemDto.getParentCategoryUuids(), updateItemDto.getSubCategoryUuids(),updateItemDto.getTaxId(),updateItemDto.getPublisherId());
+        item = updateItemCategory(item, updateItemDto.getParentCategoryUuids(), updateItemDto.getSubCategoryUuids(),updateItemDto.getTaxUuid(),updateItemDto.getPublisherUuid());
         itemRepository.save(item);
     }
 
