@@ -75,5 +75,21 @@ public class ItemDto extends AbstractDto{
     public static class GetList extends _BasePageRequest {
         private String search;
     }
+    @Setter
+    @Getter
+    public static class ItemSearchDto {
+        private String uuid;
+        private String title;
+        private String description;
+        private double Mrp;
+        private double sellingPrice;
+        private List<String> itemImageUrls;
+        private Boolean offerApplicable;
+        private int sequenceNo;
+        private double weight;
+        private String otherDataJson;
+        private Boolean stockOut;
+    }
+
 
 }

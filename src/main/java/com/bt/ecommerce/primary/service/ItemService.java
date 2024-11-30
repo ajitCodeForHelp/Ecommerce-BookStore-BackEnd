@@ -185,15 +185,14 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
         return item;
     }
 
-    public List<KeyValueDto> itemSearch(String search) {
+    public List<ItemDto.ItemSearchDto> itemSearch(String search) {
         // Only Send 10 Record In Search Field
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, 50);
         if (TextUtils.isEmpty(search)) return null;
         List<Item> itemList = itemRepository.findByTitle(search, pageable);
         if (TextUtils.isEmpty(itemList)) return null;
         return itemList.stream()
-                .map(item -> ItemMapper.MAPPER.mapToKeyPairDto(item))
+                .map(item -> ItemMapper.MAPPER.mapToItemSearchDto(item))
                 .collect(Collectors.toList());
-
     }
 }
