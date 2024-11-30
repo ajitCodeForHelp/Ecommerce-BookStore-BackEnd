@@ -8,12 +8,12 @@ import com.bt.ecommerce.primary.pojo.Order;
 import com.bt.ecommerce.primary.pojo.enums.OrderStatusEnum;
 import com.bt.ecommerce.primary.pojo.enums.PaymentStatusEnum;
 import com.bt.ecommerce.primary.pojo.user.Customer;
-import com.bt.ecommerce.primary.pojo.user.SystemUser;
 import com.bt.ecommerce.security.JwtUserDetailsService;
 import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -75,21 +75,22 @@ public class OrderService extends _BaseService {
             return;
         }
         if (orderStatus.equals(OrderStatusEnum.DISPATCHED)) {
-            if(!order.getOrderStatus().equals(OrderStatusEnum.ORDER)){
+            if (!order.getOrderStatus().equals(OrderStatusEnum.ORDER)) {
                 throw new BadRequestException("Order Must Be In ORDER Status");
             }
-            // if (TextUtils.isEmpty(order.getOrderTrackingId())) {
-            //    throw new BadRequestException("Update OrderTrackingId In Order First");
-            // }
+            if (TextUtils.isEmpty(order.getOrderTrackingId())) {
+                throw new BadRequestException("Update OrderTrackingId In Order First");
+            }
         }
         if (orderStatus.equals(OrderStatusEnum.DELIVERED)) {
-            if(!order.getOrderStatus().equals(OrderStatusEnum.DISPATCHED)){
+            if (!order.getOrderStatus().equals(OrderStatusEnum.DISPATCHED)) {
                 throw new BadRequestException("Order Must Be In DISPATCHED Status");
             }
             // TODO > What is about > setPaymentStatus
             order.setPaymentStatus(PaymentStatusEnum.SUCCESS);
         }
         order.setOrderStatus(orderStatus);
+        order = updateOrderStatusLog(order, orderStatus);
         orderRepository.save(order);
     }
 
@@ -109,5 +110,14 @@ public class OrderService extends _BaseService {
         return orderList.stream()
                 .map(order -> OrderMapper.MAPPER.mapToDetailOrderDto(order))
                 .collect(Collectors.toList());
+    }
+    public Order updateOrderStatusLog(Order order, OrderStatusEnum orderStatusEnum) {
+        List<Order.OrderStatusLog> orderStatusLogList = order.getOrderStatusLogList();
+        Order.OrderStatusLog orderStatusLog = new Order.OrderStatusLog();
+        orderStatusLog.setOrderStatusEnum(orderStatusEnum);
+        orderStatusLog.setModifiedAt(LocalDateTime.now());
+        orderStatusLogList.add(orderStatusLog);
+        order.setOrderStatusLogList(orderStatusLogList);
+        return order;
     }
 }

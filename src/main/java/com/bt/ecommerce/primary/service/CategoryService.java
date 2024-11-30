@@ -186,7 +186,7 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
                 .collect(Collectors.toList());
     }
 
-    public void assignCategory(String uuid, List<String> itemUuids) throws BadRequestException {
+    public void assignCategoryToItem(String uuid, List<String> itemUuids) throws BadRequestException {
         Category category = findByUuid(uuid);
         Category parentCategory = null;
         if (category.getParentCategoryId() != null) {

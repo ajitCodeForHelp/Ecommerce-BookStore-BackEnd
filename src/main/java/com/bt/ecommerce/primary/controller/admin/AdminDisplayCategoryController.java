@@ -142,9 +142,9 @@ public class AdminDisplayCategoryController extends _BaseController {
 
     @TranslateResponseMessage
     @PostMapping("/assign-category/{uuid}")
-    public ResponseEntity<ResponsePacket> assignCategory(@PathVariable("uuid") String uuid,
+    public ResponseEntity<ResponsePacket> assignCategoryToItem(@PathVariable("uuid") String uuid,
                                                          @Valid @RequestBody DisplayCategoryDto.AssignCategory updateDto) throws BadRequestException {
-        categoryService.assignCategory(uuid, updateDto.getItemUuids());
+        categoryService.assignCategoryToItem(uuid, updateDto.getItemUuids());
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.update")

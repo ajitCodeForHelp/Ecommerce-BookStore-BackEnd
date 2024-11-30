@@ -24,6 +24,7 @@ public class Cart extends _BasicEntity {
     private List<ObjectId> itemIds = new ArrayList<>();
     private List<ItemDetail> itemDetailList = new ArrayList<>();
 
+    private boolean standardDelivery = false;
     private double subTotal = 0.0;
 
     private ObjectId couponCodeId;

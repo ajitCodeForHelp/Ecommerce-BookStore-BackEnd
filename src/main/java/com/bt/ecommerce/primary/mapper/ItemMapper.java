@@ -30,4 +30,6 @@ public interface ItemMapper {
 
     @Mapping(expression = "java(item.getUuid())", target = "itemUuid")
     Cart.ItemDetail mapToCartItem(Item item);
+
+    ItemDto.ItemSearchDto mapToItemSearchDto(Item item);
 }
