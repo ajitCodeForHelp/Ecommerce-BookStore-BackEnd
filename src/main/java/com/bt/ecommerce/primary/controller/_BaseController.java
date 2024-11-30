@@ -29,5 +29,8 @@ public class _BaseController {
     @Autowired protected OneTimePasswordService oneTimePasswordService;
     @Autowired protected SettingService settingService;
     @Autowired protected S3Service s3Service;
+    @Autowired protected PublisherService publisherService;
+    @Autowired protected TaxService taxService;
+
 
 }

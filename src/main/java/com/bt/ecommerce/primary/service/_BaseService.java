@@ -31,6 +31,11 @@ public class _BaseService {
     @Autowired protected UrlRepository urlRepository;
     @Autowired protected PaymentTransactionRepository paymentTransactionRepository;
 
+    @Autowired protected PublisherRepository publisherRepository;
+
+    @Autowired protected TaxRepository taxRepository;
+
+
 
 
     protected DataTableResponsePacket getDataTableResponsePacket(Page pageData, List data) {
