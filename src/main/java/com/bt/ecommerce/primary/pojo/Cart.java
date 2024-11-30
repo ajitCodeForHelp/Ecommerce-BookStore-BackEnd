@@ -61,6 +61,8 @@ public class Cart extends _BasicEntity {
         private Boolean offerApplicable;
         private Long quantity = 1L;
         private double itemTotal;
+        private BasicParent publisherDetails;
+        private BasicParent taxDetails;
     }
 
     @Setter

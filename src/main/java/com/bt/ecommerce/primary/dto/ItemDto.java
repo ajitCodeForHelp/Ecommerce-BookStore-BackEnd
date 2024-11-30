@@ -89,6 +89,8 @@ public class ItemDto extends AbstractDto{
         private double weight;
         private String otherDataJson;
         private Boolean stockOut;
+        private BasicParent publisherDetails;
+        private BasicParent taxDetails;
     }
 
 
