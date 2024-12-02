@@ -92,7 +92,7 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
             item.setTaxDetails(new BasicParent(tax.getUuid(), tax.getTitle()));
         }
         if (!TextUtils.isEmpty(publisherId)) {
-            Publisher publisher = publisherRepository.findByUuid(taxId);
+            Publisher publisher = publisherRepository.findByUuid(publisherId);
             if (publisher == null) {
                 throw new BadRequestException("ecommerce.common.message.record_not_exist");
             }
