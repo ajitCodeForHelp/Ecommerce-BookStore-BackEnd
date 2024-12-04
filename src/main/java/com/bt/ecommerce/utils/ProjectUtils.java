@@ -1,5 +1,7 @@
 package com.bt.ecommerce.utils;
 
+import org.springframework.web.multipart.MultipartFile;
+
 public class ProjectUtils {
 
     public static String getFileExtension(String filename) {
@@ -42,6 +44,40 @@ public class ProjectUtils {
     }
     public static long getCurrentTimeStamp() {
         return System.currentTimeMillis();
+    }
+
+    public static String determineFileType(MultipartFile file) {
+        String contentType = file.getContentType();
+        if (contentType != null) {
+            // Check for image files
+            if (contentType.startsWith("image/")) {
+                return "images";
+            }
+            // Check for PDF files
+            else if (contentType.equals("application/pdf")) {
+                return "pdfs";
+            }
+            // Check for video files
+            else if (contentType.startsWith("video/")) {
+                return "videos";
+            }
+            // Check for document files (Word, Excel, PowerPoint, Text)
+            else if (contentType.equals("application/msword") ||
+                    contentType.equals("application/vnd.openxmlformats-officedocument.wordprocessingml.document") || // Word .docx
+                    contentType.equals("application/vnd.ms-excel") ||
+                    contentType.equals("application/vnd.openxmlformats-officedocument.spreadsheetml.sheet") || // Excel .xlsx
+                    contentType.equals("application/vnd.ms-powerpoint") ||
+                    contentType.equals("application/vnd.openxmlformats-officedocument.presentationml.presentation") || // PowerPoint .pptx
+                    contentType.equals("text/plain")) { // Text documents .txt
+                return "documents";
+            }
+        }
+        // Default case: return "others" for unknown file types
+        return "others";
+    }
+
+    public static String generatePublicUrl(String bucketName,String region, String s3Key) {
+        return "https://" + bucketName + ".s3." + region + ".amazonaws.com/" + s3Key;
     }
 
 }

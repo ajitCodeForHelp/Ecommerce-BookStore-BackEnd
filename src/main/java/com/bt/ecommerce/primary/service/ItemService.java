@@ -9,6 +9,8 @@ import com.bt.ecommerce.primary.dto.ItemDto;
 import com.bt.ecommerce.primary.mapper.ItemMapper;
 import com.bt.ecommerce.primary.pojo.Category;
 import com.bt.ecommerce.primary.pojo.Item;
+import com.bt.ecommerce.primary.pojo.Publisher;
+import com.bt.ecommerce.primary.pojo.Tax;
 import com.bt.ecommerce.primary.pojo.common.BasicParent;
 import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
@@ -30,9 +32,8 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
     public String save(AbstractDto.Save save) throws BadRequestException {
         ItemDto.SaveItem saveItemDto = (ItemDto.SaveItem) save;
         Item item = ItemMapper.MAPPER.mapToPojo(saveItemDto);
-        item = updateItemCategory(item, saveItemDto.getParentCategoryUuids(), saveItemDto.getSubCategoryUuids());
+        item = updateItemCategory(item, saveItemDto.getParentCategoryUuids(), saveItemDto.getSubCategoryUuids() ,saveItemDto.getTaxUuid(),saveItemDto.getPublisherUuid());
         item = itemRepository.save(item);
-        SpringBeanContext.getBean(EcommerceDataService.class).generateEcommerceDefaultData();
         return item.getUuid();
     }
 
@@ -41,12 +42,11 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
         ItemDto.UpdateItem updateItemDto = (ItemDto.UpdateItem) update;
         Item item = findByUuid(uuid);
         item = ItemMapper.MAPPER.mapToPojo(item, updateItemDto);
-        item = updateItemCategory(item, updateItemDto.getParentCategoryUuids(), updateItemDto.getSubCategoryUuids());
+        item = updateItemCategory(item, updateItemDto.getParentCategoryUuids(), updateItemDto.getSubCategoryUuids(),updateItemDto.getTaxUuid(),updateItemDto.getPublisherUuid());
         itemRepository.save(item);
-        SpringBeanContext.getBean(EcommerceDataService.class).generateEcommerceDefaultData();
     }
 
-    private Item updateItemCategory(Item item, List<String> parentCategoryUuids, List<String> subCategoryUuids) throws BadRequestException {
+    private Item updateItemCategory(Item item, List<String> parentCategoryUuids, List<String> subCategoryUuids , String taxId , String publisherId) throws BadRequestException {
         if (!TextUtils.isEmpty(parentCategoryUuids)) {
             List<Category> categoryList = categoryRepository.findByUuids(parentCategoryUuids);
             if (categoryList == null || categoryList.isEmpty()) {
@@ -71,6 +71,35 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
                     .map(subCategory -> new BasicParent(subCategory.getUuid(), subCategory.getTitle()))
                     .collect(Collectors.toList()));
         }
+        if (!TextUtils.isEmpty(subCategoryUuids)) {
+            List<Category> subCategoryList = categoryRepository.findByUuids(subCategoryUuids);
+            if (subCategoryList == null || subCategoryList.isEmpty()) {
+                throw new BadRequestException("ecommerce.common.message.record_not_exist");
+            }
+            item.setSubCategoryIds(subCategoryList.stream()
+                    .map(category -> category.getId())
+                    .collect(Collectors.toList()));
+            item.setSubCategoryDetails(subCategoryList.stream()
+                    .map(subCategory -> new BasicParent(subCategory.getUuid(), subCategory.getTitle()))
+                    .collect(Collectors.toList()));
+        }
+        if (!TextUtils.isEmpty(taxId)) {
+           Tax tax = taxRepository.findByUuid(taxId);
+            if (tax == null) {
+                throw new BadRequestException("ecommerce.common.message.record_not_exist");
+            }
+            item.setTaxId(tax.getId());
+            item.setTaxDetails(new BasicParent(tax.getUuid(), tax.getTitle()));
+        }
+        if (!TextUtils.isEmpty(publisherId)) {
+            Publisher publisher = publisherRepository.findByUuid(publisherId);
+            if (publisher == null) {
+                throw new BadRequestException("ecommerce.common.message.record_not_exist");
+            }
+            item.setPublisherId(publisher.getId());
+            item.setPublisherDetails(new BasicParent(publisher.getUuid(), publisher.getTitle()));
+        }
+
         return item;
     }
 
@@ -185,15 +214,14 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
         return item;
     }
 
-    public List<KeyValueDto> itemSearch(String search) {
+    public List<ItemDto.ItemSearchDto> itemSearch(String search) {
         // Only Send 10 Record In Search Field
-        Pageable pageable = PageRequest.of(0, 10);
+        Pageable pageable = PageRequest.of(0, 50);
         if (TextUtils.isEmpty(search)) return null;
         List<Item> itemList = itemRepository.findByTitle(search, pageable);
         if (TextUtils.isEmpty(itemList)) return null;
         return itemList.stream()
-                .map(item -> ItemMapper.MAPPER.mapToKeyPairDto(item))
+                .map(item -> ItemMapper.MAPPER.mapToItemSearchDto(item))
                 .collect(Collectors.toList());
-
     }
 }

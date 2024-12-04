@@ -23,7 +23,9 @@ public class Address extends _BasicEntity {
 
     private Double latitude;
     private Double longitude;
-    private String addressLine;
+    private String addressLine1;
+    private String addressLine2;
+    private String landMark;
     private String countryTitle;
     private String stateTitle;
     private String cityTitle;
@@ -32,7 +34,9 @@ public class Address extends _BasicEntity {
 
     @Override
     public String toString() {
-        return (!TextUtils.isEmpty(addressLine) ? addressLine + ", " : "") +
+        return (!TextUtils.isEmpty(addressLine1) ? addressLine1 + ", " : "") +
+                (!TextUtils.isEmpty(addressLine2) ? addressLine2 + ", " : "") +
+                (!TextUtils.isEmpty(landMark) ? landMark + ", " : "") +
                 (!TextUtils.isEmpty(cityTitle) ? cityTitle + ", " : "") +
                 (!TextUtils.isEmpty(stateTitle) ? stateTitle + ", " : "") +
                 (!TextUtils.isEmpty(countryTitle) ? countryTitle + ", " : "") +

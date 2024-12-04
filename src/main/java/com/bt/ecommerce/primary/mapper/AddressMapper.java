@@ -12,7 +12,7 @@ import org.mapstruct.factory.Mappers;
 public interface AddressMapper {
     AddressMapper MAPPER = Mappers.getMapper(AddressMapper.class);
 
-    @Mapping(expression = "java(address.toString())", target = "address")
+    @Mapping(expression = "java(address.getUuid())", target = "addressUuid")
     Cart.CustomerAddressDetail mapToCartAddress(Address address);
 
     Address mapToPojo(AddressDto.SaveAddress saveAddress);

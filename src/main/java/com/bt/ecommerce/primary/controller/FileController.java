@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+
 @Slf4j
 @RestController
 @RequestMapping("/v1/file")
@@ -25,7 +26,8 @@ public class FileController extends _BaseController {
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.file_uploaded_successfully")
-                .responsePacket(fileManagerService.uploadCloudinaryFile(file))
+//                .responsePacket(fileManagerService.uploadCloudinaryFile(file))
+                .responsePacket(s3Service.uploadFile(file))
                 .build(), HttpStatus.OK);
 
     }

@@ -8,6 +8,7 @@ import com.bt.ecommerce.primary.mapper.CartMapper;
 import com.bt.ecommerce.primary.mapper.ItemMapper;
 import com.bt.ecommerce.primary.pojo.*;
 import com.bt.ecommerce.primary.pojo.enums.DiscountTypeEnum;
+import com.bt.ecommerce.primary.pojo.enums.SettingEnum;
 import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.primary.repository.SequenceRepository;
 import com.bt.ecommerce.security.JwtTokenUtil;
@@ -21,7 +22,6 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -132,8 +132,8 @@ public class CartService extends _BaseService {
     private Cart cartPriceCalculation(Cart cart) {
         double cartSubTotal = 0;
         double packingCharges = 0;
-        // TODO > Delivery charges calculation is based on item weight
-        double deliveryCharges = ProjectConst.deliveryCharges;
+        double itemTotalWeight = 0.0;
+        double deliveryCharges = 0.0;
         // Set And Update Coupon Code Details
         cart = calculateCouponCodeDiscountAmount(cart);
         List<ObjectId> removedItemIds = new ArrayList<>();
@@ -146,15 +146,25 @@ public class CartService extends _BaseService {
                 continue;
             }
             itemDetail.setItemTotal(item.getSellingPrice());
+            itemTotalWeight += item.getWeight();
             cartSubTotal += itemDetail.getItemTotal() * itemDetail.getQuantity();
-            packingCharges += ProjectConst.packingCharges * itemDetail.getQuantity();
+            packingCharges += SpringBeanContext.getBean(SettingService.class).getBaseChargesValue(SettingEnum.PackingCharges)
+                    * itemDetail.getQuantity();
         }
+        deliveryCharges = getItemTotalDeliveryCharges(cart.isStandardDelivery(), itemTotalWeight);
         cart.setSubTotal(cartSubTotal);
         cart.setPackingCharges(packingCharges);
         cart.setDeliveryCharges(deliveryCharges);
         // Cart Order Does not include packing charges and delivery charges
         cart.setOrderTotal(cartSubTotal + packingCharges + deliveryCharges);
         return cart;
+    }
+
+    private double getItemTotalDeliveryCharges(boolean standardDelivery, double itemTotalWeight){
+        // itemTotalWeight + packagingWeight
+        if (itemTotalWeight == 0.0) return 0.0;
+        itemTotalWeight += SpringBeanContext.getBean(SettingService.class).getBaseChargesValue(SettingEnum.PackingWeight);
+        return SpringBeanContext.getBean(SettingService.class).getDeliveryCharges(true, itemTotalWeight);
     }
 
     private Cart calculateCouponCodeDiscountAmount(Cart cart) {
@@ -178,11 +188,17 @@ public class CartService extends _BaseService {
             cart.setCouponDiscountAmount(0.0);
             return cart;
         }
+        double couponApplicableCartSubTotal = 0;
+        for (Cart.ItemDetail itemDetail : cart.getItemDetailList()) {
+            if(!itemDetail.getOfferApplicable()) continue;
+            couponApplicableCartSubTotal += itemDetail.getItemTotal() * itemDetail.getQuantity();
+        }
+        if(couponApplicableCartSubTotal == 0) return cart;
         // implement coupon code
         double couponCodeDiscountAmount = 0.0;
         if (couponCode.getDiscountType().equals(DiscountTypeEnum.Percentage)) {
             if (!couponCode.getDiscountValue().equals(0.0)) {
-                double couponDiscount = (couponCode.getDiscountValue() / 100.0) * cart.getSubTotal();
+                double couponDiscount = (couponCode.getDiscountValue() / 100.0) * couponApplicableCartSubTotal;
                 if (couponDiscount > couponCode.getMaxDiscountAmount()) {
                     couponDiscount = couponCode.getMaxDiscountAmount();
                 }
@@ -192,7 +208,7 @@ public class CartService extends _BaseService {
             couponCodeDiscountAmount = couponCode.getDiscountValue();
         }
         // Increase Coupon Code Used Count
-        couponCode.setUsedCount(couponCode.getUsedCount() + 1);
+        // couponCode.setUsedCount(couponCode.getUsedCount() + 1);
         // Update Coupon Detail To Cart
         cart.setCouponCodeRefDetail(new CouponCode.CouponCodeRef(
                 couponCode.getUuid(), couponCode.getTitle(),
@@ -212,11 +228,11 @@ public class CartService extends _BaseService {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (!TextUtils.isEmpty(deviceId)) {
-            cart = cartRepository.findByDeviceId(deviceId);
-        }
-        if (cart == null && loggedInCustomer != null) {
+        if (loggedInCustomer != null) {
             cart = cartRepository.findByCustomerId(loggedInCustomer.getId());
+        }
+        if (cart == null && !TextUtils.isEmpty(deviceId)) {
+            cart = cartRepository.findByDeviceId(deviceId);
         }
         if (cart == null) {
             cart = new Cart();
@@ -260,6 +276,7 @@ public class CartService extends _BaseService {
         // Generate > invoice number | order number
         order.setInvoiceNumber(SpringBeanContext.getBean(SequenceRepository.class).getNextSequenceId(Order.class.getSimpleName()));
         order.setOrderId(TextUtils.getOrderReferenceId(order.getInvoiceNumber()));
+        order = SpringBeanContext.getBean(OrderService.class).updateOrderStatusLog(order, order.getOrderStatus());
         orderRepository.save(order);
         // clear the cart
         clearCart(cart.getUuid());
@@ -272,15 +289,21 @@ public class CartService extends _BaseService {
 
     public List<CartDto.DetailCart> getCartList() throws BadRequestException {
         List<Cart> cartList = cartRepository.findAll();
-        return cartList.stream()
-                .map(cart -> CartMapper.MAPPER.mapToDetailCartDto(cart))
-                .collect(Collectors.toList());
+        List<CartDto.DetailCart> detailCartList = new ArrayList<>();
+        for (Cart cart : cartList) {
+            // Skip The Empty Cart
+            if(TextUtils.isEmpty(cart.getItemDetailList())) continue;
+            detailCartList.add(CartMapper.MAPPER.mapToDetailCartDto(cart));
+        }
+        return detailCartList;
     }
 
-    public CartDto.CartItemCount getCartItemCount(String authorizationToken, String deviceId) throws BadRequestException {
-        Cart cart = getCartByDeviceId(authorizationToken,deviceId);
+    public CartDto.CartItemCount getCartItemCount(String cartUuid) {
+        Cart cart = cartRepository.findByUuid(cartUuid);
         CartDto.CartItemCount cartItemCount = new CartDto.CartItemCount();
-        if (cart == null) return cartItemCount;
+        if (cart == null) {
+            return cartItemCount;
+        }
         cartItemCount.setItemCount(cart.getItemDetailList().size());
         cartItemCount.setItemTotal(cart.getSubTotal());
         return cartItemCount;
@@ -290,18 +313,18 @@ public class CartService extends _BaseService {
         Customer loggedInCustomer = null;
         Cart cart = null;
         try {
-            if(!TextUtils.isEmpty(authorizationToken)){
+            if (!TextUtils.isEmpty(authorizationToken)) {
                 String username = SpringBeanContext.getBean(JwtTokenUtil.class).validateToken(authorizationToken);
                 loggedInCustomer = customerRepository.findFirstByUsername(username);
             }
         } catch (Exception e) {
             e.printStackTrace();
         }
-        if (!TextUtils.isEmpty(deviceId)) {
-            cart = cartRepository.findByDeviceId(deviceId);
-        }
-        if (cart == null && loggedInCustomer != null) {
+        if (loggedInCustomer != null) {
             cart = cartRepository.findByCustomerId(loggedInCustomer.getId());
+        }
+        if (cart == null && !TextUtils.isEmpty(deviceId)) {
+            cart = cartRepository.findByDeviceId(deviceId);
         }
         if (cart == null) {
             cart = createNewCart(authorizationToken, deviceId);
@@ -317,4 +340,40 @@ public class CartService extends _BaseService {
         return CartMapper.MAPPER.mapToDetailCartDto(cart);
     }
 
+    public void applyCouponCode(String cartUuid, String couponCodeUuid) throws BadRequestException {
+        if (TextUtils.isEmpty(cartUuid)) {
+            throw new BadRequestException("Invalid cart id provided.");
+        }
+        Cart cart = cartRepository.findByUuid(cartUuid);
+        if (!TextUtils.isEmpty(couponCodeUuid)) {
+            CouponCode couponCode = couponCodeRepository.findByUuid(couponCodeUuid);
+            if (couponCode == null) {
+                throw new BadRequestException("Invalid coupon code selection");
+            }
+            cart.setCouponCodeId(couponCode.getId());
+            cart.setCouponCodeRefDetail(new CouponCode.CouponCodeRef(
+                    couponCode.getUuid(), couponCode.getTitle(),
+                    couponCode.getCouponCode(), couponCode.getDiscountType()));
+
+        }
+        cart = calculateCouponCodeDiscountAmount(cart);
+        cart = cartPriceCalculation(cart);
+        cartRepository.save(cart);
+    }
+
+    public void removeCouponCode(String cartUuid) throws BadRequestException {
+        if (TextUtils.isEmpty(cartUuid)) {
+            throw new BadRequestException("Invalid cart id provided.");
+        }
+        Cart cart = cartRepository.findByUuid(cartUuid);
+        if (cart.getCouponCodeId() == null) {
+            throw new BadRequestException("Invalid Request No Coupon Code Applied");
+        }
+        cart.setCouponCodeId(null);
+        cart.setCouponCodeRefDetail(null);
+        cart.setCouponDiscountAmount(0.0);
+        cart = calculateCouponCodeDiscountAmount(cart);
+        cart = cartPriceCalculation(cart);
+        cartRepository.save(cart);
+    }
 }

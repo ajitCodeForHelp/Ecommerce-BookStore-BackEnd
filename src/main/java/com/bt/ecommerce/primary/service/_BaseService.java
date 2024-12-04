@@ -29,6 +29,11 @@ public class _BaseService {
     @Autowired protected SettingRepository settingRepository;
     @Autowired protected ModuleRepository moduleRepository;
     @Autowired protected UrlRepository urlRepository;
+    @Autowired protected PaymentTransactionRepository paymentTransactionRepository;
+    @Autowired protected PublisherRepository publisherRepository;
+    @Autowired protected TaxRepository taxRepository;
+    @Autowired protected OrderHistoryRepository orderHistoryRepository;
+
 
 
 

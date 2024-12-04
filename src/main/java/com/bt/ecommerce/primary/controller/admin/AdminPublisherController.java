@@ -5,7 +5,7 @@ import com.bt.ecommerce.bean.ResponsePacket;
 import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.controller._BaseController;
-import com.bt.ecommerce.primary.dto.DisplayCategoryDto;
+import com.bt.ecommerce.primary.dto.PublisherDto;
 import com.bt.ecommerce.primary.pojo.user.SystemUser;
 import com.bt.ecommerce.security.JwtUserDetailsService;
 import jakarta.validation.Valid;
@@ -16,26 +16,26 @@ import org.springframework.web.bind.annotation.*;
 
 @Slf4j
 @RestController
-@RequestMapping("/admin/v1/display-category")
-public class AdminDisplayCategoryController extends _BaseController {
+@RequestMapping("/admin/v1/publisher")
+public class AdminPublisherController extends _BaseController {
 
     @TranslateResponseMessage
     @PostMapping("/save")
-    protected ResponseEntity<ResponsePacket> save(@Valid @RequestBody DisplayCategoryDto.SaveDisplayCategory create) throws BadRequestException {
+    protected ResponseEntity<ResponsePacket> save(@Valid @RequestBody PublisherDto.SavePublisher create) throws BadRequestException {
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.save")
-                .responsePacket(categoryService.saveDisplayCategory(create))
+                .responsePacket(publisherService.save(create))
                 .build(), HttpStatus.OK);
     }
 
     @TranslateResponseMessage
     @PutMapping("/update/{uuid}")
     protected ResponseEntity<ResponsePacket> edit(@PathVariable("uuid") String uuid,
-                                                  @Valid @RequestBody DisplayCategoryDto.UpdateDisplayCategory update) throws BadRequestException {
+                                                  @Valid @RequestBody PublisherDto.UpdatePublisher update) throws BadRequestException {
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        categoryService.updateDisplayCategory(uuid, update);
+        publisherService.update(uuid, update);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.update")
@@ -49,40 +49,18 @@ public class AdminDisplayCategoryController extends _BaseController {
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.get")
-                .responsePacket(categoryService.get(uuid))
+                .responsePacket(publisherService.get(uuid))
                 .build(), HttpStatus.OK);
     }
 
     @TranslateResponseMessage
-    @GetMapping("/list-data/{data}")
+    @GetMapping("/list/{data}")
     protected ResponseEntity<ResponsePacket> listData(@PathVariable("data") String data) throws BadRequestException {
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.get_all")
-                .responsePacket(categoryService.listDisplayCategory(data))
-                .build(), HttpStatus.OK);
-    }
-
-    @TranslateResponseMessage
-    @PostMapping("/list")
-    protected ResponseEntity<ResponsePacket> list(@Valid @RequestBody DisplayCategoryDto.GetList list) throws BadRequestException {
-        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        return new ResponseEntity<>(ResponsePacket.builder()
-                .errorCode(0)
-                .message("ecommerce.common.message.get_all")
-                .responsePacket(categoryService.listDisplayCategory(false, list.getPageNumber(), list.getPageSize(), list.getSearch()))
-                .build(), HttpStatus.OK);
-    }
-
-    @TranslateResponseMessage
-    @PostMapping("/deleted-list")
-    protected ResponseEntity<ResponsePacket> deletedList(@Valid @RequestBody DisplayCategoryDto.GetList list) throws BadRequestException {
-        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        return new ResponseEntity<>(ResponsePacket.builder()
-                .errorCode(0)
-                .message("ecommerce.common.message.get_all_deleted_records")
-                .responsePacket(categoryService.listDisplayCategory(true, list.getPageNumber(), list.getPageSize(), list.getSearch()))
+                .responsePacket(publisherService.publisherList(data))
                 .build(), HttpStatus.OK);
     }
 
@@ -90,7 +68,7 @@ public class AdminDisplayCategoryController extends _BaseController {
     @PutMapping("/activate/{uuid}")
     protected ResponseEntity<ResponsePacket> activate(@PathVariable("uuid") String uuid) throws BadRequestException {
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        categoryService.activate(uuid);
+        publisherService.activate(uuid);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.active")
@@ -101,7 +79,7 @@ public class AdminDisplayCategoryController extends _BaseController {
     @PutMapping("/inactivate/{uuid}")
     protected ResponseEntity<ResponsePacket> inactivate(@PathVariable("uuid") String uuid) throws BadRequestException {
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        categoryService.inactivate(uuid);
+        publisherService.inactivate(uuid);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.inactive")
@@ -112,21 +90,10 @@ public class AdminDisplayCategoryController extends _BaseController {
     @DeleteMapping("/delete/{uuid}")
     protected ResponseEntity<ResponsePacket> delete(@PathVariable("uuid") String uuid) throws BadRequestException {
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        categoryService.delete(uuid);
+        publisherService.delete(uuid);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.deleted")
-                .build(), HttpStatus.OK);
-    }
-
-    @TranslateResponseMessage
-    @PutMapping("/revive/{uuid}")
-    protected ResponseEntity<ResponsePacket> revive(@PathVariable("uuid") String uuid) throws BadRequestException {
-        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
-        categoryService.revive(uuid);
-        return new ResponseEntity<>(ResponsePacket.builder()
-                .errorCode(0)
-                .message("ecommerce.common.message.revive")
                 .build(), HttpStatus.OK);
     }
 
@@ -136,18 +103,7 @@ public class AdminDisplayCategoryController extends _BaseController {
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.get_key_value_list")
-                .responsePacket(categoryService.listInKeyValueForDisplayCategory())
-                .build(), HttpStatus.OK);
-    }
-
-    @TranslateResponseMessage
-    @PostMapping("/assign-category/{uuid}")
-    public ResponseEntity<ResponsePacket> assignCategoryToItem(@PathVariable("uuid") String uuid,
-                                                         @Valid @RequestBody DisplayCategoryDto.AssignCategory updateDto) throws BadRequestException {
-        categoryService.assignCategoryToItem(uuid, updateDto.getItemUuids());
-        return new ResponseEntity<>(ResponsePacket.builder()
-                .errorCode(0)
-                .message("ecommerce.common.message.update")
+                .responsePacket(publisherService.listInKeyValue())
                 .build(), HttpStatus.OK);
     }
 }

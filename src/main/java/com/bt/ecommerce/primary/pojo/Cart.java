@@ -1,6 +1,5 @@
 package com.bt.ecommerce.primary.pojo;
 
-import com.bt.ecommerce.primary.dto.CouponCodeDto;
 import com.bt.ecommerce.primary.pojo.common.BasicParent;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -25,6 +24,7 @@ public class Cart extends _BasicEntity {
     private List<ObjectId> itemIds = new ArrayList<>();
     private List<ItemDetail> itemDetailList = new ArrayList<>();
 
+    private boolean standardDelivery = false;
     private double subTotal = 0.0;
 
     private ObjectId couponCodeId;
@@ -58,9 +58,11 @@ public class Cart extends _BasicEntity {
         private double Mrp;
         private double sellingPrice; /// use for calculation
         private List<String> itemImageUrls;
-
+        private Boolean offerApplicable;
         private Long quantity = 1L;
         private double itemTotal;
+        private BasicParent publisherDetails;
+        private BasicParent taxDetails;
     }
 
     @Setter
@@ -70,15 +72,13 @@ public class Cart extends _BasicEntity {
 
         private Double latitude;
         private Double longitude;
-        private String address;
-//        private String addressLine2;
-//        private String addressLine3;
+        private String addressLine1;
+        private String addressLine2;
+        private String landMark;
         private String countryTitle;
         private String stateTitle;
         private String cityTitle;
         private String pinCode;
-
-        private String addressType; // Office / Home / Other
     }
 
 

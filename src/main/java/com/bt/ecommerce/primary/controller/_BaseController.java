@@ -28,5 +28,10 @@ public class _BaseController {
     @Autowired protected StockInNotificationService stockInNotificationService;
     @Autowired protected OneTimePasswordService oneTimePasswordService;
     @Autowired protected SettingService settingService;
+    @Autowired protected S3Service s3Service;
+    @Autowired protected PublisherService publisherService;
+    @Autowired protected TaxService taxService;
+    @Autowired protected OrderHistoryService orderHistoryService;
+
 
 }

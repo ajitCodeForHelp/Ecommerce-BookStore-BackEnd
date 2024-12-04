@@ -4,6 +4,7 @@ import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.SettingDto;
 import com.bt.ecommerce.primary.pojo.Setting;
 import com.bt.ecommerce.primary.pojo.enums.SettingEnum;
+import com.bt.ecommerce.utils.TextUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.stereotype.Service;
@@ -112,5 +113,34 @@ public class SettingService extends _BaseService {
             settingsToUpdate.add(updateSetting);
         }
         settingRepository.saveAll(settingsToUpdate);
+    }
+    public double getBaseChargesValue(SettingEnum settingEnum) {
+        if (!SettingEnum.getChargesList().contains(settingEnum)) {
+            return 0.0;
+        }
+        Setting setting = settingRepository.findFirstBySettingKey(settingEnum);
+        if (setting == null || setting.getSettingValue() == null) {
+            return 0.0;
+        } else {
+            return Double.parseDouble(setting.getSettingValue());
+        }
+    }
+
+    public double getDeliveryCharges(boolean standardDelivery, double totalItemPackageWeight) {
+        Setting setting = settingRepository.findFirstBySettingKey(SettingEnum.DeliveryChargeJson);
+        if (setting == null) return 0.0;
+        Type type = new TypeToken<List<SettingDto.DeliveryCharge>>() {
+        }.getType();
+        List<SettingDto.DeliveryCharge> deliveryChargeList = new Gson().fromJson(setting.getSettingValue(), type);
+        if (TextUtils.isEmpty(deliveryChargeList)) return 0.0;
+        Double standardDeliveryCharges = 0.0;
+        Double expressDeliveryCharges = 0.0;
+        for (SettingDto.DeliveryCharge deliveryCharge : deliveryChargeList) {
+            if (totalItemPackageWeight >= deliveryCharge.getStartWeight() && totalItemPackageWeight <= deliveryCharge.getEndWeight()) {
+                standardDeliveryCharges = deliveryCharge.getStandardDeliveryCharges();
+                expressDeliveryCharges = deliveryCharge.getExpressDeliveryCharges();
+            }
+        }
+        return (standardDelivery) ? standardDeliveryCharges : expressDeliveryCharges;
     }
 }

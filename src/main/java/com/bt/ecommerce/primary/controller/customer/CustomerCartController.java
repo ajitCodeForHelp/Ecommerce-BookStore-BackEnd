@@ -17,13 +17,13 @@ import org.springframework.web.bind.annotation.*;
 public class CustomerCartController extends _BaseController {
 
     @TranslateResponseMessage
-    @GetMapping("/getCartItemCount/{deviceId}")
-    public ResponseEntity<ResponsePacket> getCartItemCount(@RequestHeader(value = "Authorization", required = false) String authorization,
-            @PathVariable(value = "deviceId") String deviceId) throws BadRequestException {
+    @GetMapping("/getCartItemCount/{cartUuid}")
+    public ResponseEntity<ResponsePacket> getCartItemCount(
+            @PathVariable(value = "cartUuid") String cartUuid) throws BadRequestException {
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.get")
-                .responsePacket(cartService.getCartItemCount(authorization, deviceId))
+                .responsePacket(cartService.getCartItemCount(cartUuid))
                 .build(), HttpStatus.OK);
     }
 
@@ -60,6 +60,26 @@ public class CustomerCartController extends _BaseController {
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.cart_item_removed")
+                .build(), HttpStatus.OK);
+    }
+    @TranslateResponseMessage
+    @PutMapping("/applyCouponCode/{cartUuid}/{couponCodeUuid}")
+    public ResponseEntity<ResponsePacket> applyCouponCode(@PathVariable("cartUuid") String cardUuid,
+                                                             @PathVariable("couponCodeUuid") String couponCodeUuid) throws BadRequestException {
+        cartService.applyCouponCode(cardUuid, couponCodeUuid);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.cart_coupon_code_apply")
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @PutMapping("/removeCouponCode/{cartUuid}")
+    public ResponseEntity<ResponsePacket> removeCouponCode(@PathVariable("cartUuid") String cardUuid) throws BadRequestException {
+        cartService.removeCouponCode(cardUuid);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.cart_coupon_code_remove")
                 .build(), HttpStatus.OK);
     }
 

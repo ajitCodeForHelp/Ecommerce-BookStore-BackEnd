@@ -13,6 +13,8 @@ public enum SettingEnum {
     UnderMaintenance("UnderMaintenance"),
 
     // Double Setting
+    PackingWeight("PackingWeight"),
+    PackingCharges("PackingCharges"),
     AppVersion("AppVersion"),
 
     // String Setting
@@ -45,6 +47,8 @@ public enum SettingEnum {
     public static List<SettingEnum> getFloatSettingsKey() {
         List<SettingEnum> settingList = new ArrayList<>();
         settingList.add(AppVersion);
+        settingList.add(PackingCharges);
+        settingList.add(PackingWeight);
         return settingList;
     }
 
@@ -52,6 +56,14 @@ public enum SettingEnum {
         List<SettingEnum> settingList = new ArrayList<>();
         settingList.add(BaseUrl);
         settingList.add(NotificationEmailTo);
+        return settingList;
+    }
+
+    // For calculation
+    public static List<SettingEnum> getChargesList() {
+        List<SettingEnum> settingList = new ArrayList<>();
+        settingList.add(PackingCharges);
+        settingList.add(PackingWeight);
         return settingList;
     }
 
