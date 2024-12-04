@@ -71,6 +71,8 @@ dependencies {
 
     implementation 'software.amazon.awssdk:s3:2.20.85' // Update the version if needed
 
+    implementation 'com.google.firebase:firebase-admin:9.2.0'
+
 }
 
 test {
