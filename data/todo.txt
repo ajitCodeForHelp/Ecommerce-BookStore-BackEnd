@@ -1,2 +1,25 @@
 > Order History Contain Everything (All Data)
 >
+
+
+--Additional Notes:
+-If Gmail blocks access due to security, enable App Passwords or disable "Less Secure App Access".
+-Avoid hardcoding sensitive information like email and password; use a configuration service like AWS Secrets Manager or Spring Boot's encrypted configuration.
+
+Step 1: Enable App Passwords in Your Google Account
+
+Turn on 2-Step Verification:
+
+Go to your Google Account Security page.
+Scroll down to "2-Step Verification" and turn it on (if it's not already enabled).
+Follow the instructions to set up 2-Step Verification.
+Generate an App Password:
+
+Once 2-Step Verification is enabled, return to the Security page.
+Scroll to "App Passwords" under the Signing in to Google section.
+Select "App Passwords" and log in again if prompted.
+Choose:
+App: Select "Mail."
+Device: Choose the appropriate device or select "Other" and give it a name (e.g., "Spring Boot App").
+Click Generate. Google will give you a 16-character password.
+Copy this password and save it securely (you won’t see it again).
