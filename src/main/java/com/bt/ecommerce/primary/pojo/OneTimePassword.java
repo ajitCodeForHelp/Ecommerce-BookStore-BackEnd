@@ -24,4 +24,8 @@ public class OneTimePassword extends _BasicEntity{
     private LocalDateTime expiredAt;
 
     private boolean expired = false;
+
+    private boolean verified;
+
+    private String orderId;
 }
