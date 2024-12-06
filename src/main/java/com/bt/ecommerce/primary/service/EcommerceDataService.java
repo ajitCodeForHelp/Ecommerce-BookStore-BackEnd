@@ -50,7 +50,7 @@ public class EcommerceDataService extends _BaseService {
         Map<String, List<Category>> subCategoryMap = new HashMap<>();
         for (Category category : categoryList) {
             // If Category Doesn't Have Any Item Then Skip This
-            if(itemRepository.findByCategoryId(category.getId()).size() == 0) continue;
+//            if(itemRepository.findByCategoryId(category.getId()).size() == 0) continue;
             if (category.getParentCategoryId() == null) {
                 categoryMap.put(category.getUuid(), category);
             } else {
@@ -89,6 +89,7 @@ public class EcommerceDataService extends _BaseService {
         // Prepare EcommerceCategory For HomePage
         List<EcommerceBean.EcommerceCategory> ecommerceCategoryList = new ArrayList<>();
         for (Category displayCategory : displayCategoryList) {
+//            if(itemRepository.findByCategoryId(displayCategory.getId()).size() == 0) continue;
             ecommerceCategoryList.add(getEcommerceCategoryDetail(displayCategory));
         }
         return ecommerceCategoryList;
