@@ -25,13 +25,28 @@ public interface ItemRepository extends MongoRepository<Item, ObjectId> {
 //            "}")
 //    List<Item> findByCategoryId(ObjectId categoryId);
 
-    @Query(value = "{" +
-            "  '$or' : [" +
-            "    { 'parentCategoryIds' : { '$in' : [?0] } }," +
-            "    { 'subCategoryIds'    : { '$in' : [?0] } }" +
-            "  ]" +
-            "}")
+//    @Query(value = "{" +
+//            "  '$or' : [" +
+//            "    { 'parentCategoryIds' : { '$in' : [?0] } }," +
+//            "    { 'subCategoryIds'    : { '$in' : [?0] } }" +
+//            "  ]" +
+//            "}")
+//    List<Item> findByCategoryId(ObjectId categoryId);
+
+
+    @Query(value = "{ " +
+            "   $and : [" +
+            "       { 'active'  : true }," +
+            "       { 'deleted' : false }," +
+            "       { $or : [ " +
+            "           { 'parentCategoryIds' : { '$in' : [?0] } }," +
+            "           { 'subCategoryIds'    : { '$in' : [?0] } }" +
+            "        ] }" +
+            "   ]" +
+            "}"
+    )
     List<Item> findByCategoryId(ObjectId categoryId);
+
 
     @Query(value = "" +
             "{" +
@@ -78,4 +93,7 @@ public interface ItemRepository extends MongoRepository<Item, ObjectId> {
             "  'title'  : { $regularExpression : { pattern : ?0, options : 'i'} } " +
             "}")
     List<Item> findByTitle(String search, Pageable pageable);
+
+    List<Item> findByPublisherId(ObjectId publisherId);
+
 }

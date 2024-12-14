@@ -6,7 +6,10 @@ import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.AbstractDto;
 import com.bt.ecommerce.primary.dto.PublisherDto;
 import com.bt.ecommerce.primary.mapper.PublisherMapper;
+import com.bt.ecommerce.primary.pojo.Item;
 import com.bt.ecommerce.primary.pojo.Publisher;
+import com.bt.ecommerce.primary.pojo.common.BasicParent;
+import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +34,7 @@ public class PublisherService extends _BaseService implements _BaseServiceImpl{
         Publisher publisher = findByUuid(uuid);
         publisher =  PublisherMapper.MAPPER.mapToPojo(publisher , updatePublisher);
         publisherRepository.save(publisher);
+        updatePublisherDetailInItem(publisher);
     }
 
     private Publisher findByUuid(String uuid) throws BadRequestException {
@@ -106,5 +110,14 @@ public class PublisherService extends _BaseService implements _BaseServiceImpl{
             list = publisherRepository.findAll();
         }
         return list.stream().map(PublisherMapper.MAPPER::mapToPublisherDetailDto).toList();
+    }
+
+    private void updatePublisherDetailInItem(Publisher publisher){
+        List<Item> itemList = itemRepository.findByPublisherId(publisher.getId());
+        if(TextUtils.isEmpty(itemList)) return;
+        for (Item item : itemList) {
+            item.setPublisherDetails(new BasicParent(publisher.getUuid(), publisher.getTitle()));
+        }
+        itemRepository.saveAll(itemList);
     }
 }
