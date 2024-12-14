@@ -2,6 +2,7 @@ package com.bt.ecommerce.primary.repository;
 
 import com.bt.ecommerce.primary.pojo.OneTimePassword;
 import com.bt.ecommerce.primary.pojo.enums.VerificationTypeEnum;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.data.mongodb.repository.Query;
 
@@ -25,4 +26,12 @@ public interface OneTimePasswordRepository extends MongoRepository<OneTimePasswo
             "  'expired' : false" +
             "}")
     List<OneTimePassword> findAllNonExpiredOtp(String mobile);
+
+    @Query(value = "{" +
+            "  'otpSentOn'  : ?0," +
+            "  'verificationType' : ?1," +
+            "  'expiredAt' : { '$gt' : ?2 }," +
+            "  'expired' : false" +
+            "}")
+    List<OneTimePassword> getOtpLessUnExpiredOTP(String otpSentOn, VerificationTypeEnum verificationType, LocalDateTime now, Pageable pageable);
 }

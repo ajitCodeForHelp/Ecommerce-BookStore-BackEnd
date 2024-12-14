@@ -4,16 +4,26 @@ import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.AuthDto;
 import com.bt.ecommerce.primary.dto.CustomerDto;
+import com.bt.ecommerce.primary.dto.OtpDto;
 import com.bt.ecommerce.primary.mapper.CustomerMapper;
+import com.bt.ecommerce.primary.pojo.OneTimePassword;
+import com.bt.ecommerce.primary.pojo.enums.MobileEmailEnum;
 import com.bt.ecommerce.primary.pojo.enums.RoleEnum;
 import com.bt.ecommerce.primary.pojo.enums.VerificationTypeEnum;
 import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.security.JwtUserDetailsService;
 import com.bt.ecommerce.utils.TextUtils;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
+import okhttp3.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -58,7 +68,7 @@ public class CustomerService extends _BaseService {
         customerRepository.save(customer);
     }
 
-    private Customer registerCustomer(String isdCode , String mobile){
+    public Customer registerCustomer(String isdCode , String mobile){
         Customer customer = new Customer();
         customer.setIsdCode(isdCode);
         customer.setMobile(mobile);
@@ -135,6 +145,5 @@ public class CustomerService extends _BaseService {
         customer.setModifiedAt(LocalDateTime.now());
         customerRepository.save(customer);
     }
-
 
 }
