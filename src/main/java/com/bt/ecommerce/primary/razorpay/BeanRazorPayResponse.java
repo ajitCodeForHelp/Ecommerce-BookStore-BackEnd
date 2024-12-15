@@ -7,21 +7,23 @@ import java.util.ArrayList;
 
 public class BeanRazorPayResponse {
     @Data
-    public class Customer{
+    public class Customer {
         public String contact;
         public String email;
         public String name;
     }
+
     @Data
 
-    public class Notify{
+    public class Notify {
         public boolean email;
         public boolean sms;
         public boolean whatsapp;
     }
+
     @Data
 
-    public class Root{
+    public class Root {
         public boolean accept_partial;
         public int amount;
         public int amount_paid;
@@ -49,7 +51,6 @@ public class BeanRazorPayResponse {
         public String user_id;
         public boolean whatsapp_link;
     }
-
 
 
 }
