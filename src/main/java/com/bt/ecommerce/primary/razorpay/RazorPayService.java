@@ -106,7 +106,7 @@ public class RazorPayService extends _BaseService {
         BeanRazorPayRequest.RazorPayRequest requestObj = new BeanRazorPayRequest.RazorPayRequest();
         long currentTimeMillis = Instant.now().toEpochMilli();
 
-        requestObj.setAmount(customerRequest.getAmount());
+        requestObj.setAmount(customerRequest.getAmount()*100);
         requestObj.setCurrency(CURRENCY);
         requestObj.setAccept_partial(false);
         requestObj.setExpire_by(currentTimeMillis + EXPIRY_DURATION_MS);
@@ -118,7 +118,7 @@ public class RazorPayService extends _BaseService {
         customerDetails.setName(loggedInCustomer.fullName());
 
         requestObj.setCustomer(customerDetails);
-        requestObj.setReference_id(UUID.randomUUID().toString().substring(0, 8));
+        requestObj.setReference_id(customerRequest.getOrderId());
 
         BeanRazorPayRequest.Notify notify = new BeanRazorPayRequest.Notify();
         notify.setEmail(false);
@@ -127,7 +127,7 @@ public class RazorPayService extends _BaseService {
         requestObj.setNotify(notify);
         requestObj.setReminder_enable(true);
         requestObj.setCallback_url(CALLBACK_URL);
-        requestObj.setCallback_method("GET");
+        requestObj.setCallback_method("get");
 
         return requestObj;
     }
