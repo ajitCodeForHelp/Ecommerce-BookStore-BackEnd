@@ -3,11 +3,11 @@ package com.bt.ecommerce.primary.pojo;
 
 import com.bt.ecommerce.primary.pojo.enums.PaymentGateWayEnum;
 import com.bt.ecommerce.primary.pojo.enums.PaymentGatewayStatusEnum;
-import com.bt.ecommerce.primary.pojo.enums.PaymentStatusEnum;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.*;
@@ -49,7 +49,7 @@ public class PaymentTransaction {
 
     private String orderId;
 
-    private Long loggedInCustomerId;
+    private ObjectId loggedInCustomerId;
 
     private Boolean paymentCaptured;
 
