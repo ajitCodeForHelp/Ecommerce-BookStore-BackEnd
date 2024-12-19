@@ -49,11 +49,8 @@ public class OrderService extends _BaseService {
         order.setOrderTrackingId(orderTrackingId);
         order.setOrderStatus(OrderStatusEnum.DISPATCHED);
         order = updateOrderStatusLog(order, OrderStatusEnum.DISPATCHED);
-        if (order.getOrderStatus().equals(OrderStatusEnum.DISPATCHED)) {
-            // Move Order To History
-            SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory();
-        }
         orderRepository.save(order);
+            SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory();
     }
 
     public void updateOrdersTrackingId(List<OrderDto.UpdateOrdersTrackingIds> request) throws BadRequestException {
@@ -76,13 +73,11 @@ public class OrderService extends _BaseService {
             order.setOrderTrackingId(orderTrackingId);
             order.setOrderStatus(OrderStatusEnum.DISPATCHED);
             order = updateOrderStatusLog(order, OrderStatusEnum.DISPATCHED);
-            if (order.getOrderStatus().equals(OrderStatusEnum.DISPATCHED)) {
-                // Move Order To History
-                SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory();
-            }
         }
         // Update All Order Tracking Ids
         orderRepository.saveAll(orderList);
+        SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory();
+
     }
 
     public void updateOrderStatus(String orderId, OrderStatusEnum orderStatus) throws BadRequestException {
