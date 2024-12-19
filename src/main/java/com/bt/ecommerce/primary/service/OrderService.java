@@ -47,6 +47,12 @@ public class OrderService extends _BaseService {
             throw new BadRequestException("Invalid OrderTrackingId Provided");
         }
         order.setOrderTrackingId(orderTrackingId);
+        order.setOrderStatus(OrderStatusEnum.DISPATCHED);
+        order = updateOrderStatusLog(order, OrderStatusEnum.DISPATCHED);
+        if (order.getOrderStatus().equals(OrderStatusEnum.DISPATCHED)) {
+            // Move Order To History
+            SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory();
+        }
         orderRepository.save(order);
     }
 
@@ -60,14 +66,20 @@ public class OrderService extends _BaseService {
             throw new BadRequestException("Invalid OrderId Provided");
         }
         for (Order order : orderList) {
-            if (!order.getOrderStatus().equals(OrderStatusEnum.ORDER)) {
-                throw new BadRequestException("Invalid Update Request, Order Already Dispatched");
-            }
+//            if (!order.getOrderStatus().equals(OrderStatusEnum.ORDER)) {
+//                throw new BadRequestException("Invalid Update Request, Order Already Dispatched");
+//            }
             String orderTrackingId = orderTrackingIdMap.get(order.getOrderId());
             if (TextUtils.isEmpty(orderTrackingId)) {
                 throw new BadRequestException("Invalid OrderTrackingId Provided");
             }
             order.setOrderTrackingId(orderTrackingId);
+            order.setOrderStatus(OrderStatusEnum.DISPATCHED);
+            order = updateOrderStatusLog(order, OrderStatusEnum.DISPATCHED);
+            if (order.getOrderStatus().equals(OrderStatusEnum.DISPATCHED)) {
+                // Move Order To History
+                SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory();
+            }
         }
         // Update All Order Tracking Ids
         orderRepository.saveAll(orderList);
