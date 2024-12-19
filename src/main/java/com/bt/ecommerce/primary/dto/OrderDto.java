@@ -46,7 +46,7 @@ public class OrderDto extends AbstractDto{
     @Setter
     @Getter
     @NoArgsConstructor
-    public class UpdateOrdersTrackingIds {
+    public static class UpdateOrdersTrackingIds {
         private String orderId;
         private String orderTrackingId;
     }
