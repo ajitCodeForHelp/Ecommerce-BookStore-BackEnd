@@ -8,7 +8,6 @@ import com.bt.ecommerce.primary.mapper.OrderMapper;
 import com.bt.ecommerce.primary.pojo.Order;
 import com.bt.ecommerce.primary.pojo.OrderHistory;
 import com.bt.ecommerce.primary.pojo.enums.OrderStatusEnum;
-import com.bt.ecommerce.primary.pojo.enums.PaymentStatusEnum;
 import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.security.JwtUserDetailsService;
 import com.bt.ecommerce.utils.TextUtils;
