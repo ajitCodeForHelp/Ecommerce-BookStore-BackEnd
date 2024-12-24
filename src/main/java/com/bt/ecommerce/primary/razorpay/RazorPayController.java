@@ -34,6 +34,7 @@ public class RazorPayController {
     public ResponseEntity<ResponsePacket> handleWebhook(
             @RequestHeader("X-Razorpay-Signature") String signature,
             @RequestBody String payload) {
+        logger.info("RazorPayController.webHookTransaction");
         ResponsePacket responsePacket;
         try {
             PaymentGatewayStatusEnum responseStatus = razorPayService.handleWebhook(signature, payload);
