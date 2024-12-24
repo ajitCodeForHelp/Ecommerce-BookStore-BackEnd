@@ -52,7 +52,7 @@ public class RazorPayService extends _BaseService {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
-    private static final String CALLBACK_URL = "https://example-callback-url.com/";
+    private static final String CALLBACK_URL = "https://demo.thebooks24.com/";
     private static final long EXPIRY_DURATION_MS = 10 * 60 * 1000; // 10 minutes
     private static final String CURRENCY = "INR";
 
@@ -106,7 +106,7 @@ public class RazorPayService extends _BaseService {
         BeanRazorPayRequest.RazorPayRequest requestObj = new BeanRazorPayRequest.RazorPayRequest();
         long currentTimeMillis = Instant.now().toEpochMilli();
 
-        requestObj.setAmount(customerRequest.getAmount()*100);
+        requestObj.setAmount(customerRequest.getAmount() * 100);
         requestObj.setCurrency(CURRENCY);
         requestObj.setAccept_partial(false);
         requestObj.setExpire_by(currentTimeMillis + EXPIRY_DURATION_MS);
@@ -170,21 +170,25 @@ public class RazorPayService extends _BaseService {
 
         PaymentTransaction paymentTransaction = paymentTransactionRepository.findByPaymentTransactionRefId(razorPayOrderId);
         if (paymentTransaction == null) {
-            throw new BadRequestException(razorPayOrderId+" not found");
+            throw new BadRequestException(razorPayOrderId + " not found");
         }
 
 
         // Log incoming webhook event
-        PaymentGatewayStatusEnum statusEnum=PaymentGatewayStatusEnum.created;
+        PaymentGatewayStatusEnum statusEnum = PaymentGatewayStatusEnum.created;
         switch (eventType) {
             case "payment_link.cancelled":
-                 statusEnum=processPaymentLinkCancelled(paymentLink, paymentTransaction.getPaymentGatewayRefId(), payload);
+                statusEnum = processPaymentLinkCancelled(paymentLink, paymentTransaction.getPaymentGatewayRefId(), payload);
+                System.out.println("**************payment_link.cancelled *********************************** ");
+
                 break;
             case "payment_link.paid":
-                 statusEnum= processPaymentLinkPaid(paymentLink, paymentTransaction.getPaymentGatewayRefId(),payload);
+                System.out.println("**************payment_link.paid *********************************** ");
+                statusEnum = processPaymentLinkPaid(paymentLink, paymentTransaction.getPaymentGatewayRefId(), payload);
                 break;
             case "payment_link.expired":
-                statusEnum= processPaymentLinkExpired(paymentLink, paymentTransaction.getPaymentGatewayRefId(),payload);
+                statusEnum = processPaymentLinkExpired(paymentLink, paymentTransaction.getPaymentGatewayRefId(), payload);
+                System.out.println("**************payment_link.expired *********************************** ");
                 break;
             default:
                 System.out.println("Unhandled event type: {} " + eventType);
