@@ -268,5 +268,37 @@ public class RazorPayService extends _BaseService {
         return root;
 
     }
+
+    public BeanRazorPayUpdateStatus.Root getCancelUpdate(String plinkId) {
+        BeanRazorPayUpdateStatus.Root root = null;
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.setBasicAuth(razorPayUserName, razorPayPassword);
+
+        HttpEntity<BeanRazorPayUpdateStatus.Root> entity = new HttpEntity<>(null, headers);
+
+        try {
+            String responseBody = restTemplate.exchange(
+                    "https://api.razorpay.com/v1/payment_links/"+plinkId+"/cancel", HttpMethod.POST, entity, String.class).getBody();
+            root = new Gson().fromJson(responseBody, new TypeToken<BeanRazorPayUpdateStatus.Root>() {
+            }.getType());
+            PaymentGatewayStatusEnum paymentStatusEnum=PaymentGatewayStatusEnum.created;
+            if (root.getStatus().equalsIgnoreCase("created")){
+                paymentStatusEnum=  PaymentGatewayStatusEnum.created;
+            }else if (root.getStatus().equalsIgnoreCase("paid"))
+            {
+                paymentStatusEnum=  PaymentGatewayStatusEnum.paid;
+            }else {
+                paymentStatusEnum=  PaymentGatewayStatusEnum.cancelled;
+            }
+            paymentTransactionService.updatePaymentStatusByPaymentGatewayId(root.getId(),paymentStatusEnum);
+        } catch (RestClientException | BadRequestException e) {
+            throw new RuntimeException("Failed to connect to RazorPay API: " + e.getMessage(), e);
+        }
+        return root;
+
+    }
 }
 

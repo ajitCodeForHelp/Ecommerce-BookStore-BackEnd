@@ -48,11 +48,21 @@ public class RazorPayController {
         return new ResponseEntity<>(responsePacket, HttpStatus.OK);
     }
     @GetMapping(value ="/updateStatus/{plinkId}")
-    //
     public ResponseEntity<ResponsePacket> updateStatus(@PathVariable(value = "plinkId") String plinkId) {
         ResponsePacket responsePacket;
         try {
             BeanRazorPayUpdateStatus.Root responseStatus= razorPayService.getStatusUpdate(plinkId);
+            responsePacket = new ResponsePacket<>(0, "response ", responseStatus);
+        } catch (Exception e) {
+            responsePacket = new ResponsePacket<>(1, e.getMessage(), null);
+        }
+        return new ResponseEntity<>(responsePacket, HttpStatus.OK);
+    }
+    @GetMapping(value ="/cancelStatus/{plinkId}")
+    public ResponseEntity<ResponsePacket> cancelStatus(@PathVariable(value = "plinkId") String plinkId) {
+        ResponsePacket responsePacket;
+        try {
+            BeanRazorPayUpdateStatus.Root responseStatus= razorPayService.getCancelUpdate(plinkId);
             responsePacket = new ResponsePacket<>(0, "response ", responseStatus);
         } catch (Exception e) {
             responsePacket = new ResponsePacket<>(1, e.getMessage(), null);
