@@ -47,6 +47,7 @@ public class StaffDto extends AbstractDto{
         private String mobile;
         private String email;
         private String photoImageUrl;
+        private String pwdText;
     }
 
     @Setter
