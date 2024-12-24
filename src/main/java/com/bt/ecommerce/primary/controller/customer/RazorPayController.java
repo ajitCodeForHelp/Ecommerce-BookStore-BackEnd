@@ -1,7 +1,9 @@
-package com.bt.ecommerce.primary.razorpay;
+package com.bt.ecommerce.primary.controller.customer;
 
 import com.bt.ecommerce.bean.ResponsePacket;
 import com.bt.ecommerce.primary.pojo.enums.PaymentGatewayStatusEnum;
+import com.bt.ecommerce.primary.razorpay.BeanRazorPayCustomerRequest;
+import com.bt.ecommerce.primary.razorpay.RazorPayService;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;

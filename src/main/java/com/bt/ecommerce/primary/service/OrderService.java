@@ -8,7 +8,6 @@ import com.bt.ecommerce.primary.mapper.OrderMapper;
 import com.bt.ecommerce.primary.pojo.Order;
 import com.bt.ecommerce.primary.pojo.OrderHistory;
 import com.bt.ecommerce.primary.pojo.enums.OrderStatusEnum;
-import com.bt.ecommerce.primary.pojo.enums.PaymentStatusEnum;
 import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.security.JwtUserDetailsService;
 import com.bt.ecommerce.utils.TextUtils;
@@ -47,7 +46,10 @@ public class OrderService extends _BaseService {
             throw new BadRequestException("Invalid OrderTrackingId Provided");
         }
         order.setOrderTrackingId(orderTrackingId);
+        order.setOrderStatus(OrderStatusEnum.DISPATCHED);
+        order = updateOrderStatusLog(order, OrderStatusEnum.DISPATCHED);
         orderRepository.save(order);
+            SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory();
     }
 
     public void updateOrdersTrackingId(List<OrderDto.UpdateOrdersTrackingIds> request) throws BadRequestException {
@@ -60,17 +62,21 @@ public class OrderService extends _BaseService {
             throw new BadRequestException("Invalid OrderId Provided");
         }
         for (Order order : orderList) {
-            if (!order.getOrderStatus().equals(OrderStatusEnum.ORDER)) {
-                throw new BadRequestException("Invalid Update Request, Order Already Dispatched");
-            }
+//            if (!order.getOrderStatus().equals(OrderStatusEnum.ORDER)) {
+//                throw new BadRequestException("Invalid Update Request, Order Already Dispatched");
+//            }
             String orderTrackingId = orderTrackingIdMap.get(order.getOrderId());
             if (TextUtils.isEmpty(orderTrackingId)) {
                 throw new BadRequestException("Invalid OrderTrackingId Provided");
             }
             order.setOrderTrackingId(orderTrackingId);
+            order.setOrderStatus(OrderStatusEnum.DISPATCHED);
+            order = updateOrderStatusLog(order, OrderStatusEnum.DISPATCHED);
         }
         // Update All Order Tracking Ids
         orderRepository.saveAll(orderList);
+        SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory();
+
     }
 
     public void updateOrderStatus(String orderId, OrderStatusEnum orderStatus) throws BadRequestException {
