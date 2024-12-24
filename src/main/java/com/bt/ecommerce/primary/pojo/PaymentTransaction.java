@@ -18,16 +18,8 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Document(collection = "payment_transaction")
-public class PaymentTransaction {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Basic(optional = false)
-    protected Long recordId;
-
-
-    @Temporal(TemporalType.TIMESTAMP)
-    protected Date createdAt = new Date();
-
+public class PaymentTransaction extends _BasicEntity{
+    private Long recordId;
     // Our System Generated ID
     private String paymentTransactionRefId;
 

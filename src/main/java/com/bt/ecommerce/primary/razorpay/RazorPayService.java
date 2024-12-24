@@ -1,5 +1,6 @@
 package com.bt.ecommerce.primary.razorpay;
 
+import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.pojo.PaymentTransaction;
 import com.bt.ecommerce.primary.pojo.enums.PaymentGateWayEnum;
@@ -9,12 +10,17 @@ import com.bt.ecommerce.primary.repository.CustomerRepository;
 import com.bt.ecommerce.primary.service.PaymentTransactionService;
 import com.bt.ecommerce.primary.service._BaseService;
 import com.bt.ecommerce.security.JwtTokenUtil;
+import com.bt.ecommerce.security.JwtUserDetailsService;
 import com.bt.ecommerce.utils.TextUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.RequestBody;
+import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -25,11 +31,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
-import java.lang.reflect.Type;
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.UUID;
 
 @Service
 public class RazorPayService extends _BaseService {
@@ -56,18 +59,18 @@ public class RazorPayService extends _BaseService {
     private static final long EXPIRY_DURATION_MS = 10 * 60 * 1000; // 10 minutes
     private static final String CURRENCY = "INR";
 
-    public BeanRazorPayResponse.Root createPayment(String authorizationToken,
-                                                   BeanRazorPayCustomerRequest customerRequest) throws BadRequestException {
+    public BeanRazorPayResponse.Root createPayment(BeanRazorPayCustomerRequest customerRequest) throws BadRequestException {
+
 
         // Validate and fetch logged-in customer
-        Customer loggedInCustomer = validateAndFetchCustomer(authorizationToken);
-
-        // Build RazorPay Request
-        BeanRazorPayRequest.RazorPayRequest requestObj = buildRazorPayRequest(customerRequest, loggedInCustomer);
+        Customer loggedInCustomer = (Customer) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
 
         // Generate Payment Transaction
         PaymentTransaction paymentTransaction = paymentTransactionService.generatePaymentTransaction(
                 loggedInCustomer, customerRequest.getAmount(), PaymentGateWayEnum.RazorPay);
+
+        // Build RazorPay Request
+        BeanRazorPayRequest.RazorPayRequest requestObj = buildRazorPayRequest(customerRequest, loggedInCustomer, paymentTransaction);
 
         // Call RazorPay API and fetch response
         BeanRazorPayResponse.Root razorPayResponse = callRazorPayAPI(requestObj);
@@ -102,7 +105,7 @@ public class RazorPayService extends _BaseService {
      * Build RazorPayRequest object with necessary details.
      */
     private BeanRazorPayRequest.RazorPayRequest buildRazorPayRequest(BeanRazorPayCustomerRequest customerRequest,
-                                                                     Customer loggedInCustomer) {
+                                                                     Customer loggedInCustomer, PaymentTransaction paymentTransaction) {
         BeanRazorPayRequest.RazorPayRequest requestObj = new BeanRazorPayRequest.RazorPayRequest();
         long currentTimeMillis = Instant.now().toEpochMilli();
 
@@ -110,7 +113,7 @@ public class RazorPayService extends _BaseService {
         requestObj.setCurrency(CURRENCY);
         requestObj.setAccept_partial(false);
         requestObj.setExpire_by(currentTimeMillis + EXPIRY_DURATION_MS);
-        requestObj.setDescription("Payment for order ID: " + customerRequest.getOrderId());
+        requestObj.setDescription("Payment For : " + paymentTransaction.getPaymentTransactionRefId());
 
         BeanRazorPayRequest.Customer customerDetails = new BeanRazorPayRequest.Customer();
         customerDetails.setContact("+91" + loggedInCustomer.getMobile());
@@ -118,7 +121,7 @@ public class RazorPayService extends _BaseService {
         customerDetails.setName(loggedInCustomer.fullName());
 
         requestObj.setCustomer(customerDetails);
-        requestObj.setReference_id(customerRequest.getOrderId());
+        requestObj.setReference_id(paymentTransaction.getPaymentTransactionRefId());
 
         BeanRazorPayRequest.Notify notify = new BeanRazorPayRequest.Notify();
         notify.setEmail(false);
@@ -233,5 +236,28 @@ public class RazorPayService extends _BaseService {
     }
 
 
+    public BeanRazorPayUpdateStatus.Root getStatusUpdate(String plinkId) {
+        BeanRazorPayUpdateStatus.Root root = null;
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        headers.setBasicAuth(razorPayUserName, razorPayPassword);
+
+        HttpEntity<BeanRazorPayUpdateStatus.Root> entity = new HttpEntity<>(null, headers);
+
+        try {
+            String responseBody = restTemplate.exchange(
+                    "https://api.razorpay.com/v1/payment_links/"+plinkId, HttpMethod.GET, entity, String.class).getBody();
+            root = new Gson().fromJson(responseBody, new TypeToken<BeanRazorPayUpdateStatus.Root>() {
+            }.getType());
+
+
+        } catch (RestClientException e) {
+            throw new RuntimeException("Failed to connect to RazorPay API: " + e.getMessage(), e);
+        }
+        return root;
+
+    }
 }
 
