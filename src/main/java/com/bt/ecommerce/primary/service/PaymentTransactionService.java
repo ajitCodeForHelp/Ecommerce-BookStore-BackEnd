@@ -69,4 +69,15 @@ public class PaymentTransactionService extends _BaseService {
         paymentTransactionRepository.save(paymentTransaction);
         return paymentTransaction;
     }
+    public void updatePaymentStatusByPaymentGatewayId(String paymentGatewayRefId, PaymentGatewayStatusEnum paymentGatewayStatusEnum) throws BadRequestException {
+
+        PaymentTransaction paymentTransaction = paymentTransactionRepository.findByPaymentGatewayRefId(paymentGatewayRefId);
+        if (paymentTransaction == null) {
+            throw new BadRequestException(paymentGatewayRefId + " not found");
+        }
+        paymentTransaction.setPaymentStatus(paymentGatewayStatusEnum);
+        paymentTransaction.setPaymentCaptured(Boolean.TRUE);
+        paymentTransactionRepository.save(paymentTransaction);
+
+    }
 }

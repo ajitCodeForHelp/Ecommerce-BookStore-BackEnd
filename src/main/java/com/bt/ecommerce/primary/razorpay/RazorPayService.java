@@ -5,6 +5,7 @@ import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.pojo.PaymentTransaction;
 import com.bt.ecommerce.primary.pojo.enums.PaymentGateWayEnum;
 import com.bt.ecommerce.primary.pojo.enums.PaymentGatewayStatusEnum;
+import com.bt.ecommerce.primary.pojo.enums.PaymentStatusEnum;
 import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.primary.repository.CustomerRepository;
 import com.bt.ecommerce.primary.service.PaymentTransactionService;
@@ -251,9 +252,17 @@ public class RazorPayService extends _BaseService {
                     "https://api.razorpay.com/v1/payment_links/"+plinkId, HttpMethod.GET, entity, String.class).getBody();
             root = new Gson().fromJson(responseBody, new TypeToken<BeanRazorPayUpdateStatus.Root>() {
             }.getType());
-
-
-        } catch (RestClientException e) {
+            PaymentGatewayStatusEnum paymentStatusEnum=PaymentGatewayStatusEnum.created;
+            if (root.getStatus().equalsIgnoreCase("created")){
+                paymentStatusEnum=  PaymentGatewayStatusEnum.created;
+            }else if (root.getStatus().equalsIgnoreCase("paid"))
+            {
+                paymentStatusEnum=  PaymentGatewayStatusEnum.paid;
+            }else {
+                paymentStatusEnum=  PaymentGatewayStatusEnum.cancelled;
+            }
+            paymentTransactionService.updatePaymentStatusByPaymentGatewayId(root.getId(),paymentStatusEnum);
+        } catch (RestClientException | BadRequestException e) {
             throw new RuntimeException("Failed to connect to RazorPay API: " + e.getMessage(), e);
         }
         return root;
