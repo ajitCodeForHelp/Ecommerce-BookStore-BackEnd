@@ -77,7 +77,7 @@ public class CartService extends _BaseService {
         cartRepository.save(cart);
     }
 
-    public void updateItemQuantity(String cartUuid, String itemUuid, long quantity) throws BadRequestException {
+    public CartDto.DetailCart updateItemQuantity(String cartUuid, String itemUuid, long quantity) throws BadRequestException {
         Cart cart = cartRepository.findByUuid(cartUuid);
         if (cart == null) {
             throw new BadRequestException("Please provide a valid cart");
@@ -86,6 +86,7 @@ public class CartService extends _BaseService {
                 .filter(x -> x.getItemUuid().equalsIgnoreCase(itemUuid)).findFirst().ifPresent(x -> x.setQuantity(quantity));
         cart = cartPriceCalculation(cart);
         cartRepository.save(cart);
+        return CartMapper.MAPPER.mapToDetailCartDto(cart);
     }
 
     private Cart mapToCartItem(Cart cart, CartDto.UpdateCart cartDto) throws BadRequestException {

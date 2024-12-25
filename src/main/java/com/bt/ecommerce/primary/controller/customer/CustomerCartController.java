@@ -98,9 +98,9 @@ public class CustomerCartController extends _BaseController {
     public ResponseEntity<ResponsePacket> updateItemQuantity(@PathVariable("cartUuid") String cartUuid,
                                                              @PathVariable("itemUuid") String itemUuid,
                                                              @PathVariable("itemQuantity") long itemQuantity) throws BadRequestException {
-        cartService.updateItemQuantity(cartUuid, itemUuid, itemQuantity);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
+                .responsePacket(cartService.updateItemQuantity(cartUuid, itemUuid, itemQuantity))
                 .message("ecommerce.common.message.update_item_quantity")
                 .build(), HttpStatus.OK);
     }
