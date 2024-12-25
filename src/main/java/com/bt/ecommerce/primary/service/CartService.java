@@ -13,7 +13,6 @@ import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.primary.repository.SequenceRepository;
 import com.bt.ecommerce.security.JwtTokenUtil;
 import com.bt.ecommerce.security.JwtUserDetailsService;
-import com.bt.ecommerce.utils.ProjectConst;
 import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -33,14 +32,16 @@ public class CartService extends _BaseService {
         return CartMapper.MAPPER.mapToDetailCartDto(cart);
     }
 
-    public void updateCart(String authorizationToken, String deviceId, String uuid, CartDto.UpdateCart cartDto) throws BadRequestException {
+    public CartDto.DetailCart updateCart(String authorizationToken, String deviceId, String uuid, CartDto.UpdateCart cartDto) throws BadRequestException {
         Cart cart = cartRepository.findByUuid(uuid);
         if (cart == null) {
             cart = createNewCart(authorizationToken, deviceId);
         }
         cart = mapToCartItem(cart, cartDto);
         cart = cartPriceCalculation(cart);
-        cartRepository.save(cart);
+        cart = cartRepository.save(cart);
+        // Return Cart Details
+        return CartMapper.MAPPER.mapToDetailCartDto(cart);
     }
 
     public void clearCart(String cartUuid) {
@@ -88,30 +89,55 @@ public class CartService extends _BaseService {
     }
 
     private Cart mapToCartItem(Cart cart, CartDto.UpdateCart cartDto) throws BadRequestException {
-        if (cartDto.getItemUuid() != null) {
-            Item item = itemRepository.findByUuid(cartDto.getItemUuid());
-            if (item == null) {
-                throw new BadRequestException("Invalid item selection");
-            }
-            if (item.isDeleted() || !item.isActive()) {
-                throw new BadRequestException("Invalid item selection, Please select a active item");
-            }
-            Cart.ItemDetail itemDetail = null;
-            if (cart.getItemIds().contains(item.getId())) {
-                for (Cart.ItemDetail detail : cart.getItemDetailList()) {
-                    if (item.getUuid().equals(detail.getItemUuid())) {
-                        itemDetail = detail;
-                        break;
-                    }
+        if (cartDto.getItemQuantityMap() != null && !cartDto.getItemQuantityMap().isEmpty()) {
+            List<ObjectId> itemIds = new ArrayList<>();
+            List<Cart.ItemDetail> itemDetailList = new ArrayList<>();
+            for (String itemUuid : cartDto.getItemQuantityMap().keySet()) {
+                Item item = itemRepository.findByUuid(itemUuid);
+                Long itemQuantity = cartDto.getItemQuantityMap().get(itemUuid);
+                if (itemQuantity < 1) {
+                    throw new BadRequestException("Please provide a valid item quantity");
                 }
-            } else {
+                if (item == null) {
+                    throw new BadRequestException("Invalid item selection");
+                }
+                if (item.isDeleted() || !item.isActive()) {
+                    throw new BadRequestException("Invalid item selection, Please select a active item");
+                }
                 // Map a new item To cart
-                itemDetail = ItemMapper.MAPPER.mapToCartItem(item);
-                cart.getItemIds().add(item.getId());
+                Cart.ItemDetail itemDetail = ItemMapper.MAPPER.mapToCartItem(item);
+                itemDetail.setItemTotal(item.getSellingPrice());
+                itemDetail.setQuantity(itemQuantity);
+                itemIds.add(item.getId());
+                itemDetailList.add(itemDetail);
             }
-            itemDetail.setItemTotal(item.getSellingPrice());
-            cart.getItemDetailList().add(itemDetail);
+            cart.setItemIds(itemIds);
+            cart.setItemDetailList(itemDetailList);
         }
+//        if (cartDto.getItemUuid() != null) {
+//            Item item = itemRepository.findByUuid(cartDto.getItemUuid());
+//            if (item == null) {
+//                throw new BadRequestException("Invalid item selection");
+//            }
+//            if (item.isDeleted() || !item.isActive()) {
+//                throw new BadRequestException("Invalid item selection, Please select a active item");
+//            }
+//            Cart.ItemDetail itemDetail = null;
+//            if (cart.getItemIds().contains(item.getId())) {
+//                for (Cart.ItemDetail detail : cart.getItemDetailList()) {
+//                    if (item.getUuid().equals(detail.getItemUuid())) {
+//                        itemDetail = detail;
+//                        break;
+//                    }
+//                }
+//            } else {
+//                // Map a new item To cart
+//                itemDetail = ItemMapper.MAPPER.mapToCartItem(item);
+//                cart.getItemIds().add(item.getId());
+//            }
+//            itemDetail.setItemTotal(item.getSellingPrice());
+//            cart.getItemDetailList().add(itemDetail);
+//        }
         if (cartDto.getAddressUuid() != null) {
             Address address = addressRepository.findByUuid(cartDto.getAddressUuid());
             if (address == null) {
