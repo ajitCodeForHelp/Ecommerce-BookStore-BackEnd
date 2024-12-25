@@ -56,9 +56,9 @@ public class CustomerCartController extends _BaseController {
     @PutMapping("/removeItemFromCart/{cartUuid}/{itemUuid}")
     public ResponseEntity<ResponsePacket> removeItemFromCart(@PathVariable("cartUuid") String cardUuid,
                                                              @PathVariable("itemUuid") String itemUuid) throws BadRequestException {
-        cartService.removeItemFromCart(cardUuid, itemUuid);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
+                .responsePacket(cartService.removeItemFromCart(cardUuid, itemUuid))
                 .message("ecommerce.common.message.cart_item_removed")
                 .build(), HttpStatus.OK);
     }

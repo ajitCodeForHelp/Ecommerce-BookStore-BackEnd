@@ -52,7 +52,7 @@ public class CartService extends _BaseService {
         cartRepository.delete(cart);
     }
 
-    public void removeItemFromCart(String cartUuid, String itemUuid) throws BadRequestException {
+    public CartDto.DetailCart removeItemFromCart(String cartUuid, String itemUuid) throws BadRequestException {
         Cart cart = cartRepository.findByUuid(cartUuid);
         if (cart == null) {
             throw new BadRequestException("There is no valid cart");
@@ -75,6 +75,7 @@ public class CartService extends _BaseService {
         }
         cart = cartPriceCalculation(cart);
         cartRepository.save(cart);
+        return CartMapper.MAPPER.mapToDetailCartDto(cart);
     }
 
     public CartDto.DetailCart updateItemQuantity(String cartUuid, String itemUuid, long quantity) throws BadRequestException {
