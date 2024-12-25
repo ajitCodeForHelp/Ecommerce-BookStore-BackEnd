@@ -45,10 +45,10 @@ public class CustomerCartController extends _BaseController {
                                                      @PathVariable(value = "deviceId", required = false) String deviceId,
                                                      @PathVariable("cartUuid") String uuid,
                                                      @Valid @RequestBody CartDto.UpdateCart cart) throws BadRequestException {
-        cartService.updateCart(authorizationToken, deviceId, uuid, cart);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.update")
+                .responsePacket(cartService.updateCart(authorizationToken, deviceId, uuid, cart))
                 .build(), HttpStatus.OK);
     }
 
