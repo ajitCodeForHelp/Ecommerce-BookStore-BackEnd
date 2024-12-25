@@ -11,7 +11,6 @@ import com.bt.ecommerce.primary.razorpay.BeanRazorPayResponse;
 import com.bt.ecommerce.primary.repository.PaymentTransactionRepository;
 import com.bt.ecommerce.primary.repository.SequenceRepository;
 import com.bt.ecommerce.utils.TextUtils;
-import io.netty.handler.codec.CodecException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +23,6 @@ public class PaymentTransactionService extends _BaseService {
 
         PaymentTransaction paymentTransaction = new PaymentTransaction();
         paymentTransaction.setLoggedInCustomerId(customer.getId());
-        paymentTransaction.setRecordId(System.currentTimeMillis());
         paymentTransaction.setRecordId(SpringBeanContext.getBean(SequenceRepository.class).getNextSequenceId(PaymentTransaction.class.getSimpleName()));
         paymentTransaction.setPaymentGateway(paymentGateway);
         paymentTransaction.setPaymentStatus(PaymentGatewayStatusEnum.created);
@@ -41,16 +39,16 @@ public class PaymentTransactionService extends _BaseService {
     }
 
 
-    public PaymentTransaction updatePaymentTransaction( String paymentTransactionRefId, PaymentGatewayStatusEnum paymentGatewayStatusEnum, String paymentRequestData, String paymentResponseData,BeanRazorPayResponse.Root razorPayResponse) throws BadRequestException {
+    public PaymentTransaction updatePaymentTransaction(String paymentTransactionRefId, PaymentGatewayStatusEnum paymentGatewayStatusEnum, String paymentRequestData, String paymentResponseData, BeanRazorPayResponse.Root razorPayResponse) throws BadRequestException {
 
         PaymentTransaction paymentTransaction = paymentTransactionRepository.findByPaymentTransactionRefId(paymentTransactionRefId);
         if (paymentTransaction == null) {
-            throw new BadRequestException(paymentTransactionRefId+" not found");
+            throw new BadRequestException(paymentTransactionRefId + " not found");
         }
         paymentTransaction.setPaymentStatus(paymentGatewayStatusEnum);
         paymentTransaction.setPaymentRequestData(paymentRequestData);
         paymentTransaction.setPaymentResponseData(paymentResponseData);
-        paymentTransaction.setPaymentGatewayRefId(razorPayResponse.getReference_id());
+        paymentTransaction.setPaymentGatewayRefId(razorPayResponse.getId());
         //i think no needed....
         paymentTransaction.setPaymentCaptured(Boolean.FALSE);
 
@@ -58,16 +56,28 @@ public class PaymentTransactionService extends _BaseService {
         paymentTransactionRepository.save(paymentTransaction);
         return paymentTransaction;
     }
-    public PaymentTransaction updatePaymentTransactionWebhookAndStatus(String paymentGatewayRefId,String webhookData,PaymentGatewayStatusEnum paymentGatewayStatusEnum ) throws BadRequestException {
+
+    public PaymentTransaction updatePaymentTransactionWebhookAndStatus(String paymentGatewayRefId, String webhookData, PaymentGatewayStatusEnum paymentGatewayStatusEnum) throws BadRequestException {
 
         PaymentTransaction paymentTransaction = paymentTransactionRepository.findByPaymentGatewayRefId(paymentGatewayRefId);
         if (paymentTransaction == null) {
-            throw new BadRequestException(paymentGatewayRefId+" not found");
+            throw new BadRequestException(paymentGatewayRefId + " not found");
         }
         paymentTransaction.setPaymentWebHookData(webhookData);
         paymentTransaction.setPaymentStatus(paymentGatewayStatusEnum);
         paymentTransaction.setPaymentCaptured(Boolean.TRUE);
         paymentTransactionRepository.save(paymentTransaction);
         return paymentTransaction;
+    }
+    public void updatePaymentStatusByPaymentGatewayId(String paymentGatewayRefId, PaymentGatewayStatusEnum paymentGatewayStatusEnum) throws BadRequestException {
+
+        PaymentTransaction paymentTransaction = paymentTransactionRepository.findByPaymentGatewayRefId(paymentGatewayRefId);
+        if (paymentTransaction == null) {
+            throw new BadRequestException(paymentGatewayRefId + " not found");
+        }
+        paymentTransaction.setPaymentStatus(paymentGatewayStatusEnum);
+        paymentTransaction.setPaymentCaptured(Boolean.TRUE);
+        paymentTransactionRepository.save(paymentTransaction);
+
     }
 }

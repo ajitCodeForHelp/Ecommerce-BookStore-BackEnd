@@ -155,7 +155,7 @@ public class TextUtils {
     }
 
     public static String getPaymentRequestTransactionId(Long number) {
-        return "TXN-" + convertNumberTo10Digit(number);
+        return "TXNTT-" + convertNumberTo10Digit(number);
     }
 
     public static String getListToStringCSV(List<String> list) {
