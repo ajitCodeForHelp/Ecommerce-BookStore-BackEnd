@@ -56,6 +56,7 @@ public class BeanRazorPayUpdateStatus{
         public boolean upi_link;
         public String user_id;
         public boolean whatsapp_link;
+        private String cartUuid;
     }
 
 }

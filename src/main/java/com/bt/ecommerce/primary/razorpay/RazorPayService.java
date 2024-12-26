@@ -5,7 +5,6 @@ import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.pojo.PaymentTransaction;
 import com.bt.ecommerce.primary.pojo.enums.PaymentGateWayEnum;
 import com.bt.ecommerce.primary.pojo.enums.PaymentGatewayStatusEnum;
-import com.bt.ecommerce.primary.pojo.enums.PaymentStatusEnum;
 import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.primary.repository.CustomerRepository;
 import com.bt.ecommerce.primary.service.PaymentTransactionService;
@@ -18,10 +17,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import okhttp3.OkHttpClient;
-import okhttp3.Request;
-import okhttp3.RequestBody;
-import okhttp3.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -64,14 +59,12 @@ public class RazorPayService extends _BaseService {
     private static final String CURRENCY = "INR";
 
     public BeanRazorPayResponse.Root createPayment(BeanRazorPayCustomerRequest customerRequest) throws BadRequestException {
-
-
         // Validate and fetch logged-in customer
         Customer loggedInCustomer = (Customer) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
 
         // Generate Payment Transaction
         PaymentTransaction paymentTransaction = paymentTransactionService.generatePaymentTransaction(
-                loggedInCustomer, customerRequest.getAmount(), PaymentGateWayEnum.RazorPay);
+                loggedInCustomer, customerRequest.getAmount(), PaymentGateWayEnum.RazorPay ,customerRequest.getOrderId());
 
         // Build RazorPay Request
         BeanRazorPayRequest.RazorPayRequest requestObj = buildRazorPayRequest(customerRequest, loggedInCustomer, paymentTransaction);
@@ -249,7 +242,7 @@ public class RazorPayService extends _BaseService {
         headers.setBasicAuth(razorPayUserName, razorPayPassword);
 
         HttpEntity<BeanRazorPayUpdateStatus.Root> entity = new HttpEntity<>(null, headers);
-
+        String cartUuid = "";
         try {
             String responseBody = restTemplate.exchange(
                     "https://api.razorpay.com/v1/payment_links/"+plinkId, HttpMethod.GET, entity, String.class).getBody();
@@ -264,10 +257,11 @@ public class RazorPayService extends _BaseService {
             }else {
                 paymentStatusEnum=  PaymentGatewayStatusEnum.cancelled;
             }
-            paymentTransactionService.updatePaymentStatusByPaymentGatewayId(root.getId(),paymentStatusEnum);
+            cartUuid = paymentTransactionService.updatePaymentStatusByPaymentGatewayId(root.getId(),paymentStatusEnum);
         } catch (RestClientException | BadRequestException e) {
             throw new RuntimeException("Failed to connect to RazorPay API: " + e.getMessage(), e);
         }
+        root.setCartUuid(cartUuid);
         return root;
 
     }

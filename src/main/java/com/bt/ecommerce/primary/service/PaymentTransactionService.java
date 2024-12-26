@@ -13,13 +13,14 @@ import com.bt.ecommerce.primary.repository.SequenceRepository;
 import com.bt.ecommerce.utils.TextUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 @Service
 public class PaymentTransactionService extends _BaseService {
     @Autowired
     PaymentTransactionRepository paymentTransactionRepository;
 
-    public PaymentTransaction generatePaymentTransaction(Customer customer, int transactionAmount, PaymentGateWayEnum paymentGateway) throws BadRequestException {
+    public PaymentTransaction generatePaymentTransaction(Customer customer, int transactionAmount, PaymentGateWayEnum paymentGateway, String cartUUid) throws BadRequestException {
 
         PaymentTransaction paymentTransaction = new PaymentTransaction();
         paymentTransaction.setLoggedInCustomerId(customer.getId());
@@ -32,6 +33,7 @@ public class PaymentTransactionService extends _BaseService {
         paymentTransaction.setPaymentWebHookData(null);
         paymentTransaction.setPaymentCaptured(Boolean.FALSE);
         paymentTransaction.setAmount((double) transactionAmount);
+        paymentTransaction.setOrderId(cartUUid);
         paymentTransactionRepository.save(paymentTransaction);
         paymentTransaction.setPaymentTransactionRefId(TextUtils.getPaymentRequestTransactionId(paymentTransaction.getRecordId()));
         paymentTransactionRepository.save(paymentTransaction);
@@ -69,7 +71,7 @@ public class PaymentTransactionService extends _BaseService {
         paymentTransactionRepository.save(paymentTransaction);
         return paymentTransaction;
     }
-    public void updatePaymentStatusByPaymentGatewayId(String paymentGatewayRefId, PaymentGatewayStatusEnum paymentGatewayStatusEnum) throws BadRequestException {
+    public String updatePaymentStatusByPaymentGatewayId(String paymentGatewayRefId, PaymentGatewayStatusEnum paymentGatewayStatusEnum) throws BadRequestException {
 
         PaymentTransaction paymentTransaction = paymentTransactionRepository.findByPaymentGatewayRefId(paymentGatewayRefId);
         if (paymentTransaction == null) {
@@ -78,6 +80,6 @@ public class PaymentTransactionService extends _BaseService {
         paymentTransaction.setPaymentStatus(paymentGatewayStatusEnum);
         paymentTransaction.setPaymentCaptured(Boolean.TRUE);
         paymentTransactionRepository.save(paymentTransaction);
-
+        return paymentTransaction.getOrderId();
     }
 }
