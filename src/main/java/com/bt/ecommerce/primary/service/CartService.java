@@ -116,30 +116,32 @@ public class CartService extends _BaseService {
             cart.setItemIds(itemIds);
             cart.setItemDetailList(itemDetailList);
         }
-//        if (cartDto.getItemUuid() != null) {
-//            Item item = itemRepository.findByUuid(cartDto.getItemUuid());
-//            if (item == null) {
-//                throw new BadRequestException("Invalid item selection");
-//            }
-//            if (item.isDeleted() || !item.isActive()) {
-//                throw new BadRequestException("Invalid item selection, Please select a active item");
-//            }
-//            Cart.ItemDetail itemDetail = null;
-//            if (cart.getItemIds().contains(item.getId())) {
-//                for (Cart.ItemDetail detail : cart.getItemDetailList()) {
-//                    if (item.getUuid().equals(detail.getItemUuid())) {
-//                        itemDetail = detail;
-//                        break;
-//                    }
-//                }
-//            } else {
-//                // Map a new item To cart
-//                itemDetail = ItemMapper.MAPPER.mapToCartItem(item);
-//                cart.getItemIds().add(item.getId());
-//            }
-//            itemDetail.setItemTotal(item.getSellingPrice());
-//            cart.getItemDetailList().add(itemDetail);
-//        }
+
+        // To Add Item First Time in Cart
+        if (cartDto.getItemUuid() != null) {
+            Item item = itemRepository.findByUuid(cartDto.getItemUuid());
+            if (item == null) {
+                throw new BadRequestException("Invalid item selection");
+            }
+            if (item.isDeleted() || !item.isActive()) {
+                throw new BadRequestException("Invalid item selection, Please select a active item");
+            }
+            Cart.ItemDetail itemDetail = null;
+            if (cart.getItemIds().contains(item.getId())) {
+                for (Cart.ItemDetail detail : cart.getItemDetailList()) {
+                    if (item.getUuid().equals(detail.getItemUuid())) {
+                        itemDetail = detail;
+                        break;
+                    }
+                }
+            } else {
+                // Map a new item To cart
+                itemDetail = ItemMapper.MAPPER.mapToCartItem(item);
+                cart.getItemIds().add(item.getId());
+            }
+            itemDetail.setItemTotal(item.getSellingPrice());
+            cart.getItemDetailList().add(itemDetail);
+        }
         if (cartDto.getAddressUuid() != null) {
             Address address = addressRepository.findByUuid(cartDto.getAddressUuid());
             if (address == null) {
