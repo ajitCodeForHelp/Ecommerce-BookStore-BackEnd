@@ -20,7 +20,7 @@ public class OrderDto extends AbstractDto{
 
     @Getter
     @Setter
-    public static class DetailOrder {
+    public static class DetailOrder extends _BasicDto {
         private Long invoiceNumber;
         private String orderId;
         private String orderTrackingId;
