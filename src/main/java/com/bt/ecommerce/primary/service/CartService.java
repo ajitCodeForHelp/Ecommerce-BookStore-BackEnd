@@ -261,9 +261,9 @@ public class CartService extends _BaseService {
         if (loggedInCustomer != null) {
             cart = cartRepository.findByCustomerId(loggedInCustomer.getId());
         }
-        if (cart == null && !TextUtils.isEmpty(deviceId)) {
-            cart = cartRepository.findByDeviceId(deviceId);
-        }
+//        if (cart == null && !TextUtils.isEmpty(deviceId)) {
+//            cart = cartRepository.findByDeviceId(deviceId);
+//        }
         if (cart == null) {
             cart = new Cart();
         }
@@ -353,9 +353,9 @@ public class CartService extends _BaseService {
         if (loggedInCustomer != null) {
             cart = cartRepository.findByCustomerId(loggedInCustomer.getId());
         }
-        if (cart == null && !TextUtils.isEmpty(deviceId)) {
-            cart = cartRepository.findByDeviceId(deviceId);
-        }
+//        if (cart == null && !TextUtils.isEmpty(deviceId)) {
+//            cart = cartRepository.findByDeviceId(deviceId);
+//        }
         if (cart == null) {
             cart = createNewCart(authorizationToken, deviceId);
         }
