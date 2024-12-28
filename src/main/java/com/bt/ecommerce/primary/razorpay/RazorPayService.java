@@ -51,9 +51,9 @@ public class RazorPayService extends _BaseService {
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
-    private static final String CALLBACK_URL = "https://demo.thebooks24.com/paymentStatus/";
+//    private static final String CALLBACK_URL = "https://demo.thebooks24.com/paymentStatus/";
 
-//    private static final String CALLBACK_URL = "http://192.168.81.149:3000/paymentStatus/";
+    private static final String CALLBACK_URL = "http://localhost:3000/paymentStatus/";
 
     private static final long EXPIRY_DURATION_MS = 10 * 60 * 1000; // 10 minutes
     private static final String CURRENCY = "INR";
