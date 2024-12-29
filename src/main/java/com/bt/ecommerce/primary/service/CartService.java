@@ -2,6 +2,8 @@ package com.bt.ecommerce.primary.service;
 
 import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
+import com.bt.ecommerce.messaging.FcmComponent;
+import com.bt.ecommerce.messaging.FcmNotificationBean;
 import com.bt.ecommerce.primary.dto.CartDto;
 import com.bt.ecommerce.primary.mapper.AddressMapper;
 import com.bt.ecommerce.primary.mapper.CartMapper;
@@ -10,21 +12,27 @@ import com.bt.ecommerce.primary.pojo.*;
 import com.bt.ecommerce.primary.pojo.enums.DiscountTypeEnum;
 import com.bt.ecommerce.primary.pojo.enums.SettingEnum;
 import com.bt.ecommerce.primary.pojo.user.Customer;
+import com.bt.ecommerce.primary.pojo.user.SystemUser;
 import com.bt.ecommerce.primary.repository.SequenceRepository;
 import com.bt.ecommerce.security.JwtTokenUtil;
 import com.bt.ecommerce.security.JwtUserDetailsService;
 import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Slf4j
 @Service
 public class CartService extends _BaseService {
+
+    @Autowired
+    private FcmComponent fcmComponent;
 
     public CartDto.DetailCart getCartDetail(String authorizationToken, String deviceId) throws BadRequestException {
         Cart cart = getCartByDeviceId(authorizationToken, deviceId);
@@ -310,12 +318,20 @@ public class CartService extends _BaseService {
         orderRepository.save(order);
         // clear the cart
         clearCart(cart.getUuid());
+
+        // Send Notification To Admin for order Alert
+        SystemUser notifyAdmin =  systemUserRepository.findFirstByUsername("admin@admin.com");
+        FcmNotificationBean.Notification notification = new FcmNotificationBean.Notification("New Order Received" , "New Order Total of " + order.getOrderTotal() +  " with " + order.getItemDetailList().size() + " Items");
+        FcmNotificationBean.Data data = new FcmNotificationBean.Data("New Order Received" , "New Order Total of " + order.getOrderTotal() + " with " + order.getItemDetailList().size() + " Items" , "" , new Date().toString(),"Order" ,order.getOrderId() , order.getOrderStatus().toString());
+        fcmComponent.sendNotificationToUser(notifyAdmin.getDeviceType() , notifyAdmin.getFcmDeviceToken(),notification,data);
+
         return order.getOrderId();
     }
 
     public long getCartCount() {
         return cartRepository.count();
     }
+
 
     public List<CartDto.DetailCart> getCartList() throws BadRequestException {
         List<Cart> cartList = cartRepository.findAll();

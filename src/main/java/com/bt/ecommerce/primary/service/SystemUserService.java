@@ -27,6 +27,7 @@ import com.google.gson.Gson;
 import lombok.extern.slf4j.Slf4j;
 import okhttp3.*;
 import org.bson.types.ObjectId;
+import org.joda.time.LocalDate;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -36,6 +37,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -261,6 +263,19 @@ public class SystemUserService extends _BaseService implements _BaseServiceImpl 
             }
         }
         return userAssignUrlList;
+    }
+
+    public void updateDeviceDetail(SystemUser loggedInUser, String deviceType, String fcmDeviceToken, String deviceId) {
+        loggedInUser.setDeviceType(deviceType);
+        loggedInUser.setFcmDeviceToken(fcmDeviceToken);
+
+        if (!TextUtils.isEmpty(deviceId)) {
+            loggedInUser.setDeviceId(deviceId);
+        } else {
+            loggedInUser.setDeviceId("");
+        }
+        loggedInUser.setModifiedAt(LocalDateTime.now());
+        systemUserRepository.save(loggedInUser);
     }
 
 }

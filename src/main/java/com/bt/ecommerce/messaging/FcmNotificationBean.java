@@ -3,6 +3,7 @@ package com.bt.ecommerce.messaging;
 import com.google.firebase.messaging.Message;
 import lombok.Getter;
 import lombok.Setter;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 @Getter
 @Setter
@@ -24,6 +25,16 @@ public class FcmNotificationBean {
         private String type;
         private String orderId;
         private String status;
+
+        public Data(String title, String message, String imageUrl , String timeStamp , String type , String orderId , String status) {
+            this.title = title;
+            this.message = message;
+            this.imageUrl = imageUrl;
+            this.timeStamp = timeStamp;
+            this.type = type;
+            this.orderId = orderId;
+            this.status = status;
+        }
 
     }
 

@@ -40,7 +40,7 @@ public class FcmComponent {
 
     private boolean pushFCMNotification(String deviceType, String deviceToken, FcmNotificationBean.Data data1) {
         try {
-            String FMCurl = "https://fcm.googleapis.com/v1/projects/e-commerce-523b9/messages:send";
+            String FMCurl = "https://fcm.googleapis.com/v1/projects/thebooks24-84fe6/messages:send";
             URL url = new URL(FMCurl);
             HttpURLConnection conn = (HttpURLConnection) url.openConnection();
             conn.setUseCaches(false);

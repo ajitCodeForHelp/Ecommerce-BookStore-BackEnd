@@ -54,6 +54,10 @@ public class _BaseUser extends _BasicEntity implements UserDetails {
     protected Double agreeTNCLongitude;
     protected LocalDateTime lastLogin;
 
+    private String deviceType;
+    private String fcmDeviceToken;
+    private String deviceId;
+
     // Lang = "en" / "hi" / "ar"
 
     public String fullName() {

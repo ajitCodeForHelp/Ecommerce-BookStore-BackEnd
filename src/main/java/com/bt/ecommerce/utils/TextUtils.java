@@ -1,6 +1,10 @@
 package com.bt.ecommerce.utils;
 
+import com.bt.ecommerce.primary.pojo.Setting;
+import com.bt.ecommerce.primary.repository.SettingRepository;
+import com.bt.ecommerce.security.Constants;
 import com.google.gson.Gson;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
@@ -12,9 +16,13 @@ import java.time.LocalDate;
 import java.util.*;
 
 public class TextUtils {
+
+    @Autowired
+    private SettingRepository settingRepository;
+
     public static String generate4DigitOTP() {
         if (true) {
-            return "9999";
+            return "999999";
         }
         Random rnd = new Random();
         int number = rnd.nextInt(9999);
@@ -155,7 +163,11 @@ public class TextUtils {
     }
 
     public static String getPaymentRequestTransactionId(Long number) {
-        return "LIVE-TXNTT-" + convertNumberTo10Digit(number);
+        if (Const.SystemSetting.TestMode)
+            return "TEST-TXN-" + convertNumberTo10Digit(number);
+        else {
+            return "TXN-" + convertNumberTo10Digit(number);
+        }
     }
 
     public static String getListToStringCSV(List<String> list) {

@@ -14,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 @Slf4j
 @RestController
 @RequestMapping("/ops/v1/common-user")
@@ -56,11 +57,25 @@ public class CommonController extends _BaseController {
     @PutMapping("/change-password")
     public ResponseEntity<ResponsePacket> changePassword(
             @Valid @RequestBody CommonDto.ChangePassword request) throws BadRequestException {
-        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
         systemUserService.changePassword(request.getOldPassword(), request.getNewPassword());
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("Password Changed Successfully.")
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @PostMapping(value = "/updateDeviceDetail")
+    public ResponseEntity<ResponsePacket> updateDeviceDetail(
+            @Valid @RequestBody CommonDto.UpdateDeviceDetail request) throws BadRequestException {
+        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        systemUserService.updateDeviceDetail(loggedInUser,
+                request.getDeviceType(),
+                request.getFcmDeviceToken(),
+                request.getDeviceId());
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("Device details has been updated successfully.")
                 .build(), HttpStatus.OK);
     }
 

@@ -143,4 +143,12 @@ public class SettingService extends _BaseService {
         }
         return (standardDelivery) ? standardDeliveryCharges : expressDeliveryCharges;
     }
+
+    public String getSettingValueByKey(SettingEnum key) {
+        Setting setting = settingRepository.findFirstBySettingKey(key);
+        if (setting != null) {
+            return setting.getSettingValue();
+        }
+        return "";
+    }
 }
