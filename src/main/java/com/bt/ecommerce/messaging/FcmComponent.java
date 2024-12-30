@@ -5,6 +5,7 @@ import com.google.auth.oauth2.AccessToken;
 import com.google.auth.oauth2.GoogleCredentials;
 import com.google.auth.oauth2.ServiceAccountCredentials;
 import com.google.firebase.messaging.Message;
+import com.google.firebase.messaging.Notification;
 import com.google.gson.Gson;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Component;
@@ -68,11 +69,15 @@ public class FcmComponent {
             if (data1.getOrderId() != null) {
                 data.put("orderId", data1.getOrderId());
             }
+            Notification notification = Notification.builder()
+                    .setTitle(data1.getTitle())
+                    .setBody(data1.getMessage())
+                    .build();
 
             Message message = null;
             if (deviceType != null) {
                 message = Message.builder()
-                        .putAllData(data)
+                        .setNotification(notification)
                         .setToken(deviceToken).build();
 
             }
