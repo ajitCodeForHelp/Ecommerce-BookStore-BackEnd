@@ -45,6 +45,8 @@ public class Cart extends _BasicEntity {
         private String userCustomerLastName;
         private String userCustomerIsdCode;
         private String userCustomerMobile;
+        private String userCustomerEmail;
+
     }
 
     @Setter

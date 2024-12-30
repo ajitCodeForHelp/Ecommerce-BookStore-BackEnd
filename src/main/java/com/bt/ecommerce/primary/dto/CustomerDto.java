@@ -25,6 +25,7 @@ public class CustomerDto extends AbstractDto{
         @NotNull private String firstName;
         @NotNull private String lastName;
         private String photoImageUrl;
+        private String email;
     }
     @Setter
     @Getter

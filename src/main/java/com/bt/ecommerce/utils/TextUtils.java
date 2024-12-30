@@ -22,7 +22,7 @@ public class TextUtils {
 
     public static String generate4DigitOTP() {
         if (true) {
-            return "9999";
+            return "999999";
         }
         Random rnd = new Random();
         int number = rnd.nextInt(9999);

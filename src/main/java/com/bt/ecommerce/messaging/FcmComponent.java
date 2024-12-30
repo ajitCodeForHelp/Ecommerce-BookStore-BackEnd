@@ -26,7 +26,7 @@ public class FcmComponent {
                                        FcmNotificationBean.Notification notification, FcmNotificationBean.Data data) {
         new Thread(() -> {
             if (!TextUtils.isEmpty(deviceToken)) {
-                pushFCMNotification(deviceType, deviceToken, data);
+                pushFCMNotification(deviceType, deviceToken, notification ,data);
             }
         }).start();
     }
@@ -39,7 +39,7 @@ public class FcmComponent {
         return accessToken.getTokenValue();
     }
 
-    private boolean pushFCMNotification(String deviceType, String deviceToken, FcmNotificationBean.Data data1) {
+    private boolean pushFCMNotification(String deviceType, String deviceToken,FcmNotificationBean.Notification notification, FcmNotificationBean.Data data) {
         try {
             String FMCurl = "https://fcm.googleapis.com/v1/projects/thebooks24-84fe6/messages:send";
             URL url = new URL(FMCurl);
@@ -51,35 +51,40 @@ public class FcmComponent {
             conn.setRequestProperty("Authorization", "Bearer " + getAccessToken());
             conn.setRequestProperty("Content-Type", "application/json");
 
-            Map<String, String> data = new HashMap<>();
-            data.put("title", data1.getTitle());
-            data.put("message", data1.getMessage());
-            if (data1.getType() != null) {
-                data.put("type", data1.getType());
+            Map<String, String> dataToSent = new HashMap<>();
+            dataToSent.put("title", data.getTitle());
+            dataToSent.put("message", data.getMessage());
+            if (data.getType() != null) {
+                dataToSent.put("type", data.getType());
             }
-            if (data1.getTimeStamp() != null) {
-                data.put("timeStamp", data1.getTimeStamp());
+            if (data.getTimeStamp() != null) {
+                dataToSent.put("timeStamp", data.getTimeStamp());
             }
-            if (data1.getImageUrl() != null) {
-                data.put("imageUrl", data1.getImageUrl());
+            if (data.getImageUrl() != null) {
+                dataToSent.put("imageUrl", data.getImageUrl());
             }
-            if (data1.getStatus() != null) {
-                data.put("status", data1.getStatus());
+            if (data.getStatus() != null) {
+                dataToSent.put("status", data.getStatus());
             }
-            if (data1.getOrderId() != null) {
-                data.put("orderId", data1.getOrderId());
+            if (data.getOrderId() != null) {
+                dataToSent.put("orderId", data.getOrderId());
             }
-            Notification notification = Notification.builder()
-                    .setTitle(data1.getTitle())
-                    .setBody(data1.getMessage())
+            Notification notificationToSent = Notification.builder()
+                    .setTitle(notification.getTitle())
+                    .setBody(notification.getBody())
                     .build();
 
             Message message = null;
             if (deviceType != null) {
-                message = Message.builder()
-                        .setNotification(notification)
-                        .setToken(deviceToken).build();
-
+                if (deviceType.equalsIgnoreCase("android"))
+                    message = Message.builder()
+                            .setNotification(notificationToSent)
+                            .setToken(deviceToken).build();
+                else
+                    message = Message.builder()
+                            .setNotification(notificationToSent)
+                            .putAllData(dataToSent)
+                            .setToken(deviceToken).build();
             }
 
             FcmNotificationBean fcmNotificationBean = new FcmNotificationBean();

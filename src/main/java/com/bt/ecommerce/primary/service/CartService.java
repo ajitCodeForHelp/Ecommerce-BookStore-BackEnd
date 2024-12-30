@@ -2,6 +2,7 @@ package com.bt.ecommerce.primary.service;
 
 import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
+import com.bt.ecommerce.messaging.EmailComponent;
 import com.bt.ecommerce.messaging.FcmComponent;
 import com.bt.ecommerce.messaging.FcmNotificationBean;
 import com.bt.ecommerce.primary.dto.CartDto;
@@ -21,6 +22,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -33,6 +35,8 @@ public class CartService extends _BaseService {
 
     @Autowired
     private FcmComponent fcmComponent;
+    @Autowired
+    private EmailComponent emailComponent;
 
     public CartDto.DetailCart getCartDetail(String authorizationToken, String deviceId) throws BadRequestException {
         Cart cart = getCartByDeviceId(authorizationToken, deviceId);
@@ -283,7 +287,7 @@ public class CartService extends _BaseService {
             cart.setCustomerDetail(new Cart.CustomerRefDetail(
                     loggedInCustomer.getUuid(), loggedInCustomer.getFirstName(),
                     loggedInCustomer.getLastName(), loggedInCustomer.getIsdCode(),
-                    loggedInCustomer.getMobile()));
+                    loggedInCustomer.getMobile(),loggedInCustomer.getEmail()));
         }
         cart = cartRepository.save(cart);
         if (cart == null) {
@@ -307,7 +311,7 @@ public class CartService extends _BaseService {
             cart.setCustomerDetail(new Cart.CustomerRefDetail(
                     loggedInCustomer.getUuid(), loggedInCustomer.getFirstName(),
                     loggedInCustomer.getLastName(), loggedInCustomer.getIsdCode(),
-                    loggedInCustomer.getMobile()));
+                    loggedInCustomer.getMobile(),loggedInCustomer.getEmail()));
         }
         cart = cartPriceCalculation(cart);
         Order order = CartMapper.MAPPER.mapToOrder(cart);
@@ -322,9 +326,16 @@ public class CartService extends _BaseService {
         // Send Notification To Admin for order Alert
         SystemUser notifyAdmin =  systemUserRepository.findFirstByUsername("admin@admin.com");
         FcmNotificationBean.Notification notification = new FcmNotificationBean.Notification("New Order Received" , "New Order Total of " + order.getOrderTotal() +  " with " + order.getItemDetailList().size() + " Items");
-        FcmNotificationBean.Data data = new FcmNotificationBean.Data("New Order Received" , "New Order Total of " + order.getOrderTotal() + " with " + order.getItemDetailList().size() + " Items" , "" , new Date().toString(),"Order" ,order.getOrderId() , order.getOrderStatus().toString());
+        FcmNotificationBean.Data data = new FcmNotificationBean.Data("New Order Received" , "New Order Total of " + order.getOrderTotal() + " Rs for " + order.getItemDetailList().size() + " Items" , "" , new Date().toString(),"Order" ,order.getOrderId() , order.getOrderStatus().toString());
         fcmComponent.sendNotificationToUser(notifyAdmin.getDeviceType() , notifyAdmin.getFcmDeviceToken(),notification,data);
+//        fcmComponent.sendNotificationToUser("android" , "eF_QyjMiR960jTDBqIITN3:APA91bGbhEBYhqELw63NbjdvFeo7cuq2aQocl25H_m0zoTxMaDnAXulqQ2OgQk1jErAtl82l-2_TAKLP9Ijq2d7F1zDtAGkosC-caOpSEmLS0WNSq_GBpQE",notification,data);
 
+        // Send Email To Customer for order Alert
+//        if(order.getCustomerDetail().getUserCustomerEmail()!=null) {
+            String mailBody = "htmlContent";
+            emailComponent.sendEmailUsingGmail(order.getCustomerDetail().getUserCustomerEmail(), "Order Confirmation", mailBody);
+//            emailComponent.sendEmailUsingGmail("ajitsinghrathore1999@gmail.com", "Order Confirmation", mailBody);
+//        }
         return order.getOrderId();
     }
 

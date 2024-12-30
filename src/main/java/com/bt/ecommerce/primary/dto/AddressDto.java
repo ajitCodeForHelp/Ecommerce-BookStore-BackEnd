@@ -17,6 +17,7 @@ public class AddressDto extends AbstractDto{
         private String firstName;
         private String lastName;
         private String mobileNumber;
+        private String email;
 
         private Double latitude;
         private Double longitude;
@@ -35,6 +36,7 @@ public class AddressDto extends AbstractDto{
         private String firstName;
         private String lastName;
         private String mobileNumber;
+        private String email;
 
         private Double latitude;
         private Double longitude;
@@ -53,6 +55,7 @@ public class AddressDto extends AbstractDto{
         private String firstName;
         private String lastName;
         private String mobileNumber;
+        private String email;
 
         private Double latitude;
         private Double longitude;
