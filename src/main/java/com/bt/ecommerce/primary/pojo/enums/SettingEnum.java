@@ -9,7 +9,7 @@ public enum SettingEnum {
     // Toggle Setting > Boolean
     TestMode("TestMode"),
 
-//    AdminLogin("AdminLogin"),
+    AdminLogin("AdminLogin"),
     StaffLogin("StaffLogin"),
     UnderMaintenance("UnderMaintenance"),
 
@@ -24,6 +24,8 @@ public enum SettingEnum {
 
     SupportContactNo("SupportContactNo"),
     CompanyAddress("CompanyAddress"),
+
+    NotificationEmailTo("NotificationEmailTo"),
 
     // DeliveryCharges Json >
     DeliveryChargeJson("DeliveryChargeJson");
