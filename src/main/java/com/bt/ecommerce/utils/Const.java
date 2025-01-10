@@ -38,6 +38,7 @@ public class Const {
         SystemSetting.TestMode = settingService.getSettingValueByKey(SettingEnum.TestMode).equalsIgnoreCase("1");
         SystemSetting.BaseUrl = settingService.getSettingValueByKey(SettingEnum.BaseUrl);
         SystemSetting.SupportEmail = settingService.getSettingValueByKey(SettingEnum.SupportEmail);
+        SystemSetting.HeaderAlertLine = settingService.getSettingValueByKey(SettingEnum.HeaderAlertLine);
 //        refreshPrivatePublicKey();
     }
 
@@ -92,6 +93,7 @@ public class Const {
         public static String CurrencySymbol;
         public static String CurrencyCode;
         public static String SupportEmail;
+        private static String HeaderAlertLine;
     }
 
     public static class SystemAdminSetting {

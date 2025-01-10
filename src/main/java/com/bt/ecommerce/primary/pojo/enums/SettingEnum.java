@@ -8,11 +8,9 @@ public enum SettingEnum {
 
     // Toggle Setting > Boolean
     TestMode("TestMode"),
-
-    AdminLogin("AdminLogin"),
+//    AdminLogin("AdminLogin"),
     StaffLogin("StaffLogin"),
     UnderMaintenance("UnderMaintenance"),
-
     // Double Setting
     PackingWeight("PackingWeight"),
     PackingCharges("PackingCharges"),
@@ -21,11 +19,9 @@ public enum SettingEnum {
     // String Setting
     BaseUrl("BaseUrl"),
     SupportEmail("SupportEmail"),
-
     SupportContactNo("SupportContactNo"),
     CompanyAddress("CompanyAddress"),
-
-    NotificationEmailTo("NotificationEmailTo"),
+    HeaderAlertLine("HeaderAlertLine"),
 
     // DeliveryCharges Json >
     DeliveryChargeJson("DeliveryChargeJson");
@@ -64,6 +60,7 @@ public enum SettingEnum {
         settingList.add(SupportContactNo);
         settingList.add(SupportEmail);
         settingList.add(CompanyAddress);
+        settingList.add(HeaderAlertLine);
         return settingList;
     }
 
