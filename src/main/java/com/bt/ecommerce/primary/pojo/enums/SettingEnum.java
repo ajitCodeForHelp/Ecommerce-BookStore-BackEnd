@@ -8,7 +8,8 @@ public enum SettingEnum {
 
     // Toggle Setting > Boolean
     TestMode("TestMode"),
-    AdminLogin("AdminLogin"),
+
+//    AdminLogin("AdminLogin"),
     StaffLogin("StaffLogin"),
     UnderMaintenance("UnderMaintenance"),
 
@@ -19,7 +20,10 @@ public enum SettingEnum {
 
     // String Setting
     BaseUrl("BaseUrl"),
-    NotificationEmailTo("NotificationEmailTo"),
+    SupportEmail("SupportEmail"),
+
+    SupportContactNo("SupportContactNo"),
+    CompanyAddress("CompanyAddress"),
 
     // DeliveryCharges Json >
     DeliveryChargeJson("DeliveryChargeJson");
@@ -38,7 +42,7 @@ public enum SettingEnum {
     public static List<SettingEnum> getToggleSettingsKey() {
         List<SettingEnum> settingList = new ArrayList<>();
         settingList.add(TestMode);
-        settingList.add(AdminLogin);
+//        settingList.add(AdminLogin);
         settingList.add(StaffLogin);
         settingList.add(UnderMaintenance);
         return settingList;
@@ -55,7 +59,9 @@ public enum SettingEnum {
     public static List<SettingEnum> getStringSettingsKey() {
         List<SettingEnum> settingList = new ArrayList<>();
         settingList.add(BaseUrl);
-        settingList.add(NotificationEmailTo);
+        settingList.add(SupportContactNo);
+        settingList.add(SupportEmail);
+        settingList.add(CompanyAddress);
         return settingList;
     }
 

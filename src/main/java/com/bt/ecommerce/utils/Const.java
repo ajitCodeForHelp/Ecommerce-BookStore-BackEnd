@@ -1,7 +1,9 @@
 package com.bt.ecommerce.utils;
 
 import com.bt.ecommerce.primary.pojo.enums.SettingEnum;
+import com.bt.ecommerce.primary.pojo.enums.WebsiteCmsSettingEnum;
 import com.bt.ecommerce.primary.service.SettingService;
+import com.bt.ecommerce.primary.service.WebsiteCmsSettingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -11,6 +13,9 @@ import javax.annotation.PostConstruct;
 public class Const {
     @Autowired
     private SettingService settingService;
+
+    @Autowired
+    private WebsiteCmsSettingService websiteCmsSettingService;
     public static final boolean DEVELOPMENT = true;
     @PostConstruct
     public void postConstructInitialization() {
@@ -23,7 +28,7 @@ public class Const {
 //        refreshAmazonS3Bucket();
         refreshSystemSetting();
         refreshStaticContentCMSVariables();
-        refreshSystemAdminSetting();
+//        refreshSystemAdminSetting();
         refreshWebSiteCMSVariables();
     }
 
@@ -32,7 +37,7 @@ public class Const {
 //        SystemSetting.ContactUsQueryToEmail = settingService.getSettingValueByKey(SettingEnum.ContactUsQueryToEmail);
         SystemSetting.TestMode = settingService.getSettingValueByKey(SettingEnum.TestMode).equalsIgnoreCase("1");
         SystemSetting.BaseUrl = settingService.getSettingValueByKey(SettingEnum.BaseUrl);
-        SystemSetting.NotificationMailToCompany = settingService.getSettingValueByKey(SettingEnum.NotificationEmailTo);
+        SystemSetting.SupportEmail = settingService.getSettingValueByKey(SettingEnum.SupportEmail);
 //        refreshPrivatePublicKey();
     }
 
@@ -70,15 +75,8 @@ public class Const {
     }
 
     public static class SystemSetting {
-        public static String ContactUsQueryToEmail;
-
-        public static String AnonymousCustomer;
-
         public static String AndroidAppUrl;
         public static String IosAppUrl;
-
-        public static String
-                FcmAuthKey;
         public static String CustomerAndroidAppVersion;
         public static String CustomerIosAppVersion;
         public static String DriverAndroidAppVersion;
@@ -87,86 +85,36 @@ public class Const {
         public static boolean UnderMaintenance;
         public static boolean AdminLogin;
         public static boolean CustomerLogin;
-        public static boolean DriverModuleAccess;
-        public static boolean DriverLogin;
-        public static boolean LimitDeliveryArea;
-        public static boolean LalaMoveDelivery;
-        public static boolean AutoOrderRouting;
         public static boolean TestMode;
         public static boolean DebugMode;
-        public static boolean SkipUser;
-
         public static String GoogleMapApiKey;
-
-        public static String PublicKey;
-        public static String PrivateKey;
-
         public static String BaseUrl;
         public static String CurrencySymbol;
         public static String CurrencyCode;
-
-        public static String NotificationMailToCompany;
-        public static String CleverTapAccountId;
-        public static String CleverTapPassCode;
-        public static String FacebookAccessToken;
-        public static String FacebookApplicationId;
-
-        public static String OtpSignature;
-        public static String GrcOtpSignature;
-        public static String PosOtpSignature;
-        public static String Theme;
-
-        public static boolean DineIn;
-        public static boolean PostPaidDineIn;
-        public static boolean TakeAway;
-        public static boolean HomeDelivery;
-        public static boolean StealDeal;
-        public static boolean TableReservation;
-        public static boolean Event;
-        public static boolean Voucher;
-        public static boolean RewardDineInCashBack;
-        public static boolean RewardQrCode;
-        public static boolean ATMBar;
-        public static boolean RFID;
-        public static boolean TOTPEnable;
-        public static boolean Reports;
-        public static boolean Offers;
-        public static boolean AdminCanAddMenu;
-        public static boolean RestaurantCanAddMenu;
+        public static String SupportEmail;
     }
 
     public static class SystemAdminSetting {
-        public static String ConsumeAfter;
-        public static String ConsumeExpires;
-        public static Double PackingChargesForDelivery;
-        public static Double PackingChargesForTakeAway;
-        public static String CustomerCareNumber;
-        public static String TimeBasedOTPSecretKey;
-
-        public static String SESEmail;
-        public static String SESHost;
-        public static String SESPort;
-        public static String SESEmailSender;
-        public static String SESAccessKey;
-        public static String SESSecretKey;
     }
 
     public static class WebSiteCMS {
-        public static String AboutApp;
+        public static String AboutUs;
         public static String TermsAndCondition;
         public static String HelpAndSupport;
-
+        public static String PrivacyPolicy ;
+        public static String ContactUs;
+        public static String ReturnAndReplacement;
+        public static String RefundPolicy;
+        public static String TrackOrder;
+        public static String ShippingPolicy;
+        public static String CancellationPolicy;
         public static String CompanyLogoDark;
         public static String FaviconIcon;
         public static String CompanyName;
         public static String CompanyLogoLight;
         public static String CompanyAddress;
-        public static String CompanyAddressLatitude;
-        public static String CompanyAddressLongitude;
         public static String CompanyContactNumber;
         public static String CompanyContactEmail;
-        public static String SplashGif;
-
         public static String Instagram;
         public static String GPlus;
         public static String Pinterest;
@@ -177,9 +125,16 @@ public class Const {
     }
 
     public void refreshStaticContentCMSVariables() {
-//        WebSiteCMS.AboutApp = webSiteCMSService.getWebSiteCMSValueByKey(WebSiteCMSKeysEnum.AboutApp);
-//        WebSiteCMS.TermsAndCondition = webSiteCMSService.getWebSiteCMSValueByKey(WebSiteCMSKeysEnum.TermsAndCondition);
-//        WebSiteCMS.HelpAndSupport = webSiteCMSService.getWebSiteCMSValueByKey(WebSiteCMSKeysEnum.HelpAndSupport);
+        WebSiteCMS.AboutUs = websiteCmsSettingService.get(WebsiteCmsSettingEnum.AboutUs);
+        WebSiteCMS.TermsAndCondition = websiteCmsSettingService.get(WebsiteCmsSettingEnum.TermsAndCondition);
+        WebSiteCMS.HelpAndSupport = websiteCmsSettingService.get(WebsiteCmsSettingEnum.AboutUs);
+        WebSiteCMS.PrivacyPolicy = websiteCmsSettingService.get(WebsiteCmsSettingEnum.PrivacyPolicy);
+        WebSiteCMS.ContactUs = websiteCmsSettingService.get(WebsiteCmsSettingEnum.ContactUs);
+        WebSiteCMS.ReturnAndReplacement = websiteCmsSettingService.get(WebsiteCmsSettingEnum.ReturnAndReplacement);
+        WebSiteCMS.RefundPolicy = websiteCmsSettingService.get(WebsiteCmsSettingEnum.RefundPolicy);
+        WebSiteCMS.TrackOrder = websiteCmsSettingService.get(WebsiteCmsSettingEnum.TrackOrder);
+        WebSiteCMS.ShippingPolicy = websiteCmsSettingService.get(WebsiteCmsSettingEnum.ShippingPolicy);
+        WebSiteCMS.CancellationPolicy = websiteCmsSettingService.get(WebsiteCmsSettingEnum.CancellationPolicy);
     }
 
     public static class AmazonS3Bucket {
