@@ -50,7 +50,7 @@ public class EcommerceBean {
     public static class EcommerceCategoryItem {
         private String uuid;
         private String title;
-        private String description;
+        private String customerDescription;
         private double Mrp;
         private double sellingPrice;
         private List<String> itemImageUrls;

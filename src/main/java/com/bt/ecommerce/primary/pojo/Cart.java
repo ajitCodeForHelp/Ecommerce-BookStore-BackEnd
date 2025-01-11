@@ -56,7 +56,7 @@ public class Cart extends _BasicEntity {
 
         private String itemUuid;
         private String title;
-        private String description;
+        private String customerDescription;
         private double Mrp;
         private double sellingPrice; /// use for calculation
         private List<String> itemImageUrls;

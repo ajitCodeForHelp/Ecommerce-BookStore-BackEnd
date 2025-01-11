@@ -21,6 +21,7 @@ public class ItemDto extends AbstractDto{
 
         @NotNull private String title;
         private String description;
+        private String customerDescription;
         @NotNull private double Mrp;
         @NotNull private double sellingPrice;
         private List<String> itemImageUrls;
@@ -40,6 +41,7 @@ public class ItemDto extends AbstractDto{
 
         @NotNull private String title;
         private String description;
+        private String customerDescription;
         @NotNull private double Mrp;
         @NotNull private double sellingPrice;
         private List<String> itemImageUrls;
@@ -59,7 +61,7 @@ public class ItemDto extends AbstractDto{
         private BasicParent taxDetails;
 
         private String title;
-        private String description;
+        private String customerDescription;
         private double Mrp;
         private double sellingPrice;
         private List<String> itemImageUrls;
@@ -80,7 +82,7 @@ public class ItemDto extends AbstractDto{
     public static class ItemSearchDto {
         private String uuid;
         private String title;
-        private String description;
+        private String customerDescription;
         private double Mrp;
         private double sellingPrice;
         private List<String> itemImageUrls;

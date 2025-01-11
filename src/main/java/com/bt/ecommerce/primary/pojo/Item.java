@@ -27,6 +27,7 @@ public class Item extends _BasicEntity {
 
     private String title;
     private String description;
+    private String customerDescription;
     private double Mrp;
     private double sellingPrice;
     private List<String> itemImageUrls;
