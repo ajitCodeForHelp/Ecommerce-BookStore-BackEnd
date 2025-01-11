@@ -62,6 +62,7 @@ public class ItemDto extends AbstractDto{
 
         private String title;
         private String customerDescription;
+        private String description;
         private double Mrp;
         private double sellingPrice;
         private List<String> itemImageUrls;

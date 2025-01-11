@@ -45,6 +45,7 @@ public class CouponCodeService extends _BaseService implements _BaseServiceImpl 
         couponCode.setMaxDiscountAmount(updateCoupon.getMaxDiscountAmount());
         couponCode.setMaxUsePerUser(updateCoupon.getMaxUsePerUser());
         couponCode.setUsedCount(updateCoupon.getUsedCount());
+        couponCode.setReferralCoupon(updateCoupon.getReferralCoupon());
 
     }
 
