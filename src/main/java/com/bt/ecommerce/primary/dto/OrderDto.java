@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,6 +42,8 @@ public class OrderDto extends AbstractDto{
         private double packingCharges = 0.0;
         private double deliveryCharges = 0.0;
         private double orderTotal = 0.0;
+        protected LocalDateTime createdAt;
+        private LocalDateTime orderAt;
     }
 
     @Setter
