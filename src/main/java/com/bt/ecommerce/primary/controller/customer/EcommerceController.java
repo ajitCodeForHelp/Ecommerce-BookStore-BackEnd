@@ -2,6 +2,7 @@ package com.bt.ecommerce.primary.controller.customer;
 
 import com.bt.ecommerce.annotation.TranslateResponseMessage;
 import com.bt.ecommerce.bean.ResponsePacket;
+import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.controller._BaseController;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -53,6 +54,16 @@ public class EcommerceController extends _BaseController {
                 .errorCode(0)
                 .message("ecommerce.common.message.bannerData")
                 .responsePacket(bannerService.list("Active"))
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @GetMapping("/get-item-details/{itemUuid}")
+    protected ResponseEntity<ResponsePacket> getItemDetails(@PathVariable("itemUuid") String itemUuid) throws BadRequestException {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get")
+                .responsePacket(itemService.itemDetail(itemUuid))
                 .build(), HttpStatus.OK);
     }
 

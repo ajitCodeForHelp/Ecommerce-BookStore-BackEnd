@@ -4,6 +4,7 @@ import com.bt.ecommerce.bean.DataTableResponsePacket;
 import com.bt.ecommerce.bean.KeyValueDto;
 import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
+import com.bt.ecommerce.primary.bean.EcommerceBean;
 import com.bt.ecommerce.primary.dto.AbstractDto;
 import com.bt.ecommerce.primary.dto.ItemDto;
 import com.bt.ecommerce.primary.mapper.ItemMapper;
@@ -223,5 +224,11 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
         return itemList.stream()
                 .map(item -> ItemMapper.MAPPER.mapToItemSearchDto(item))
                 .collect(Collectors.toList());
+    }
+
+
+    public ItemDto.ItemSearchDto itemDetail(String itemUuid) throws BadRequestException {
+        Item item = findByUuid(itemUuid);
+        return  ItemMapper.MAPPER.mapToItemSearchDto(item);
     }
 }

@@ -1,5 +1,6 @@
 package com.bt.ecommerce.primary.bean;
 
+import com.bt.ecommerce.primary.pojo.common.BasicParent;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -53,10 +54,13 @@ public class EcommerceBean {
         private double Mrp;
         private double sellingPrice;
         private List<String> itemImageUrls;
+        private Boolean offerApplicable;
         private int sequenceNo;
         private double weight;
-        private Boolean stockOut;
         private String otherDataJson;
+        private Boolean stockOut;
+        private BasicParent publisherDetails;
+        private BasicParent taxDetails;
     }
 
 }
