@@ -397,13 +397,13 @@ public class CartService extends _BaseService {
         return CartMapper.MAPPER.mapToDetailCartDto(cart);
     }
 
-    public void applyCouponCode(String cartUuid, String couponCodeUuid) throws BadRequestException {
+    public void applyCouponCode(String cartUuid, String coupon) throws BadRequestException {
         if (TextUtils.isEmpty(cartUuid)) {
             throw new BadRequestException("Invalid cart id provided.");
         }
         Cart cart = cartRepository.findByUuid(cartUuid);
-        if (!TextUtils.isEmpty(couponCodeUuid)) {
-            CouponCode couponCode = couponCodeRepository.findByUuid(couponCodeUuid);
+        if (!TextUtils.isEmpty(coupon)) {
+            CouponCode couponCode = couponCodeRepository.findByCouponCode(coupon);
             if (couponCode == null) {
                 throw new BadRequestException("Invalid coupon code selection");
             }

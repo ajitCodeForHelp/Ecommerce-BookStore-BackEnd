@@ -63,10 +63,10 @@ public class CustomerCartController extends _BaseController {
                 .build(), HttpStatus.OK);
     }
     @TranslateResponseMessage
-    @PutMapping("/applyCouponCode/{cartUuid}/{couponCodeUuid}")
-    public ResponseEntity<ResponsePacket> applyCouponCode(@PathVariable("cartUuid") String cardUuid,
-                                                             @PathVariable("couponCodeUuid") String couponCodeUuid) throws BadRequestException {
-        cartService.applyCouponCode(cardUuid, couponCodeUuid);
+    @PutMapping("/applyCouponCode/{cartUuid}/{couponCode}")
+    public ResponseEntity<ResponsePacket> applyCouponCode(@PathVariable("cartUuid") String cartUuid,
+                                                             @PathVariable("couponCode") String couponCodeUuid) throws BadRequestException {
+        cartService.applyCouponCode(cartUuid, couponCodeUuid);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.cart_coupon_code_apply")

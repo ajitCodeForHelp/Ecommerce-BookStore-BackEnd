@@ -12,6 +12,8 @@ public interface CouponCodeRepository extends MongoRepository<CouponCode, Object
 
     CouponCode findByUuid(String uuid);
 
+    CouponCode findByCouponCode(String couponCode);
+
     List<CouponCode> findByDeleted(boolean deleted);
 
     @Query(value = "{" +
