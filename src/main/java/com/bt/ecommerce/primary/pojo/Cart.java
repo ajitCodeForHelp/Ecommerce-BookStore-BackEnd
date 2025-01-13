@@ -71,7 +71,6 @@ public class Cart extends _BasicEntity {
     @Getter
     public static class CustomerAddressDetail {
         private String addressUuid;
-
         private Double latitude;
         private Double longitude;
         private String addressLine1;
@@ -81,6 +80,11 @@ public class Cart extends _BasicEntity {
         private String stateTitle;
         private String cityTitle;
         private String pinCode;
+
+        private String firstName;
+        private String lastName;
+        private String mobileNumber;
+        private String email;
     }
 
 

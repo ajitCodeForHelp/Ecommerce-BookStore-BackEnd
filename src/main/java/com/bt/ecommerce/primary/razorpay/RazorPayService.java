@@ -257,7 +257,7 @@ public class RazorPayService extends _BaseService {
             }else {
                 paymentStatusEnum=  PaymentGatewayStatusEnum.cancelled;
             }
-            cartUuid = paymentTransactionService.updatePaymentStatusByPaymentGatewayId(root.getId(),paymentStatusEnum);
+            cartUuid = paymentTransactionService.updatePaymentStatusByPaymentGatewayId(root.getId(),paymentStatusEnum,root.toString());
         } catch (RestClientException | BadRequestException e) {
             throw new RuntimeException("Failed to connect to RazorPay API: " + e.getMessage(), e);
         }
@@ -290,7 +290,7 @@ public class RazorPayService extends _BaseService {
             }else {
                 paymentStatusEnum=  PaymentGatewayStatusEnum.cancelled;
             }
-            paymentTransactionService.updatePaymentStatusByPaymentGatewayId(root.getId(),paymentStatusEnum);
+            paymentTransactionService.updatePaymentStatusByPaymentGatewayId(root.getId(),paymentStatusEnum,root.toString());
         } catch (RestClientException | BadRequestException e) {
             throw new RuntimeException("Failed to connect to RazorPay API: " + e.getMessage(), e);
         }

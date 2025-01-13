@@ -11,6 +11,7 @@ import com.bt.ecommerce.primary.mapper.CartMapper;
 import com.bt.ecommerce.primary.mapper.ItemMapper;
 import com.bt.ecommerce.primary.pojo.*;
 import com.bt.ecommerce.primary.pojo.enums.DiscountTypeEnum;
+import com.bt.ecommerce.primary.pojo.enums.PaymentStatusEnum;
 import com.bt.ecommerce.primary.pojo.enums.SettingEnum;
 import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.primary.pojo.user.SystemUser;
@@ -44,8 +45,8 @@ public class CartService extends _BaseService {
         return CartMapper.MAPPER.mapToDetailCartDto(cart);
     }
 
-    public CartDto.DetailCart updateCart(String authorizationToken, String deviceId, String uuid, CartDto.UpdateCart cartDto) throws BadRequestException {
-        Cart cart = cartRepository.findByUuid(uuid);
+    public CartDto.DetailCart updateCart(String authorizationToken, String deviceId, String cartUuid, CartDto.UpdateCart cartDto) throws BadRequestException {
+        Cart cart = cartRepository.findByUuid(cartUuid);
         if (cart == null) {
             cart = createNewCart(authorizationToken, deviceId);
         }
@@ -168,6 +169,7 @@ public class CartService extends _BaseService {
             }
             cart.setCouponCodeId(couponCode.getId());
         }
+        cart.setStandardDelivery(cartDto.isStandardDelivery());
         return cart;
     }
 
@@ -188,7 +190,7 @@ public class CartService extends _BaseService {
                 continue;
             }
             itemDetail.setItemTotal(item.getSellingPrice());
-            itemTotalWeight += item.getWeight();
+            itemTotalWeight += item.getWeight()* itemDetail.getQuantity();
             cartSubTotal += itemDetail.getItemTotal() * itemDetail.getQuantity();
             packingCharges += SpringBeanContext.getBean(SettingService.class).getBaseChargesValue(SettingEnum.PackingCharges)
                     * itemDetail.getQuantity();
@@ -206,7 +208,7 @@ public class CartService extends _BaseService {
         // itemTotalWeight + packagingWeight
         if (itemTotalWeight == 0.0) return 0.0;
         itemTotalWeight += SpringBeanContext.getBean(SettingService.class).getBaseChargesValue(SettingEnum.PackingWeight);
-        return SpringBeanContext.getBean(SettingService.class).getDeliveryCharges(true, itemTotalWeight);
+        return SpringBeanContext.getBean(SettingService.class).getDeliveryCharges(standardDelivery, itemTotalWeight);
     }
 
     private Cart calculateCouponCodeDiscountAmount(Cart cart) {
@@ -315,11 +317,20 @@ public class CartService extends _BaseService {
         }
         cart = cartPriceCalculation(cart);
         Order order = CartMapper.MAPPER.mapToOrder(cart);
+        order.setPaymentStatus(PaymentStatusEnum.SUCCESS);
         // Generate > invoice number | order number
         order.setInvoiceNumber(SpringBeanContext.getBean(SequenceRepository.class).getNextSequenceId(Order.class.getSimpleName()));
         order.setOrderId(TextUtils.getOrderReferenceId(order.getInvoiceNumber()));
         order = SpringBeanContext.getBean(OrderService.class).updateOrderStatusLog(order, order.getOrderStatus());
+
+        if(order.getCouponCodeId()!=null){
+            CouponCode couponCode = couponCodeRepository.findById(order.getCouponCodeId()).get();
+            couponCode.setUsedCount(couponCode.getUsedCount()+1);
+            couponCodeRepository.save(couponCode);
+        }
+
         orderRepository.save(order);
+
         // clear the cart
         clearCart(cart.getUuid());
 
@@ -333,8 +344,8 @@ public class CartService extends _BaseService {
         // Send Email To Customer for order Alert
 //        if(order.getCustomerDetail().getUserCustomerEmail()!=null) {
             String mailBody = "htmlContent";
-            emailComponent.sendEmailUsingGmail(order.getCustomerDetail().getUserCustomerEmail(), "Order Confirmation", mailBody);
-//            emailComponent.sendEmailUsingGmail("ajitsinghrathore1999@gmail.com", "Order Confirmation", mailBody);
+//            emailComponent.sendEmailUsingGmail(order.getCustomerAddressDetail().getEmail(), "Order Confirmation", mailBody);
+            emailComponent.sendEmailUsingGmail("ajitsinghrathore1999@gmail.com", "Order Confirmation", mailBody);
 //        }
         return order.getOrderId();
     }

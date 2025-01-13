@@ -166,7 +166,7 @@ public class TextUtils {
         if (Const.SystemSetting.TestMode)
             return "TEST-TXN-" + convertNumberTo10Digit(number);
         else {
-            return "TXN-" + convertNumberTo10Digit(number);
+            return "TXNL-" + convertNumberTo10Digit(number);
         }
     }
 

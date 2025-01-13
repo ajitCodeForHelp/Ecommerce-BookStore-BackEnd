@@ -71,7 +71,7 @@ public class PaymentTransactionService extends _BaseService {
         paymentTransactionRepository.save(paymentTransaction);
         return paymentTransaction;
     }
-    public String updatePaymentStatusByPaymentGatewayId(String paymentGatewayRefId, PaymentGatewayStatusEnum paymentGatewayStatusEnum) throws BadRequestException {
+    public String updatePaymentStatusByPaymentGatewayId(String paymentGatewayRefId, PaymentGatewayStatusEnum paymentGatewayStatusEnum,String paymentResponseData) throws BadRequestException {
 
         PaymentTransaction paymentTransaction = paymentTransactionRepository.findByPaymentGatewayRefId(paymentGatewayRefId);
         if (paymentTransaction == null) {
@@ -79,6 +79,7 @@ public class PaymentTransactionService extends _BaseService {
         }
         paymentTransaction.setPaymentStatus(paymentGatewayStatusEnum);
         paymentTransaction.setPaymentCaptured(Boolean.TRUE);
+        paymentTransaction.setPaymentResponseData(paymentResponseData);
         paymentTransactionRepository.save(paymentTransaction);
         return paymentTransaction.getOrderId();
     }

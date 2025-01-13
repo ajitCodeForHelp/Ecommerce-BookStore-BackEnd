@@ -43,12 +43,12 @@ public class CustomerCartController extends _BaseController {
     @PutMapping("/updateCart/{deviceId}/{cartUuid}")
     public ResponseEntity<ResponsePacket> updateCart(@RequestHeader(value = "Authorization", required = false) String authorizationToken,
                                                      @PathVariable(value = "deviceId", required = false) String deviceId,
-                                                     @PathVariable("cartUuid") String uuid,
+                                                     @PathVariable("cartUuid") String cartUuid,
                                                      @Valid @RequestBody CartDto.UpdateCart cart) throws BadRequestException {
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.update")
-                .responsePacket(cartService.updateCart(authorizationToken, deviceId, uuid, cart))
+                .responsePacket(cartService.updateCart(authorizationToken, deviceId, cartUuid, cart))
                 .build(), HttpStatus.OK);
     }
 

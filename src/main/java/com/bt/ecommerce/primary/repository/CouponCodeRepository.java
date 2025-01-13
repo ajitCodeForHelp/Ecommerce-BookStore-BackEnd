@@ -1,5 +1,6 @@
 package com.bt.ecommerce.primary.repository;
 
+import com.bt.ecommerce.primary.pojo.Cart;
 import com.bt.ecommerce.primary.pojo.CouponCode;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.repository.MongoRepository;
@@ -13,13 +14,13 @@ public interface CouponCodeRepository extends MongoRepository<CouponCode, Object
     CouponCode findByUuid(String uuid);
 
     CouponCode findByCouponCode(String couponCode);
-
     List<CouponCode> findByDeleted(boolean deleted);
 
     @Query(value = "{" +
             "  'active'  : { '$eq' : true }," +
-            "  'endDate' : { '$gt' : ?0 }" +
-            "  'referralCoupon' : { '$eq' : false }" +
+            "  'endDate' : { '$gt' : ?0 }," +
+            "  'referralCoupon' : { '$eq' : false }," +
+            "  'usedCount' : { '$lt' : '$maxUsePerUser' }" +
             "}")
     List<CouponCode> findActiveCouponCodeList(LocalDate localDate);
 
