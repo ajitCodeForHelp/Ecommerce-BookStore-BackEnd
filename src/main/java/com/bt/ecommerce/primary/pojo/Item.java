@@ -36,7 +36,7 @@ public class Item extends _BasicEntity {
     private Boolean offerApplicable = Boolean.FALSE;
     private Boolean stockOut = Boolean.FALSE;
     private String otherDataJson; // other book associated details
-
+    private String itemCode;
     // Todo Author ,Publications , Pages  , Publish Year ,Language
     // Todo Color , Size , Dynamic Specification  (JSON)
 

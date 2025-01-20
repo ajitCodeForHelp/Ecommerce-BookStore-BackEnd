@@ -11,6 +11,7 @@ import com.bt.ecommerce.primary.service.PaymentTransactionService;
 import com.bt.ecommerce.primary.service._BaseService;
 import com.bt.ecommerce.security.JwtTokenUtil;
 import com.bt.ecommerce.security.JwtUserDetailsService;
+import com.bt.ecommerce.utils.Const;
 import com.bt.ecommerce.utils.TextUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -42,19 +43,21 @@ public class RazorPayService extends _BaseService {
     @Value("${razor-pay.password}")
     private String razorPayPassword;
 
+    @Value("${razor-pay.user-name_test}")
+    private String razorPayUserNameTest;
+
+    @Value("${razor-pay.password_test}")
+    private String razorPayPasswordTest;
+
     @Autowired
     private PaymentTransactionService paymentTransactionService;
-
     @Autowired
     private CustomerRepository customerRepository;
-
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
 
-//    private static final String CALLBACK_URL = "https://thebooks24.com/paymentStatus/";
-
-    private static final String CALLBACK_URL = "http://localhost:3000/paymentStatus/";
-
+    private static final String CALLBACK_URL_LIVE = "https://thebooks24.com/paymentStatus/";
+    private static final String CALLBACK_URL_TEST = "http://localhost:3000/paymentStatus/";
     private static final long EXPIRY_DURATION_MS = 10 * 60 * 1000; // 10 minutes
     private static final String CURRENCY = "INR";
 
@@ -126,7 +129,12 @@ public class RazorPayService extends _BaseService {
 
         requestObj.setNotify(notify);
         requestObj.setReminder_enable(true);
-        requestObj.setCallback_url(CALLBACK_URL);
+
+         if(Const.SystemSetting.TestMode)
+             requestObj.setCallback_url(CALLBACK_URL_TEST);
+        else {
+             requestObj.setCallback_url(CALLBACK_URL_LIVE);
+        }
         requestObj.setCallback_method("get");
 
         return requestObj;
@@ -140,7 +148,12 @@ public class RazorPayService extends _BaseService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        headers.setBasicAuth(razorPayUserName, razorPayPassword);
+
+        if (Const.SystemSetting.TestMode)
+            headers.setBasicAuth(razorPayUserNameTest, razorPayPasswordTest);
+        else {
+            headers.setBasicAuth(razorPayUserName, razorPayPassword);
+        }
 
         HttpEntity<BeanRazorPayRequest.RazorPayRequest> entity = new HttpEntity<>(requestObj, headers);
 
@@ -239,7 +252,11 @@ public class RazorPayService extends _BaseService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
-        headers.setBasicAuth(razorPayUserName, razorPayPassword);
+        if (Const.SystemSetting.TestMode)
+            headers.setBasicAuth(razorPayUserNameTest, razorPayPasswordTest);
+        else {
+            headers.setBasicAuth(razorPayUserName, razorPayPassword);
+        }
 
         HttpEntity<BeanRazorPayUpdateStatus.Root> entity = new HttpEntity<>(null, headers);
         String cartUuid = "";
@@ -254,7 +271,25 @@ public class RazorPayService extends _BaseService {
             }else if (root.getStatus().equalsIgnoreCase("paid"))
             {
                 paymentStatusEnum=  PaymentGatewayStatusEnum.paid;
-            }else {
+            }
+            else if (root.getStatus().equalsIgnoreCase("opened"))
+            {
+                paymentStatusEnum=  PaymentGatewayStatusEnum.opened;
+            }
+            else if (root.getStatus().equalsIgnoreCase("expired"))
+            {
+                paymentStatusEnum=  PaymentGatewayStatusEnum.expired;
+            }
+            else if (root.getStatus().equalsIgnoreCase("failed"))
+            {
+                paymentStatusEnum=  PaymentGatewayStatusEnum.failed;
+            }
+            else if (root.getStatus().equalsIgnoreCase("under_verification"))
+            {
+                paymentStatusEnum=  PaymentGatewayStatusEnum.under_verification;
+            }
+            else if (root.getStatus().equalsIgnoreCase("cancelled"))
+            {
                 paymentStatusEnum=  PaymentGatewayStatusEnum.cancelled;
             }
             cartUuid = paymentTransactionService.updatePaymentStatusByPaymentGatewayId(root.getId(),paymentStatusEnum,root.toString());

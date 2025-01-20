@@ -55,17 +55,15 @@ public interface ItemRepository extends MongoRepository<Item, ObjectId> {
             "}")
     List<Item> findByActiveAndDeleted();
 
-    @Query(value = "" +
-            "{" +
+    @Query(value = "{" +
             "  'active'  : { '$eq' : ?0 }," +
-            "  'deleted' : { '$eq' : ?1 }," +
-            "}")
+            "  'deleted' : { '$eq' : ?1 }" +
+            "}", sort = "{ 'createdAt' : -1 }")
     List<Item> findByActiveAndDeleted(boolean active, boolean deleted);
 
-    @Query(value = "" +
-            "{" +
-            "  'deleted' : { '$eq' : ?0 }," +
-            "}")
+    @Query(value = "{" +
+            "  'deleted' : { '$eq' : ?0 }" +
+            "}", sort = "{ 'createdAt' : -1 }")
     List<Item> findByDeleted(boolean deleted);
 
     @Query(value = "" +

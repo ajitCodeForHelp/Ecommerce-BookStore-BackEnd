@@ -9,6 +9,7 @@ import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
+import org.springframework.data.domain.Sort;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +21,8 @@ public class OrderHistoryService extends _BaseService {
 
     // For Admin Panel
     public List<OrderDto.DetailOrder> orderHistoryList() {
-        List<OrderHistory> orderHistoryList = orderHistoryRepository.findAll();
+//        List<OrderHistory> orderHistoryList = orderHistoryRepository.findAll();
+        List<OrderHistory> orderHistoryList = orderHistoryRepository.findAll(Sort.by(Sort.Order.desc("createdAt")));
         return orderHistoryList.stream()
                 .map(orderHistory -> OrderHistoryMapper.MAPPER.mapToDetailOrderDto(orderHistory))
                 .collect(Collectors.toList());

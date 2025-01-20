@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -317,6 +318,8 @@ public class CartService extends _BaseService {
         }
         cart = cartPriceCalculation(cart);
         Order order = CartMapper.MAPPER.mapToOrder(cart);
+        order.setCreatedAt(LocalDateTime.now());
+        order.setModifiedAt(LocalDateTime.now());
         order.setPaymentStatus(PaymentStatusEnum.SUCCESS);
         // Generate > invoice number | order number
         order.setInvoiceNumber(SpringBeanContext.getBean(SequenceRepository.class).getNextSequenceId(Order.class.getSimpleName()));

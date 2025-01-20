@@ -8,11 +8,9 @@ import com.bt.ecommerce.primary.bean.EcommerceBean;
 import com.bt.ecommerce.primary.dto.AbstractDto;
 import com.bt.ecommerce.primary.dto.ItemDto;
 import com.bt.ecommerce.primary.mapper.ItemMapper;
-import com.bt.ecommerce.primary.pojo.Category;
-import com.bt.ecommerce.primary.pojo.Item;
-import com.bt.ecommerce.primary.pojo.Publisher;
-import com.bt.ecommerce.primary.pojo.Tax;
+import com.bt.ecommerce.primary.pojo.*;
 import com.bt.ecommerce.primary.pojo.common.BasicParent;
+import com.bt.ecommerce.primary.repository.SequenceRepository;
 import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -20,6 +18,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -35,6 +34,8 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
         Item item = ItemMapper.MAPPER.mapToPojo(saveItemDto);
         item = updateItemCategory(item, saveItemDto.getParentCategoryUuids(), saveItemDto.getSubCategoryUuids() ,saveItemDto.getTaxUuid(),saveItemDto.getPublisherUuid());
         item = itemRepository.save(item);
+        item.setItemCode("SKU-" +SpringBeanContext.getBean(SequenceRepository.class).getNextSequenceId(Item.class.getSimpleName()));
+        itemRepository.save(item);
         return item.getUuid();
     }
 
@@ -231,4 +232,29 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
         Item item = findByUuid(itemUuid);
         return  ItemMapper.MAPPER.mapToItemSearchDto(item);
     }
+
+
+    public void updateItemCodesForExistingItems() {
+        // Step 1: Retrieve all items sorted by createdAt in ascending order
+        List<Item> items = itemRepository.findAll(Sort.by(Sort.Order.desc("createdAt")));
+
+        // Step 2: Initialize the sequence number
+        int sequence = 1;
+
+        // Step 3: Loop through each item and assign itemCode
+        for (Item item : items) {
+            // Generate the itemCode based on sequence (e.g., "1", "2", "3", ...)
+            String itemCode = "SKU-"+sequence;
+
+            // Step 4: Update the item with the generated itemCode
+            item.setItemCode(itemCode);
+
+            // Save the updated item back to the repository
+            itemRepository.save(item);
+
+            // Increment the sequence for the next item
+            sequence++;
+        }
+    }
+
 }

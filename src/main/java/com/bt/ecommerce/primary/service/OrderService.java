@@ -12,6 +12,7 @@ import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.security.JwtUserDetailsService;
 import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -71,6 +72,7 @@ public class OrderService extends _BaseService {
             }
             order.setOrderTrackingId(orderTrackingId);
             order.setOrderStatus(OrderStatusEnum.DISPATCHED);
+            order.setModifiedAt(LocalDateTime.now());
             order = updateOrderStatusLog(order, OrderStatusEnum.DISPATCHED);
         }
         // Update All Order Tracking Ids
@@ -117,7 +119,8 @@ public class OrderService extends _BaseService {
     }
 
     public List<OrderDto.DetailOrder> getOrderList() {
-        List<Order> orderList = orderRepository.findAll();
+//        List<Order> orderList = orderRepository.findAll();
+        List<Order> orderList = orderRepository.findAll(Sort.by(Sort.Order.desc("createdAt")));
         return orderList.stream()
                 .map(order -> OrderMapper.MAPPER.mapToDetailOrderDto(order))
                 .collect(Collectors.toList());

@@ -67,4 +67,9 @@ public class EcommerceController extends _BaseController {
                 .build(), HttpStatus.OK);
     }
 
+    @GetMapping("/updateItemCodeForExistingItem")
+    protected void updateItemCodeForExistingItem() {
+        itemService.updateItemCodesForExistingItems();
+    }
+
 }

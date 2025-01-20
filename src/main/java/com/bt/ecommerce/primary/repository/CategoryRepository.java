@@ -107,12 +107,11 @@ public interface CategoryRepository extends MongoRepository<Category, ObjectId> 
             "}")
     List<Category> findByCategory();
 
-    @Query(value = "" +
-            "{" +
+    @Query(value = "{" +
             "  'active'  : { '$eq' : ?0 }," +
             "  'deleted' : { '$eq' : ?1 }," +
-            "  'displayCategory' : { '$ne' : true }," +
-            "}")
+            "  'displayCategory' : { '$ne' : true }" +
+            "}", sort = "{ 'createdAt' : -1 }")
     List<Category> findByActiveAndDeleted(boolean active, boolean deleted);
 
     @Query(value = "" +

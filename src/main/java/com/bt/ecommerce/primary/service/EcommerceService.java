@@ -32,4 +32,7 @@ public class EcommerceService extends _BaseService {
         }.getType();
         return new Gson().fromJson(ecommerceJson.getValue(), type);
     }
+
+
+
 }

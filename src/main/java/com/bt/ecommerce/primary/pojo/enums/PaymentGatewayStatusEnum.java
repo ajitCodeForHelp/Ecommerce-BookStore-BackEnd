@@ -5,7 +5,11 @@ public enum PaymentGatewayStatusEnum {
     cancelled("cancelled"),
     expired("expired"),
     Refunded("Refunded"),
-    created("created")
+    created("created"),
+    opened("opened"),
+    failed("failed"),
+    under_verification("under_verification")
+
     ;
     String type;
 
