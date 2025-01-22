@@ -3,6 +3,7 @@ package com.bt.ecommerce.primary.dto;
 import com.bt.ecommerce.primary.pojo.Cart;
 import com.bt.ecommerce.primary.pojo.CouponCode;
 import com.bt.ecommerce.primary.pojo.Order;
+import com.bt.ecommerce.primary.pojo.common.BasicParent;
 import com.bt.ecommerce.primary.pojo.enums.OrderStatusEnum;
 import com.bt.ecommerce.primary.pojo.enums.PaymentStatusEnum;
 import com.bt.ecommerce.primary.pojo.enums.PaymentTypeEnum;
@@ -44,6 +45,7 @@ public class OrderDto extends AbstractDto{
         private double orderTotal = 0.0;
         protected LocalDateTime createdAt;
         private LocalDateTime orderAt;
+        private BasicParent courierPartnerDetail;
     }
 
     @Setter
@@ -51,6 +53,21 @@ public class OrderDto extends AbstractDto{
     @NoArgsConstructor
     public static class UpdateOrdersTrackingIds {
         private String orderId;
+        private UpdateOrderDetails updateOrderDetails;
+    }
+
+
+    @Setter
+    @Getter
+    @NoArgsConstructor
+    public static class PlaceOrder {
+        private PaymentTypeEnum paymentTypeEnum;
+    }
+
+    @Setter
+    @Getter
+    @NoArgsConstructor
+    public static class UpdateOrderDetails {
         private String orderTrackingId;
         private String courierPartnerId;
     }

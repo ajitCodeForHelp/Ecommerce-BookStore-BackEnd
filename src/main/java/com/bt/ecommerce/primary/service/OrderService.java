@@ -5,8 +5,11 @@ import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.OrderDto;
 import com.bt.ecommerce.primary.mapper.OrderHistoryMapper;
 import com.bt.ecommerce.primary.mapper.OrderMapper;
+import com.bt.ecommerce.primary.pojo.CourierPartner;
 import com.bt.ecommerce.primary.pojo.Order;
 import com.bt.ecommerce.primary.pojo.OrderHistory;
+import com.bt.ecommerce.primary.pojo.Publisher;
+import com.bt.ecommerce.primary.pojo.common.BasicParent;
 import com.bt.ecommerce.primary.pojo.enums.OrderStatusEnum;
 import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.security.JwtUserDetailsService;
@@ -54,9 +57,9 @@ public class OrderService extends _BaseService {
     }
 
     public void updateOrdersTrackingId(List<OrderDto.UpdateOrdersTrackingIds> request) throws BadRequestException {
-        Map<String, String> orderTrackingIdMap = new HashMap<>();
+        Map<String, OrderDto.UpdateOrderDetails> orderTrackingIdMap = new HashMap<>();
         for (OrderDto.UpdateOrdersTrackingIds updateOrdersTrackingIds : request) {
-            orderTrackingIdMap.put(updateOrdersTrackingIds.getOrderId(), updateOrdersTrackingIds.getOrderTrackingId());
+            orderTrackingIdMap.put(updateOrdersTrackingIds.getOrderId(), updateOrdersTrackingIds.getUpdateOrderDetails());
         }
         List<Order> orderList = orderRepository.findByOrderIds(orderTrackingIdMap.keySet().stream().toList());
         if (TextUtils.isEmpty(orderList)) {
@@ -66,9 +69,21 @@ public class OrderService extends _BaseService {
 //            if (!order.getOrderStatus().equals(OrderStatusEnum.ORDER)) {
 //                throw new BadRequestException("Invalid Update Request, Order Already Dispatched");
 //            }
-            String orderTrackingId = orderTrackingIdMap.get(order.getOrderId());
+            String orderTrackingId = orderTrackingIdMap.get(order.getOrderId()).getOrderTrackingId();
             if (TextUtils.isEmpty(orderTrackingId)) {
                 throw new BadRequestException("Invalid OrderTrackingId Provided");
+            }
+            String courierPartnerId = orderTrackingIdMap.get(order.getOrderId()).getCourierPartnerId();
+            if (TextUtils.isEmpty(courierPartnerId)) {
+                throw new BadRequestException("Please Select Courier");
+            }
+            if (!TextUtils.isEmpty(courierPartnerId)) {
+                CourierPartner courierPartner = courierPartnerRepository.findByUuid(courierPartnerId);
+                if (courierPartner == null) {
+                    throw new BadRequestException("ecommerce.common.message.record_not_exist");
+                }
+                order.setCourierPartnerId(courierPartner.getId());
+                order.setCourierPartnerDetail(new BasicParent(courierPartner.getTitle(), courierPartner.getTrackingUrl()));
             }
             order.setOrderTrackingId(orderTrackingId);
             order.setOrderStatus(OrderStatusEnum.DISPATCHED);

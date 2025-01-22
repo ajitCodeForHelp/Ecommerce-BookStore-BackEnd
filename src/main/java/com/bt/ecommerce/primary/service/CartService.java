@@ -6,12 +6,14 @@ import com.bt.ecommerce.messaging.EmailComponent;
 import com.bt.ecommerce.messaging.FcmComponent;
 import com.bt.ecommerce.messaging.FcmNotificationBean;
 import com.bt.ecommerce.primary.dto.CartDto;
+import com.bt.ecommerce.primary.dto.OrderDto;
 import com.bt.ecommerce.primary.mapper.AddressMapper;
 import com.bt.ecommerce.primary.mapper.CartMapper;
 import com.bt.ecommerce.primary.mapper.ItemMapper;
 import com.bt.ecommerce.primary.pojo.*;
 import com.bt.ecommerce.primary.pojo.enums.DiscountTypeEnum;
 import com.bt.ecommerce.primary.pojo.enums.PaymentStatusEnum;
+import com.bt.ecommerce.primary.pojo.enums.PaymentTypeEnum;
 import com.bt.ecommerce.primary.pojo.enums.SettingEnum;
 import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.primary.pojo.user.SystemUser;
@@ -299,7 +301,7 @@ public class CartService extends _BaseService {
         return cart;
     }
 
-    public String placeOrder(String cartUuid) throws BadRequestException {
+    public String placeOrder(String cartUuid, OrderDto.PlaceOrder placeOrder) throws BadRequestException {
         // TODO > InOrder To Place Order You Need To Login > Then Update > Customer Details Into It.
         Customer loggedInCustomer = (Customer) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
         Cart cart = cartRepository.findByUuid(cartUuid);
@@ -320,7 +322,14 @@ public class CartService extends _BaseService {
         Order order = CartMapper.MAPPER.mapToOrder(cart);
         order.setCreatedAt(LocalDateTime.now());
         order.setModifiedAt(LocalDateTime.now());
-        order.setPaymentStatus(PaymentStatusEnum.SUCCESS);
+        if (placeOrder.getPaymentTypeEnum().equals(PaymentTypeEnum.ONLINE)){
+            order.setPaymentStatus(PaymentStatusEnum.PAID);
+            order.setPaymentType(PaymentTypeEnum.ONLINE);
+        }
+        else{
+            order.setPaymentStatus(PaymentStatusEnum.PENDING);
+            order.setPaymentType(PaymentTypeEnum.COD);
+        }
         // Generate > invoice number | order number
         order.setInvoiceNumber(SpringBeanContext.getBean(SequenceRepository.class).getNextSequenceId(Order.class.getSimpleName()));
         order.setOrderId(TextUtils.getOrderReferenceId(order.getInvoiceNumber()));

@@ -1,5 +1,6 @@
 package com.bt.ecommerce.primary.pojo;
 
+import com.bt.ecommerce.primary.pojo.common.BasicParent;
 import com.bt.ecommerce.primary.pojo.enums.OrderStatusEnum;
 import com.bt.ecommerce.primary.pojo.enums.PaymentStatusEnum;
 import com.bt.ecommerce.primary.pojo.enums.PaymentTypeEnum;
@@ -7,6 +8,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -24,8 +26,10 @@ public class Order extends Cart {
     private String orderTrackingId; // For Order Item Tracking
     private OrderStatusEnum orderStatus = OrderStatusEnum.ORDER;
     private List<OrderStatusLog> orderStatusLogList = new ArrayList<>();
-    private PaymentStatusEnum paymentStatus = PaymentStatusEnum.PENDING;
-    private PaymentTypeEnum paymentType = PaymentTypeEnum.ONLINE;
+    private PaymentStatusEnum paymentStatus;
+    private PaymentTypeEnum paymentType ;
+    private ObjectId courierPartnerId;
+    private BasicParent courierPartnerDetail;
     // TODO >  PaymentStatus > and more payment related details > txn
 
 

@@ -1,7 +1,7 @@
 package com.bt.ecommerce.primary.pojo.enums;
 
 public enum PaymentTypeEnum {
-    CASH_ON_DELIVERY("CASH_ON_DELIVERY"),
+    COD("COD"),
     UPI("UPI"),
     ONLINE("ONLINE"),
     ;

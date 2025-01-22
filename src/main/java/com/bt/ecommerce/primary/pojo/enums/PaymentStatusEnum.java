@@ -3,7 +3,7 @@ package com.bt.ecommerce.primary.pojo.enums;
 public enum PaymentStatusEnum {
     PENDING("PENDING"),
     FAILED("FAILED"),
-    SUCCESS("SUCCESS"),
+    PAID("PAID"),
     ;
     String type;
 

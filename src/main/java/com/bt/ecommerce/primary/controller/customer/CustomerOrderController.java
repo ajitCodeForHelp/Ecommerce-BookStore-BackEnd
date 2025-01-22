@@ -4,6 +4,9 @@ import com.bt.ecommerce.annotation.TranslateResponseMessage;
 import com.bt.ecommerce.bean.ResponsePacket;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.controller._BaseController;
+import com.bt.ecommerce.primary.dto.OrderDto;
+import com.bt.ecommerce.primary.dto.StockInNotificationDto;
+import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,8 +19,8 @@ public class CustomerOrderController extends _BaseController {
 
     @TranslateResponseMessage
     @PostMapping("/placeOrder/{cartUuid}")
-    public ResponseEntity<ResponsePacket> placeOrder(@PathVariable("cartUuid") String cartUuid) throws BadRequestException {
-        cartService.placeOrder(cartUuid);
+    public ResponseEntity<ResponsePacket> placeOrder(@PathVariable("cartUuid") String cartUuid, @Valid @RequestBody OrderDto.PlaceOrder placeOrder) throws BadRequestException {
+        cartService.placeOrder(cartUuid,placeOrder);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.place_order")
