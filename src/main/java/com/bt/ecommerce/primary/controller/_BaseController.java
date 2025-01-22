@@ -32,6 +32,6 @@ public class _BaseController {
     @Autowired protected PublisherService publisherService;
     @Autowired protected TaxService taxService;
     @Autowired protected OrderHistoryService orderHistoryService;
-
+    @Autowired protected CourierPartnerService courierPartnerService;
 
 }

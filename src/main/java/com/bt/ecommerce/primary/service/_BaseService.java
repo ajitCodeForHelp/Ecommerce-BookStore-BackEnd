@@ -33,6 +33,7 @@ public class _BaseService {
     @Autowired protected PublisherRepository publisherRepository;
     @Autowired protected TaxRepository taxRepository;
     @Autowired protected OrderHistoryRepository orderHistoryRepository;
+    @Autowired protected CourierPartnerRepository courierPartnerRepository;
 
 
 

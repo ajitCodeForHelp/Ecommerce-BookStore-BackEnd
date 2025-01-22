@@ -52,5 +52,6 @@ public class OrderDto extends AbstractDto{
     public static class UpdateOrdersTrackingIds {
         private String orderId;
         private String orderTrackingId;
+        private String courierPartnerId;
     }
 }
