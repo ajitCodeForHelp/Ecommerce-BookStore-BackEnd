@@ -1,11 +1,20 @@
 package com.bt.ecommerce.primary.service;
 
+import com.bt.ecommerce.bean.KeyValueDto;
 import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
+import com.bt.ecommerce.primary.dto.CartDto;
 import com.bt.ecommerce.primary.dto.CustomerDto;
+import com.bt.ecommerce.primary.dto.OneTimePasswordDto;
 import com.bt.ecommerce.primary.dto.OtpDto;
+import com.bt.ecommerce.primary.mapper.CartMapper;
 import com.bt.ecommerce.primary.mapper.CustomerMapper;
+import com.bt.ecommerce.primary.mapper.ItemMapper;
+import com.bt.ecommerce.primary.mapper.OneTimePasswordMapper;
+import com.bt.ecommerce.primary.pojo.Cart;
+import com.bt.ecommerce.primary.pojo.Item;
 import com.bt.ecommerce.primary.pojo.OneTimePassword;
+import com.bt.ecommerce.primary.pojo.Order;
 import com.bt.ecommerce.primary.pojo.enums.MobileEmailEnum;
 import com.bt.ecommerce.primary.pojo.enums.VerificationTypeEnum;
 import com.bt.ecommerce.primary.pojo.user.Customer;
@@ -20,7 +29,9 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class OneTimePasswordService extends _BaseService {
@@ -167,4 +178,12 @@ public class OneTimePasswordService extends _BaseService {
             throw new BadRequestException("Verification  Failed: " + verificationResponse.getReason() == null ? verificationResponse.getMessage() : verificationResponse.getReason());
         }
     }
+
+    public List<OneTimePasswordDto> oneTimePasswordDtoList() {
+        List<OneTimePassword> oneTimePasswordList = oneTimePasswordRepository.findAll(Sort.by(Sort.Order.desc("createdAt")));
+        return oneTimePasswordList.stream()
+                .map(otp -> OneTimePasswordMapper.MAPPER.mapToOneTimePasswordDto(otp))
+                .collect(Collectors.toList());
+    }
+
 }
