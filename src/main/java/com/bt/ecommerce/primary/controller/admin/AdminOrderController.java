@@ -141,8 +141,8 @@ public class AdminOrderController extends _BaseController {
 
 
     @TranslateResponseMessage
-    @GetMapping("/cancelOrder/{orderId}")
-    public ResponseEntity<ResponsePacket> getOrderDetail(@PathVariable(value = "orderId") String orderId ,@Valid @RequestBody OrderDto.CancelOrder cancelOrder) throws BadRequestException {
+    @PostMapping("/cancelOrder/{orderId}")
+    public ResponseEntity<ResponsePacket> cancelOrder(@PathVariable(value = "orderId") String orderId ,@RequestBody OrderDto.CancelOrder cancelOrder) throws BadRequestException {
         orderService.cancelOrder(orderId,cancelOrder);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)

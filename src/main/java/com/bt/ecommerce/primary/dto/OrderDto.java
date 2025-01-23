@@ -75,7 +75,6 @@ public class OrderDto extends AbstractDto{
 
     @Setter
     @Getter
-    @NoArgsConstructor
     public static class CancelOrder {
         private String cancelReason;
     }
