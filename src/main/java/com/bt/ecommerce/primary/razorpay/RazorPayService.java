@@ -2,11 +2,11 @@ package com.bt.ecommerce.primary.razorpay;
 
 import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
+import com.bt.ecommerce.primary.dto.OrderDto;
 import com.bt.ecommerce.primary.pojo.PaymentTransaction;
 import com.bt.ecommerce.primary.pojo.enums.PaymentGateWayEnum;
 import com.bt.ecommerce.primary.pojo.enums.PaymentGatewayStatusEnum;
 import com.bt.ecommerce.primary.pojo.user.Customer;
-import com.bt.ecommerce.primary.repository.CustomerRepository;
 import com.bt.ecommerce.primary.service.PaymentTransactionService;
 import com.bt.ecommerce.primary.service._BaseService;
 import com.bt.ecommerce.security.JwtTokenUtil;
@@ -52,9 +52,9 @@ public class RazorPayService extends _BaseService {
     @Autowired
     private PaymentTransactionService paymentTransactionService;
     @Autowired
-    private CustomerRepository customerRepository;
-    @Autowired
     private JwtTokenUtil jwtTokenUtil;
+    @Autowired
+    RestTemplate restTemplate;
 
     private static final String CALLBACK_URL_LIVE = "https://thebooks24.com/paymentStatus/";
     private static final String CALLBACK_URL_TEST = "http://localhost:3000/paymentStatus/";
@@ -67,7 +67,7 @@ public class RazorPayService extends _BaseService {
 
         // Generate Payment Transaction
         PaymentTransaction paymentTransaction = paymentTransactionService.generatePaymentTransaction(
-                loggedInCustomer, customerRequest.getAmount(), PaymentGateWayEnum.RazorPay ,customerRequest.getOrderId());
+                loggedInCustomer, customerRequest.getAmount(), PaymentGateWayEnum.RazorPay, customerRequest.getOrderId());
 
         // Build RazorPay Request
         BeanRazorPayRequest.RazorPayRequest requestObj = buildRazorPayRequest(customerRequest, loggedInCustomer, paymentTransaction);
@@ -130,10 +130,10 @@ public class RazorPayService extends _BaseService {
         requestObj.setNotify(notify);
         requestObj.setReminder_enable(true);
 
-         if(Const.SystemSetting.TestMode)
-             requestObj.setCallback_url(CALLBACK_URL_TEST);
+        if (Const.SystemSetting.TestMode)
+            requestObj.setCallback_url(CALLBACK_URL_TEST);
         else {
-             requestObj.setCallback_url(CALLBACK_URL_LIVE);
+            requestObj.setCallback_url(CALLBACK_URL_LIVE);
         }
         requestObj.setCallback_method("get");
 
@@ -144,8 +144,6 @@ public class RazorPayService extends _BaseService {
      * Call RazorPay API to create a payment link.
      */
     private BeanRazorPayResponse.Root callRazorPayAPI(BeanRazorPayRequest.RazorPayRequest requestObj) {
-        RestTemplate restTemplate = new RestTemplate();
-
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
@@ -248,7 +246,6 @@ public class RazorPayService extends _BaseService {
 
     public BeanRazorPayUpdateStatus.Root getStatusUpdate(String plinkId) {
         BeanRazorPayUpdateStatus.Root root = null;
-        RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -262,37 +259,26 @@ public class RazorPayService extends _BaseService {
         String cartUuid = "";
         try {
             String responseBody = restTemplate.exchange(
-                    "https://api.razorpay.com/v1/payment_links/"+plinkId, HttpMethod.GET, entity, String.class).getBody();
+                    "https://api.razorpay.com/v1/payment_links/" + plinkId, HttpMethod.GET, entity, String.class).getBody();
             root = new Gson().fromJson(responseBody, new TypeToken<BeanRazorPayUpdateStatus.Root>() {
             }.getType());
-            PaymentGatewayStatusEnum paymentStatusEnum=PaymentGatewayStatusEnum.created;
-            if (root.getStatus().equalsIgnoreCase("created")){
-                paymentStatusEnum=  PaymentGatewayStatusEnum.created;
-            }else if (root.getStatus().equalsIgnoreCase("paid"))
-            {
-                paymentStatusEnum=  PaymentGatewayStatusEnum.paid;
+            PaymentGatewayStatusEnum paymentStatusEnum = PaymentGatewayStatusEnum.created;
+            if (root.getStatus().equalsIgnoreCase("created")) {
+                paymentStatusEnum = PaymentGatewayStatusEnum.created;
+            } else if (root.getStatus().equalsIgnoreCase("paid")) {
+                paymentStatusEnum = PaymentGatewayStatusEnum.paid;
+            } else if (root.getStatus().equalsIgnoreCase("opened")) {
+                paymentStatusEnum = PaymentGatewayStatusEnum.opened;
+            } else if (root.getStatus().equalsIgnoreCase("expired")) {
+                paymentStatusEnum = PaymentGatewayStatusEnum.expired;
+            } else if (root.getStatus().equalsIgnoreCase("failed")) {
+                paymentStatusEnum = PaymentGatewayStatusEnum.failed;
+            } else if (root.getStatus().equalsIgnoreCase("under_verification")) {
+                paymentStatusEnum = PaymentGatewayStatusEnum.under_verification;
+            } else if (root.getStatus().equalsIgnoreCase("cancelled")) {
+                paymentStatusEnum = PaymentGatewayStatusEnum.cancelled;
             }
-            else if (root.getStatus().equalsIgnoreCase("opened"))
-            {
-                paymentStatusEnum=  PaymentGatewayStatusEnum.opened;
-            }
-            else if (root.getStatus().equalsIgnoreCase("expired"))
-            {
-                paymentStatusEnum=  PaymentGatewayStatusEnum.expired;
-            }
-            else if (root.getStatus().equalsIgnoreCase("failed"))
-            {
-                paymentStatusEnum=  PaymentGatewayStatusEnum.failed;
-            }
-            else if (root.getStatus().equalsIgnoreCase("under_verification"))
-            {
-                paymentStatusEnum=  PaymentGatewayStatusEnum.under_verification;
-            }
-            else if (root.getStatus().equalsIgnoreCase("cancelled"))
-            {
-                paymentStatusEnum=  PaymentGatewayStatusEnum.cancelled;
-            }
-            cartUuid = paymentTransactionService.updatePaymentStatusByPaymentGatewayId(root.getId(),paymentStatusEnum,root.toString());
+            cartUuid = paymentTransactionService.updatePaymentStatusByPaymentGatewayId(root.getId(), paymentStatusEnum, root.toString());
         } catch (RestClientException | BadRequestException e) {
             throw new RuntimeException("Failed to connect to RazorPay API: " + e.getMessage(), e);
         }
@@ -303,7 +289,6 @@ public class RazorPayService extends _BaseService {
 
     public BeanRazorPayUpdateStatus.Root getCancelUpdate(String plinkId) {
         BeanRazorPayUpdateStatus.Root root = null;
-        RestTemplate restTemplate = new RestTemplate();
 
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -313,24 +298,55 @@ public class RazorPayService extends _BaseService {
 
         try {
             String responseBody = restTemplate.exchange(
-                    "https://api.razorpay.com/v1/payment_links/"+plinkId+"/cancel", HttpMethod.POST, entity, String.class).getBody();
+                    "https://api.razorpay.com/v1/payment_links/" + plinkId + "/cancel", HttpMethod.POST, entity, String.class).getBody();
             root = new Gson().fromJson(responseBody, new TypeToken<BeanRazorPayUpdateStatus.Root>() {
             }.getType());
-            PaymentGatewayStatusEnum paymentStatusEnum=PaymentGatewayStatusEnum.created;
-            if (root.getStatus().equalsIgnoreCase("created")){
-                paymentStatusEnum=  PaymentGatewayStatusEnum.created;
-            }else if (root.getStatus().equalsIgnoreCase("paid"))
-            {
-                paymentStatusEnum=  PaymentGatewayStatusEnum.paid;
-            }else {
-                paymentStatusEnum=  PaymentGatewayStatusEnum.cancelled;
+            PaymentGatewayStatusEnum paymentStatusEnum = PaymentGatewayStatusEnum.created;
+            if (root.getStatus().equalsIgnoreCase("created")) {
+                paymentStatusEnum = PaymentGatewayStatusEnum.created;
+            } else if (root.getStatus().equalsIgnoreCase("paid")) {
+                paymentStatusEnum = PaymentGatewayStatusEnum.paid;
+            } else {
+                paymentStatusEnum = PaymentGatewayStatusEnum.cancelled;
             }
-            paymentTransactionService.updatePaymentStatusByPaymentGatewayId(root.getId(),paymentStatusEnum,root.toString());
+            paymentTransactionService.updatePaymentStatusByPaymentGatewayId(root.getId(), paymentStatusEnum, root.toString());
         } catch (RestClientException | BadRequestException e) {
             throw new RuntimeException("Failed to connect to RazorPay API: " + e.getMessage(), e);
         }
         return root;
 
+    }
+
+    public void refundOrder(String orderId, OrderDto.CancelOrder cancelOrder) {
+        PaymentTransaction paymentTransaction = paymentTransactionRepository.findByOrderId(orderId);
+        String plinkId = paymentTransaction.getPaymentGatewayRefId();
+        BeanRazorPayUpdateStatus.RefundResponse root = null;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        if (Const.SystemSetting.TestMode)
+            headers.setBasicAuth(razorPayUserNameTest, razorPayPasswordTest);
+        else {
+            headers.setBasicAuth(razorPayUserName, razorPayPassword);
+        }
+        BeanRazorPayRequest.RefundRequest refundRequest = new BeanRazorPayRequest.RefundRequest();
+        refundRequest.setAmount(paymentTransaction.getAmount());
+        refundRequest.setReason(cancelOrder.getCancelReason());
+        HttpEntity<BeanRazorPayRequest.RefundRequest> entity = new HttpEntity<>(refundRequest, headers);
+
+        String responseBody = restTemplate.exchange(
+                "https://api.razorpay.com/v1/payment_links/" + plinkId + "/refund", HttpMethod.POST, entity, String.class).getBody();
+        root = new Gson().fromJson(responseBody, new TypeToken<BeanRazorPayUpdateStatus.RefundResponse>() {
+        }.getType());
+        PaymentGatewayStatusEnum paymentStatusEnum = PaymentGatewayStatusEnum.created;
+        if (root.getStatus().equalsIgnoreCase("processed")) {
+            paymentStatusEnum = PaymentGatewayStatusEnum.Refunded;
+        } else if (root.getStatus().equalsIgnoreCase("pending")) {
+            paymentStatusEnum = PaymentGatewayStatusEnum.RefundPending;
+        } else {
+            paymentStatusEnum = PaymentGatewayStatusEnum.RefundFailed;
+        }
+        paymentTransaction.setPaymentStatus(paymentStatusEnum);
+        paymentTransactionRepository.save(paymentTransaction);
     }
 }
 

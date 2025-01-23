@@ -8,29 +8,40 @@ import com.bt.ecommerce.primary.mapper.OrderMapper;
 import com.bt.ecommerce.primary.pojo.CourierPartner;
 import com.bt.ecommerce.primary.pojo.Order;
 import com.bt.ecommerce.primary.pojo.OrderHistory;
-import com.bt.ecommerce.primary.pojo.Publisher;
 import com.bt.ecommerce.primary.pojo.common.BasicParent;
 import com.bt.ecommerce.primary.pojo.enums.OrderStatusEnum;
+import com.bt.ecommerce.primary.pojo.enums.PaymentStatusEnum;
+import com.bt.ecommerce.primary.pojo.enums.PaymentTypeEnum;
 import com.bt.ecommerce.primary.pojo.user.Customer;
+import com.bt.ecommerce.primary.razorpay.BeanRazorPayUpdateStatus;
+import com.bt.ecommerce.primary.razorpay.RazorPayService;
 import com.bt.ecommerce.security.JwtUserDetailsService;
 import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class OrderService extends _BaseService {
 
+    @Autowired
+    RazorPayService razorPayService;
+
     public OrderDto.DetailOrder getOrderDetail(String orderId) throws BadRequestException {
         Order order = orderRepository.findByOrderId(orderId);
         if (order == null) {
             OrderHistory orderHistory = orderHistoryRepository.findByOrderId(orderId);
-            if(orderHistory == null){
+            if (orderHistory == null) {
                 throw new BadRequestException("Invalid OrderId Provided");
             }
             return OrderHistoryMapper.MAPPER.mapToDetailOrderDto(orderHistory);
@@ -53,7 +64,7 @@ public class OrderService extends _BaseService {
         order.setOrderStatus(OrderStatusEnum.DISPATCHED);
         order = updateOrderStatusLog(order, OrderStatusEnum.DISPATCHED);
         orderRepository.save(order);
-            SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory();
+        SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory();
     }
 
     public void updateOrdersTrackingId(List<OrderDto.UpdateOrdersTrackingIds> request) throws BadRequestException {
@@ -140,6 +151,7 @@ public class OrderService extends _BaseService {
                 .map(order -> OrderMapper.MAPPER.mapToDetailOrderDto(order))
                 .collect(Collectors.toList());
     }
+
     public Order updateOrderStatusLog(Order order, OrderStatusEnum orderStatusEnum) {
         List<Order.OrderStatusLog> orderStatusLogList = order.getOrderStatusLogList();
         Order.OrderStatusLog orderStatusLog = new Order.OrderStatusLog();
@@ -163,5 +175,24 @@ public class OrderService extends _BaseService {
         customerOrderDtoList.addAll(
                 SpringBeanContext.getBean(OrderHistoryService.class).customerUserHistoryList(loggedInCustomer.getId()));
         return customerOrderDtoList;
+    }
+
+    public void cancelOrder(String orderId, OrderDto.CancelOrder cancelOrder) throws BadRequestException {
+        Order order = orderRepository.findByOrderId(orderId);
+        if (order == null) {
+            OrderHistory orderHistory = orderHistoryRepository.findByOrderId(orderId);
+            if (orderHistory == null) {
+                throw new BadRequestException("Invalid OrderId Provided");
+            }
+        }
+        order.setOrderStatus(OrderStatusEnum.CANCELLED);
+        order.setCancelReason(cancelOrder.getCancelReason());
+        updateOrderStatusLog(order, OrderStatusEnum.CANCELLED);
+        if (order.getPaymentType().equals(PaymentTypeEnum.ONLINE)) {
+            razorPayService.refundOrder(orderId,cancelOrder);
+            order.setPaymentStatus(PaymentStatusEnum.Refunded);
+            updateOrderStatusLog(order, OrderStatusEnum.REFUND);
+        }
+        orderRepository.save(order);
     }
 }

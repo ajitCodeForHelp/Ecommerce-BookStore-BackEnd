@@ -17,6 +17,7 @@ import com.bt.ecommerce.primary.pojo.enums.PaymentTypeEnum;
 import com.bt.ecommerce.primary.pojo.enums.SettingEnum;
 import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.primary.pojo.user.SystemUser;
+import com.bt.ecommerce.primary.razorpay.RazorPayService;
 import com.bt.ecommerce.primary.repository.SequenceRepository;
 import com.bt.ecommerce.security.JwtTokenUtil;
 import com.bt.ecommerce.security.JwtUserDetailsService;
@@ -25,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import software.amazon.awssdk.services.s3.endpoints.internal.Value;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -41,6 +42,9 @@ public class CartService extends _BaseService {
     private FcmComponent fcmComponent;
     @Autowired
     private EmailComponent emailComponent;
+
+    @Autowired
+    RazorPayService razorPayService;
 
     public CartDto.DetailCart getCartDetail(String authorizationToken, String deviceId) throws BadRequestException {
         Cart cart = getCartByDeviceId(authorizationToken, deviceId);
@@ -343,6 +347,10 @@ public class CartService extends _BaseService {
 
         orderRepository.save(order);
 
+        // Update Payment Transaction
+        PaymentTransaction paymentTransaction = paymentTransactionRepository.findByOrderId(cartUuid);
+        paymentTransaction.setOrderId(order.getUuid());
+        paymentTransactionRepository.save(paymentTransaction);
         // clear the cart
         clearCart(cart.getUuid());
 

@@ -4,6 +4,7 @@ import com.bt.ecommerce.annotation.TranslateResponseMessage;
 import com.bt.ecommerce.bean.ResponsePacket;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.controller._BaseController;
+import com.bt.ecommerce.primary.dto.OrderDto;
 import com.bt.ecommerce.primary.dto.OrderDto.UpdateOrdersTrackingIds;
 import com.bt.ecommerce.primary.pojo.enums.OrderStatusEnum;
 import jakarta.validation.Valid;
@@ -135,6 +136,17 @@ public class AdminOrderController extends _BaseController {
                 .errorCode(0)
                 .message("ecommerce.common.message.get_all")
                 .responsePacket(orderHistoryService.orderHistoryList())
+                .build(), HttpStatus.OK);
+    }
+
+
+    @TranslateResponseMessage
+    @GetMapping("/cancelOrder/{orderId}")
+    public ResponseEntity<ResponsePacket> getOrderDetail(@PathVariable(value = "orderId") String orderId ,@Valid @RequestBody OrderDto.CancelOrder cancelOrder) throws BadRequestException {
+        orderService.cancelOrder(orderId,cancelOrder);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get")
                 .build(), HttpStatus.OK);
     }
 

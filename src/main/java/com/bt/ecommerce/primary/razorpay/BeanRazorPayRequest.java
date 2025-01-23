@@ -30,7 +30,11 @@ public class BeanRazorPayRequest {
         public boolean email;
     }
 
-
+    @Data
+    public static class RefundRequest{
+        public Double amount;
+        public String reason;
+    }
 }
 
 

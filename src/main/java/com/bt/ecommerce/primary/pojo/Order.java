@@ -30,6 +30,7 @@ public class Order extends Cart {
     private PaymentTypeEnum paymentType ;
     private ObjectId courierPartnerId;
     private BasicParent courierPartnerDetail;
+    private String cancelReason;
     // TODO >  PaymentStatus > and more payment related details > txn
 
 

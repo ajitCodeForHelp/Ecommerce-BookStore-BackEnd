@@ -8,7 +8,9 @@ public enum PaymentGatewayStatusEnum {
     created("created"),
     opened("opened"),
     failed("failed"),
-    under_verification("under_verification")
+    under_verification("under_verification"),
+    RefundPending("RefundPending"),
+    RefundFailed("RefundFailed"),
 
     ;
     String type;

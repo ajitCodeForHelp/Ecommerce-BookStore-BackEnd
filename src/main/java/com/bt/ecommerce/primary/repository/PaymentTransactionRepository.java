@@ -10,6 +10,7 @@ public interface PaymentTransactionRepository extends MongoRepository<PaymentTra
     //system generated Id
     PaymentTransaction findByPaymentTransactionRefId(String paymentTransactionRefId);
     PaymentTransaction findByPaymentGatewayRefId(String paymentGatewayRefId);
+    PaymentTransaction findByOrderId(String orderId);
 
 }
 

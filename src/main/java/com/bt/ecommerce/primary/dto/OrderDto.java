@@ -46,6 +46,7 @@ public class OrderDto extends AbstractDto{
         protected LocalDateTime createdAt;
         private LocalDateTime orderAt;
         private BasicParent courierPartnerDetail;
+        private String cancelReason;
     }
 
     @Setter
@@ -70,5 +71,12 @@ public class OrderDto extends AbstractDto{
     public static class UpdateOrderDetails {
         private String orderTrackingId;
         private String courierPartnerId;
+    }
+
+    @Setter
+    @Getter
+    @NoArgsConstructor
+    public static class CancelOrder {
+        private String cancelReason;
     }
 }

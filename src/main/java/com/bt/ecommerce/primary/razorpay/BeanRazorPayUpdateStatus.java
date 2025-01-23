@@ -59,4 +59,12 @@ public class BeanRazorPayUpdateStatus{
         private String cartUuid;
     }
 
+    @Data
+    public class RefundResponse{
+        public String id;
+        public int amount;
+        public String status;
+    }
+
+
 }

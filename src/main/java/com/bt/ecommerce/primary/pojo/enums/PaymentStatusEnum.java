@@ -4,8 +4,9 @@ public enum PaymentStatusEnum {
     PENDING("PENDING"),
     FAILED("FAILED"),
     PAID("PAID"),
-
     SUCCESS("SUCCESS"),
+
+    Refunded("Refunded"),
 
     ;
     String type;
