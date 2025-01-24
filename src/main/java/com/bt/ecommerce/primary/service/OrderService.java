@@ -64,7 +64,7 @@ public class OrderService extends _BaseService {
         order.setOrderStatus(OrderStatusEnum.DISPATCHED);
         order = updateOrderStatusLog(order, OrderStatusEnum.DISPATCHED);
         orderRepository.save(order);
-        SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory();
+        SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory(OrderStatusEnum.DISPATCHED);
     }
 
     public void updateOrdersTrackingId(List<OrderDto.UpdateOrdersTrackingIds> request) throws BadRequestException {
@@ -103,7 +103,7 @@ public class OrderService extends _BaseService {
         }
         // Update All Order Tracking Ids
         orderRepository.saveAll(orderList);
-        SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory();
+        SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory(OrderStatusEnum.DISPATCHED);
 
     }
 
@@ -136,7 +136,7 @@ public class OrderService extends _BaseService {
 
         if (order.getOrderStatus().equals(OrderStatusEnum.DISPATCHED)) {
             // Move Order To History
-            SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory();
+            SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory(OrderStatusEnum.DISPATCHED);
         }
     }
 
@@ -189,10 +189,11 @@ public class OrderService extends _BaseService {
         order.setCancelReason(cancelOrder.getCancelReason());
         updateOrderStatusLog(order, OrderStatusEnum.CANCELLED);
         if (order.getPaymentType().equals(PaymentTypeEnum.ONLINE)) {
-            razorPayService.refundOrder(orderId,cancelOrder);
+            razorPayService.refundOrder(orderId, cancelOrder);
             order.setPaymentStatus(PaymentStatusEnum.Refunded);
             updateOrderStatusLog(order, OrderStatusEnum.REFUND);
         }
         orderRepository.save(order);
+        SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory(OrderStatusEnum.CANCELLED);
     }
 }

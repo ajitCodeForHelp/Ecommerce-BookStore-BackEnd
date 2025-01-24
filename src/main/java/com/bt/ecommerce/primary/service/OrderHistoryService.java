@@ -44,8 +44,8 @@ public class OrderHistoryService extends _BaseService {
         return detailOrderList;
     }
 
-    public void moveOrderToHistory() {
-        List<Order> orderList = orderRepository.findByOrderStatus(OrderStatusEnum.DISPATCHED);
+    public void moveOrderToHistory(OrderStatusEnum orderStatusEnum) {
+        List<Order> orderList = orderRepository.findByOrderStatus(orderStatusEnum);
         if (TextUtils.isEmpty(orderList)) return;
         for (Order order : orderList) {
             OrderHistory orderHistory = OrderHistoryMapper.MAPPER.mapToOrderHistory(order);

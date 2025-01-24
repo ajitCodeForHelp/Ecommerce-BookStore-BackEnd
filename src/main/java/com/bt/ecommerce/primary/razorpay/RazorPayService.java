@@ -17,6 +17,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -319,7 +321,15 @@ public class RazorPayService extends _BaseService {
 
     public void refundOrder(String orderId, OrderDto.CancelOrder cancelOrder) {
         PaymentTransaction paymentTransaction = paymentTransactionRepository.findByOrderId(orderId);
-        String plinkId = paymentTransaction.getPaymentGatewayRefId();
+
+        Gson gson = new Gson();
+        JsonObject responseJson = gson.fromJson(paymentTransaction.getPaymentResponseData(), JsonObject.class);
+        JsonArray paymentsArray = responseJson.getAsJsonArray("payments");
+        JsonObject payment = paymentsArray.get(0).getAsJsonObject();
+
+        // Retrieve the payment_id
+        String paymentId = payment.get("payment_id").getAsString();
+
         BeanRazorPayUpdateStatus.RefundResponse root = null;
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
@@ -328,15 +338,18 @@ public class RazorPayService extends _BaseService {
         else {
             headers.setBasicAuth(razorPayUserName, razorPayPassword);
         }
-        BeanRazorPayRequest.RefundRequest refundRequest = new BeanRazorPayRequest.RefundRequest();
-        refundRequest.setAmount(paymentTransaction.getAmount());
-        refundRequest.setReason(cancelOrder.getCancelReason());
-        HttpEntity<BeanRazorPayRequest.RefundRequest> entity = new HttpEntity<>(refundRequest, headers);
+        String refundRequestBody = "{ \"amount\": " + paymentTransaction.getAmount() + " }"; // Amount in paise
+
+        HttpEntity<String> entity = new HttpEntity<>(refundRequestBody, headers);
 
         String responseBody = restTemplate.exchange(
-                "https://api.razorpay.com/v1/payment_links/" + plinkId + "/refund", HttpMethod.POST, entity, String.class).getBody();
+                "https://api.razorpay.com/v1/payments/" + paymentId + "/refund",
+                HttpMethod.POST,
+                entity,
+                String.class).getBody();
         root = new Gson().fromJson(responseBody, new TypeToken<BeanRazorPayUpdateStatus.RefundResponse>() {
         }.getType());
+
         PaymentGatewayStatusEnum paymentStatusEnum = PaymentGatewayStatusEnum.created;
         if (root.getStatus().equalsIgnoreCase("processed")) {
             paymentStatusEnum = PaymentGatewayStatusEnum.Refunded;

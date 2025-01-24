@@ -349,7 +349,7 @@ public class CartService extends _BaseService {
 
         // Update Payment Transaction
         PaymentTransaction paymentTransaction = paymentTransactionRepository.findByOrderId(cartUuid);
-        paymentTransaction.setOrderId(order.getUuid());
+        paymentTransaction.setOrderId(order.getOrderId());
         paymentTransactionRepository.save(paymentTransaction);
         // clear the cart
         clearCart(cart.getUuid());
