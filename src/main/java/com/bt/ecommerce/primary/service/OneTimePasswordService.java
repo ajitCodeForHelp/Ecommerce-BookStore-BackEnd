@@ -3,6 +3,7 @@ package com.bt.ecommerce.primary.service;
 import com.bt.ecommerce.bean.KeyValueDto;
 import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
+import com.bt.ecommerce.messaging.SmsComponent;
 import com.bt.ecommerce.primary.dto.CartDto;
 import com.bt.ecommerce.primary.dto.CustomerDto;
 import com.bt.ecommerce.primary.dto.OneTimePasswordDto;
@@ -22,6 +23,7 @@ import com.bt.ecommerce.utils.TextUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import okhttp3.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -36,6 +38,9 @@ import java.util.stream.Collectors;
 @Service
 public class OneTimePasswordService extends _BaseService {
 
+
+    @Autowired
+    SmsComponent smsComponent;
     public String generateOtp(CustomerDto.GenerateOtp generateOtp) {
         // Destroy This User All Previous Otp
         destroyUserPreviousOtp(generateOtp.getMobile());
@@ -47,6 +52,13 @@ public class OneTimePasswordService extends _BaseService {
         oneTimePassword.setVerificationType(generateOtp.getVerificationType());
         oneTimePassword.setExpiredAt(LocalDateTime.now().plusMinutes(10));
         oneTimePassword = oneTimePasswordRepository.save(oneTimePassword);
+
+        String otpMessage = "Greetings from The Books 24! Your OTP for login is "+  oneTimePassword.getOtpCode() + "."  +
+                            "Please enter this code to access your account. " +
+                            "The code is valid for 10 minutes. Thank you, Team The Books 24";
+
+        smsComponent.sendSMSByMakeMySms(generateOtp.getMobile(),otpMessage,"1707173676045826191");
+
         return oneTimePassword.getOtpCode();
     }
 
