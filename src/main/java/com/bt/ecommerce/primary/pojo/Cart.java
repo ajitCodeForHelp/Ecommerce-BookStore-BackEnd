@@ -32,6 +32,8 @@ public class Cart extends _BasicEntity {
     private double couponDiscountAmount = 0.0;
     private double packingCharges = 0.0;
     private double deliveryCharges = 0.0;
+    private boolean cashOnDelivery;
+    private double codCharges = 0.0;
     private double orderTotal = 0.0;
 
 

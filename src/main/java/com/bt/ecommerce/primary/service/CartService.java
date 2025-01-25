@@ -21,6 +21,7 @@ import com.bt.ecommerce.primary.razorpay.RazorPayService;
 import com.bt.ecommerce.primary.repository.SequenceRepository;
 import com.bt.ecommerce.security.JwtTokenUtil;
 import com.bt.ecommerce.security.JwtUserDetailsService;
+import com.bt.ecommerce.utils.Const;
 import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -203,6 +204,10 @@ public class CartService extends _BaseService {
                     * itemDetail.getQuantity();
         }
         deliveryCharges = getItemTotalDeliveryCharges(cart.isStandardDelivery(), itemTotalWeight);
+        if(cart.isCashOnDelivery()){
+            cart.setCodCharges(SpringBeanContext.getBean(SettingService.class).getBaseChargesValue(SettingEnum.CodCharges));
+            deliveryCharges +=cart.getCodCharges();
+        }
         cart.setSubTotal(cartSubTotal);
         cart.setPackingCharges(packingCharges);
         cart.setDeliveryCharges(deliveryCharges);

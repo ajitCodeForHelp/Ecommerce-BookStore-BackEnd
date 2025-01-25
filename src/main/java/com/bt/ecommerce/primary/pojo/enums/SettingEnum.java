@@ -13,6 +13,9 @@ public enum SettingEnum {
     UnderMaintenance("UnderMaintenance"),
     // Double Setting
     PackingWeight("PackingWeight"),
+
+    CodCharges("CodCharges"),
+
     PackingCharges("PackingCharges"),
     AppVersion("AppVersion"),
 
@@ -51,6 +54,7 @@ public enum SettingEnum {
         settingList.add(AppVersion);
         settingList.add(PackingCharges);
         settingList.add(PackingWeight);
+        settingList.add(CodCharges);
         return settingList;
     }
 
