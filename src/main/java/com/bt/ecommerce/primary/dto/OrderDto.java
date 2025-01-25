@@ -47,6 +47,7 @@ public class OrderDto extends AbstractDto{
         private LocalDateTime orderAt;
         private BasicParent courierPartnerDetail;
         private String cancelReason;
+        private double codCharges = 0.0;
     }
 
     @Setter

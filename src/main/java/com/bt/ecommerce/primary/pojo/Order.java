@@ -31,7 +31,6 @@ public class Order extends Cart {
     private ObjectId courierPartnerId;
     private BasicParent courierPartnerDetail;
     private String cancelReason;
-    private double codCharges = 0.0;
     // TODO >  PaymentStatus > and more payment related details > txn
 
 
