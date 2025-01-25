@@ -1,5 +1,6 @@
 package com.bt.ecommerce.messaging;
 
+import com.bt.ecommerce.utils.Const;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.stereotype.Component;
@@ -16,9 +17,9 @@ public class SmsComponent {
     private static final String USER_AGENT = "Mozilla/5.0";
 
     public void sendSMSByMakeMySms(String mobileNumber, String message,String templateId) {
-//        if (Const.SystemSetting.TestMode) {
-//            return;
-//        }
+        if (Const.SystemSetting.TestMode) {
+            return;
+        }
         logger.info("*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*-*");
         logger.info("SmsComponent.sendSMS : mobileNumber : " + mobileNumber + " >> message : " + message);
         try {
