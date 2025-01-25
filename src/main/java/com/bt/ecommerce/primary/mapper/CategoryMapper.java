@@ -29,6 +29,7 @@ public interface CategoryMapper {
 
     @Mapping(expression = "java(category.getUuid())", target = "key")
     @Mapping(expression = "java(category.getUuid())", target = "value")
-    @Mapping(expression = "java(category.getTitle())", target = "label")
+//    @Mapping(expression = "java(category.getTitle())", target = "label")
+    @Mapping(expression = "java(category.getTitle() + (category.getDisplayCategory() ? \" (D)\" : \"\"))", target = "label")
     KeyValueDto mapToKeyPairDto(Category category);
 }
