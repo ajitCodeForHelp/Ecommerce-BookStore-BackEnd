@@ -2,6 +2,7 @@ package com.bt.ecommerce.primary.service;
 
 import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
+import com.bt.ecommerce.messaging.SmsComponent;
 import com.bt.ecommerce.primary.dto.OrderDto;
 import com.bt.ecommerce.primary.mapper.OrderHistoryMapper;
 import com.bt.ecommerce.primary.mapper.OrderMapper;
@@ -13,7 +14,6 @@ import com.bt.ecommerce.primary.pojo.enums.OrderStatusEnum;
 import com.bt.ecommerce.primary.pojo.enums.PaymentStatusEnum;
 import com.bt.ecommerce.primary.pojo.enums.PaymentTypeEnum;
 import com.bt.ecommerce.primary.pojo.user.Customer;
-import com.bt.ecommerce.primary.razorpay.BeanRazorPayUpdateStatus;
 import com.bt.ecommerce.primary.razorpay.RazorPayService;
 import com.bt.ecommerce.security.JwtUserDetailsService;
 import com.bt.ecommerce.utils.TextUtils;
@@ -21,7 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -36,6 +35,9 @@ public class OrderService extends _BaseService {
 
     @Autowired
     RazorPayService razorPayService;
+
+    @Autowired
+    SmsComponent smsComponent;
 
     public OrderDto.DetailOrder getOrderDetail(String orderId) throws BadRequestException {
         Order order = orderRepository.findByOrderId(orderId);
@@ -100,6 +102,13 @@ public class OrderService extends _BaseService {
             order.setOrderStatus(OrderStatusEnum.DISPATCHED);
             order.setModifiedAt(LocalDateTime.now());
             order = updateOrderStatusLog(order, OrderStatusEnum.DISPATCHED);
+            String orderPlaceMsg = "Greetings from The Books 24! Your order " + order.getOrderId()  +
+                    " has been dispatched and is on its way. " +
+                    "You can track your order using the tracking ID : " +  order.getOrderTrackingId() +
+                    " via the following link " + order.getCourierPartnerDetail().getParentTitle()  + " Thank you for shopping with us!" +
+                    " Have a great day. Team The Books 24";
+
+            smsComponent.sendSMSByMakeMySms(order.getCustomerDetail().getUserCustomerMobile(),orderPlaceMsg,"1707173659433995728");
         }
         // Update All Order Tracking Ids
         orderRepository.saveAll(orderList);

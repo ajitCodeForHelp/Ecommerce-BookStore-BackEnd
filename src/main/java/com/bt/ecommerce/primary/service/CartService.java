@@ -5,6 +5,7 @@ import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.messaging.EmailComponent;
 import com.bt.ecommerce.messaging.FcmComponent;
 import com.bt.ecommerce.messaging.FcmNotificationBean;
+import com.bt.ecommerce.messaging.SmsComponent;
 import com.bt.ecommerce.primary.dto.CartDto;
 import com.bt.ecommerce.primary.dto.OrderDto;
 import com.bt.ecommerce.primary.mapper.AddressMapper;
@@ -21,13 +22,11 @@ import com.bt.ecommerce.primary.razorpay.RazorPayService;
 import com.bt.ecommerce.primary.repository.SequenceRepository;
 import com.bt.ecommerce.security.JwtTokenUtil;
 import com.bt.ecommerce.security.JwtUserDetailsService;
-import com.bt.ecommerce.utils.Const;
 import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -46,6 +45,9 @@ public class CartService extends _BaseService {
 
     @Autowired
     RazorPayService razorPayService;
+
+    @Autowired
+    SmsComponent smsComponent;
 
     public CartDto.DetailCart getCartDetail(String authorizationToken, String deviceId) throws BadRequestException {
         Cart cart = getCartByDeviceId(authorizationToken, deviceId);
@@ -370,12 +372,21 @@ public class CartService extends _BaseService {
         fcmComponent.sendNotificationToUser(notifyAdmin.getDeviceType() , notifyAdmin.getFcmDeviceToken(),notification,data);
 //        fcmComponent.sendNotificationToUser("android" , "eF_QyjMiR960jTDBqIITN3:APA91bGbhEBYhqELw63NbjdvFeo7cuq2aQocl25H_m0zoTxMaDnAXulqQ2OgQk1jErAtl82l-2_TAKLP9Ijq2d7F1zDtAGkosC-caOpSEmLS0WNSq_GBpQE",notification,data);
 
+        // Send SMS to Customer
+        String orderPlaceMsg = "Greetings from The Books 24! Your order " + order.getOrderId() + " is confirmed. " +
+                               "We will provide you tracking ID shortly via message or email. Thank you for choosing us! " +
+                               "Have a great day. Best regards, Team The Books 24";
+        smsComponent.sendSMSByMakeMySms(order.getCustomerDetail().getUserCustomerMobile(),orderPlaceMsg,"1707173676050498074");
+
+
         // Send Email To Customer for order Alert
 //        if(order.getCustomerDetail().getUserCustomerEmail()!=null) {
             String mailBody = "htmlContent";
 //            emailComponent.sendEmailUsingGmail(order.getCustomerAddressDetail().getEmail(), "Order Confirmation", mailBody);
             emailComponent.sendEmailUsingGmail("ajitsinghrathore1999@gmail.com", "Order Confirmation", mailBody);
 //        }
+
+        //
         return order.getOrderId();
     }
 
