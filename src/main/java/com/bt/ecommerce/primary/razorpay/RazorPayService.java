@@ -3,6 +3,7 @@ package com.bt.ecommerce.primary.razorpay;
 import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.OrderDto;
+import com.bt.ecommerce.primary.pojo.Order;
 import com.bt.ecommerce.primary.pojo.PaymentTransaction;
 import com.bt.ecommerce.primary.pojo.enums.PaymentGateWayEnum;
 import com.bt.ecommerce.primary.pojo.enums.PaymentGatewayStatusEnum;
@@ -17,11 +18,13 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -32,6 +35,9 @@ import org.springframework.web.client.RestTemplate;
 
 import java.time.Instant;
 import java.util.Collections;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 public class RazorPayService extends _BaseService {
@@ -319,16 +325,27 @@ public class RazorPayService extends _BaseService {
 
     }
 
-    public void refundOrder(String orderId, OrderDto.CancelOrder cancelOrder) {
-        PaymentTransaction paymentTransaction = paymentTransactionRepository.findByOrderId(orderId);
-
-        Gson gson = new Gson();
-        JsonObject responseJson = gson.fromJson(paymentTransaction.getPaymentResponseData(), JsonObject.class);
-        JsonArray paymentsArray = responseJson.getAsJsonArray("payments");
-        JsonObject payment = paymentsArray.get(0).getAsJsonObject();
+    public void refundOrder(String orderId, OrderDto.CancelOrder cancelOrder) throws BadRequestException {
+        List<PaymentTransaction> paymentTransactionList = paymentTransactionRepository.findByOrderId(orderId);
+        paymentTransactionList.sort((pt1, pt2) -> pt2.getCreatedAt().compareTo(pt1.getCreatedAt()));
+        PaymentTransaction paymentTransaction = paymentTransactionList.get(0);
+//        Gson gson = new Gson();
+//        JsonObject responseJson = gson.fromJson(paymentTransaction.getPaymentResponseData(), JsonObject.class);
+//        JsonArray paymentsArray = responseJson.getAsJsonArray("payments");
+//        JsonObject payment = paymentsArray.get(0).getAsJsonObject();
 
         // Retrieve the payment_id
-        String paymentId = payment.get("payment_id").getAsString();
+//        String paymentId = payment.get("payment_id").getAsString();
+        String paymentId = null;
+        String paymentResponseData = paymentTransaction.getPaymentResponseData();
+        Pattern pattern = Pattern.compile("payment_id=([\\w-]+)");
+        Matcher matcher = pattern.matcher(paymentResponseData);
+
+        if (matcher.find()) {
+             paymentId = matcher.group(1);  // Extract the payment_id
+        } else {
+            throw new BadRequestException("Payment ID not Found");
+        }
 
         BeanRazorPayUpdateStatus.RefundResponse root = null;
         HttpHeaders headers = new HttpHeaders();

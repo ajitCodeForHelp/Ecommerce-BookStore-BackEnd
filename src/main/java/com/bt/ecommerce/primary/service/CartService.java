@@ -348,9 +348,13 @@ public class CartService extends _BaseService {
         orderRepository.save(order);
 
         // Update Payment Transaction
-        PaymentTransaction paymentTransaction = paymentTransactionRepository.findByOrderId(cartUuid);
-        paymentTransaction.setOrderId(order.getOrderId());
-        paymentTransactionRepository.save(paymentTransaction);
+        if(placeOrder.getPaymentTypeEnum().equals(PaymentTypeEnum.ONLINE)) {
+            List<PaymentTransaction> paymentTransactionList = paymentTransactionRepository.findByOrderId(cartUuid);
+            paymentTransactionList.sort((pt1, pt2) -> pt2.getCreatedAt().compareTo(pt1.getCreatedAt()));
+            PaymentTransaction paymentTransaction = paymentTransactionList.get(0);
+            paymentTransaction.setOrderId(order.getOrderId());
+            paymentTransactionRepository.save(paymentTransaction);
+        }
         // clear the cart
         clearCart(cart.getUuid());
 
