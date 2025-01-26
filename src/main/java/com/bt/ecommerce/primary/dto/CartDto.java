@@ -24,6 +24,7 @@ public class CartDto extends AbstractDto{
         private Map<String, Long> itemQuantityMap = new HashMap<>();
         private String couponCodeUuid;
         private boolean standardDelivery = true;
+        private boolean cashOnDelivery;
     }
 
     @Getter
