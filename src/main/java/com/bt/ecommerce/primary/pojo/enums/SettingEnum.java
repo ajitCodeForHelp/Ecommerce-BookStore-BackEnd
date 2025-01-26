@@ -73,6 +73,7 @@ public enum SettingEnum {
         List<SettingEnum> settingList = new ArrayList<>();
         settingList.add(PackingCharges);
         settingList.add(PackingWeight);
+        settingList.add(CodCharges);
         return settingList;
     }
 

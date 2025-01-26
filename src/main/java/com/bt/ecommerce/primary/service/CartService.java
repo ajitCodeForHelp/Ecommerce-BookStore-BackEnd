@@ -180,6 +180,7 @@ public class CartService extends _BaseService {
             cart.setCouponCodeId(couponCode.getId());
         }
         cart.setStandardDelivery(cartDto.isStandardDelivery());
+        cart.setCashOnDelivery(cartDto.isCashOnDelivery());
         return cart;
     }
 
