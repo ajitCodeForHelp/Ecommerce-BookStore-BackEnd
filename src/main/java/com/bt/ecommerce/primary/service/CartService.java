@@ -207,8 +207,13 @@ public class CartService extends _BaseService {
         }
         deliveryCharges = getItemTotalDeliveryCharges(cart.isStandardDelivery(), itemTotalWeight);
         if(cart.isCashOnDelivery()){
+            cart.setCashOnDelivery(true);
             cart.setCodCharges(SpringBeanContext.getBean(SettingService.class).getBaseChargesValue(SettingEnum.CodCharges));
             deliveryCharges +=cart.getCodCharges();
+        }
+        else{
+            cart.setCashOnDelivery(false);
+            cart.setCodCharges(0);
         }
         cart.setSubTotal(cartSubTotal);
         cart.setPackingCharges(packingCharges);
