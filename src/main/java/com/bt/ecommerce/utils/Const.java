@@ -39,6 +39,7 @@ public class Const {
         SystemSetting.BaseUrl = settingService.getSettingValueByKey(SettingEnum.BaseUrl);
         SystemSetting.SupportEmail = settingService.getSettingValueByKey(SettingEnum.SupportEmail);
         SystemSetting.HeaderAlertLine = settingService.getSettingValueByKey(SettingEnum.HeaderAlertLine);
+        SystemSetting.CashOnDelivery = settingService.getSettingValueByKey(SettingEnum.CashOnDelivery).equalsIgnoreCase("1");
 //        refreshPrivatePublicKey();
     }
 
@@ -94,6 +95,8 @@ public class Const {
         public static String CurrencyCode;
         public static String SupportEmail;
         private static String HeaderAlertLine;
+        public static boolean CashOnDelivery;
+
     }
 
     public static class SystemAdminSetting {

@@ -43,6 +43,8 @@ public class CartDto extends AbstractDto{
         private double orderTotal = 0.0;
         private boolean standardDelivery;
         private double codCharges = 0.0;
+        private boolean cashOnDelivery;
+        private boolean codAvailable;
     }
 
     @Getter

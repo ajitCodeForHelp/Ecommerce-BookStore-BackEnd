@@ -22,6 +22,7 @@ import com.bt.ecommerce.primary.razorpay.RazorPayService;
 import com.bt.ecommerce.primary.repository.SequenceRepository;
 import com.bt.ecommerce.security.JwtTokenUtil;
 import com.bt.ecommerce.security.JwtUserDetailsService;
+import com.bt.ecommerce.utils.Const;
 import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
@@ -52,6 +53,7 @@ public class CartService extends _BaseService {
     public CartDto.DetailCart getCartDetail(String authorizationToken, String deviceId) throws BadRequestException {
         Cart cart = getCartByDeviceId(authorizationToken, deviceId);
         cart = cartPriceCalculation(cart);
+        cart.setCodAvailable(Const.SystemSetting.CashOnDelivery);
         return CartMapper.MAPPER.mapToDetailCartDto(cart);
     }
 

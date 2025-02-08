@@ -236,24 +236,25 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
 
     public void updateItemCodesForExistingItems() {
         // Step 1: Retrieve all items sorted by createdAt in ascending order
-        List<Item> items = itemRepository.findAll(Sort.by(Sort.Order.desc("createdAt")));
+        List<Item> items = itemRepository.findAll(Sort.by(Sort.Order.asc("createdAt")));
 
         // Step 2: Initialize the sequence number
-        int sequence = 1;
+//        int sequence = 1;
 
         // Step 3: Loop through each item and assign itemCode
         for (Item item : items) {
             // Generate the itemCode based on sequence (e.g., "1", "2", "3", ...)
-            String itemCode = "SKU-"+sequence;
+//            String itemCode = "SKU-"+sequence;
+            item.setItemCode("SKU-" +SpringBeanContext.getBean(SequenceRepository.class).getNextSequenceId(Item.class.getSimpleName()));
 
             // Step 4: Update the item with the generated itemCode
-            item.setItemCode(itemCode);
+//            item.setItemCode(itemCode);
 
             // Save the updated item back to the repository
             itemRepository.save(item);
 
             // Increment the sequence for the next item
-            sequence++;
+//            sequence++;
         }
     }
 

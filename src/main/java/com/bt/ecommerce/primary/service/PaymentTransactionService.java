@@ -32,7 +32,9 @@ public class PaymentTransactionService extends _BaseService {
         paymentTransaction.setPaymentGatewayRefId(null);
         paymentTransaction.setPaymentWebHookData(null);
         paymentTransaction.setPaymentCaptured(Boolean.FALSE);
+
         paymentTransaction.setAmount((double) transactionAmount);
+
         paymentTransaction.setOrderId(cartUUid);
         paymentTransactionRepository.save(paymentTransaction);
         paymentTransaction.setPaymentTransactionRefId(TextUtils.getPaymentRequestTransactionId(paymentTransaction.getRecordId()));

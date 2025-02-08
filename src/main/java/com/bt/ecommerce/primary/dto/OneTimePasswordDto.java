@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @Setter
@@ -17,11 +18,11 @@ public class OneTimePasswordDto {
 
     private String otpCode;
 
-    private LocalDateTime expiredAt;
+    private Long expiredAt;
 
     private boolean expired = false;
 
-    protected LocalDateTime createdAt;
+    protected Long createdAt;
 
 
 }

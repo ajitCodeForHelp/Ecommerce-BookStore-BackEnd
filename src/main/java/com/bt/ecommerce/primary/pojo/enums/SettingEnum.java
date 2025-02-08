@@ -27,7 +27,9 @@ public enum SettingEnum {
     HeaderAlertLine("HeaderAlertLine"),
 
     // DeliveryCharges Json >
-    DeliveryChargeJson("DeliveryChargeJson");
+    DeliveryChargeJson("DeliveryChargeJson"),
+
+    CashOnDelivery("CashOnDelivery");
 
     String type;
 
@@ -46,6 +48,7 @@ public enum SettingEnum {
 //        settingList.add(AdminLogin);
         settingList.add(StaffLogin);
         settingList.add(UnderMaintenance);
+        settingList.add(CashOnDelivery);
         return settingList;
     }
 

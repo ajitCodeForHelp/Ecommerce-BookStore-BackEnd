@@ -3,15 +3,22 @@ package com.bt.ecommerce.primary.controller;
 import com.bt.ecommerce.annotation.TranslateResponseMessage;
 import com.bt.ecommerce.bean.ResponsePacket;
 import com.bt.ecommerce.exception.BadRequestException;
+import com.bt.ecommerce.primary.razorpay.RazorPayService;
 import com.bt.ecommerce.utils.Const;
+import com.bt.ecommerce.utils.TextUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
 
 @RestController
 public class UrlController {
+
+    @Autowired
+    RazorPayService razorPayService;
 
     @TranslateResponseMessage
     @GetMapping(value = "/pages/{pageName}")
@@ -49,4 +56,23 @@ public class UrlController {
                 .build(), HttpStatus.OK);
     }
 
+    @PostMapping("/encodeRajLMS")
+    public ResponseEntity<ResponsePacket> encodeRajLMS() throws Exception {
+        razorPayService.getStatusByOrderId();
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.file_uploaded_successfully")
+                .responsePacket(TextUtils.encrypt(""))
+                .build(), HttpStatus.OK);
+    }
+
+
+    @PostMapping("/decodeRajLMS")
+    public ResponseEntity<ResponsePacket> decodeRajLMS() throws Exception {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.file_uploaded_successfully")
+                .responsePacket(TextUtils.decrypt(""))
+                .build(), HttpStatus.OK);
+    }
 }

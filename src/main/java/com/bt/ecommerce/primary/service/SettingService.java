@@ -1,9 +1,12 @@
 package com.bt.ecommerce.primary.service;
 
+import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.SettingDto;
 import com.bt.ecommerce.primary.pojo.Setting;
 import com.bt.ecommerce.primary.pojo.enums.SettingEnum;
+import com.bt.ecommerce.security.JwtUserDetailsService;
+import com.bt.ecommerce.utils.Const;
 import com.bt.ecommerce.utils.TextUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -91,6 +94,7 @@ public class SettingService extends _BaseService {
 
             if (SettingEnum.getToggleSettingsKey().contains(setting.getSettingKey())) {
                 updateSetting.setSettingValue(setting.getSettingValue().equals("1") ? "1" : "0");
+                SpringBeanContext.getBean(Const.class).refreshSystemSetting();
             }
             if (SettingEnum.getFloatSettingsKey().contains(setting.getSettingKey())) {
                 try {

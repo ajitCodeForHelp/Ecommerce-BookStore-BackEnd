@@ -35,6 +35,7 @@ public class Cart extends _BasicEntity {
     private boolean cashOnDelivery;
     private double codCharges = 0.0;
     private double orderTotal = 0.0;
+    private boolean codAvailable;
 
 
     @Setter

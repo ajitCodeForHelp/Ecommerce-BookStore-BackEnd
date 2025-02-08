@@ -43,8 +43,8 @@ public class OrderDto extends AbstractDto{
         private double packingCharges = 0.0;
         private double deliveryCharges = 0.0;
         private double orderTotal = 0.0;
-        protected LocalDateTime createdAt;
-        private LocalDateTime orderAt;
+        protected Long createdAt;
+        private   Long orderAt;
         private BasicParent courierPartnerDetail;
         private String cancelReason;
         private double codCharges = 0.0;

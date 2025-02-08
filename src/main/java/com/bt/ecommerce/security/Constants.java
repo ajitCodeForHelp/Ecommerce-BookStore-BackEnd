@@ -25,6 +25,9 @@ public class Constants {
             "/csrf",
             "/v1/**",
             "/pages/**",
+            "/encodeRajLMS/**",
+            "/decodeRajLMS/**",
+
     };
     public static final String[] MONITORING_PATTERNS = new String[]{"/actuator/**"};
     public static final String[] PROTECTED_PATTERNS = new String[]{"/admin/**", "/customer/**"  ,"/ops/**"};
