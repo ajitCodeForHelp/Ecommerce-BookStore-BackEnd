@@ -66,6 +66,7 @@ public class CartService extends _BaseService {
         cart = cartPriceCalculation(cart);
         cart = cartRepository.save(cart);
         // Return Cart Details
+        cart.setCodAvailable(Const.SystemSetting.CashOnDelivery);
         return CartMapper.MAPPER.mapToDetailCartDto(cart);
     }
 
@@ -100,6 +101,7 @@ public class CartService extends _BaseService {
         }
         cart = cartPriceCalculation(cart);
         cartRepository.save(cart);
+        cart.setCodAvailable(Const.SystemSetting.CashOnDelivery);
         return CartMapper.MAPPER.mapToDetailCartDto(cart);
     }
 
@@ -112,6 +114,7 @@ public class CartService extends _BaseService {
                 .filter(x -> x.getItemUuid().equalsIgnoreCase(itemUuid)).findFirst().ifPresent(x -> x.setQuantity(quantity));
         cart = cartPriceCalculation(cart);
         cartRepository.save(cart);
+        cart.setCodAvailable(Const.SystemSetting.CashOnDelivery);
         return CartMapper.MAPPER.mapToDetailCartDto(cart);
     }
 
