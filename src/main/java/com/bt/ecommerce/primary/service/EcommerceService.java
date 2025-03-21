@@ -3,6 +3,7 @@ package com.bt.ecommerce.primary.service;
 import com.bt.ecommerce.primary.bean.EcommerceBean;
 import com.bt.ecommerce.primary.pojo.Category;
 import com.bt.ecommerce.primary.pojo.EcommerceJson;
+import com.bt.ecommerce.utils.Const;
 import com.bt.ecommerce.utils.ProjectConst;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -33,6 +34,12 @@ public class EcommerceService extends _BaseService {
         return new Gson().fromJson(ecommerceJson.getValue(), type);
     }
 
+
+    public EcommerceBean.ContactAndSocial contactAndSocialDetail() {
+        EcommerceBean.ContactAndSocial contactAndSocial = new EcommerceBean.ContactAndSocial();
+//        contactAndSocial.setSupportContactNo(Const.SystemSetting.);
+        return null;
+    }
 
 
 }

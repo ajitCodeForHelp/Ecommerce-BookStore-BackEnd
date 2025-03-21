@@ -43,7 +43,7 @@ public class PaymentTransactionService extends _BaseService {
     }
 
 
-    public PaymentTransaction updatePaymentTransaction(String paymentTransactionRefId, PaymentGatewayStatusEnum paymentGatewayStatusEnum, String paymentRequestData, String paymentResponseData, BeanRazorPayResponse.Root razorPayResponse) throws BadRequestException {
+    public PaymentTransaction updatePaymentTransaction(String paymentTransactionRefId, PaymentGatewayStatusEnum paymentGatewayStatusEnum, String paymentRequestData, String paymentResponseData, BeanRazorPayResponse.RootForOrderId razorPayResponse) throws BadRequestException {
 
         PaymentTransaction paymentTransaction = paymentTransactionRepository.findByPaymentTransactionRefId(paymentTransactionRefId);
         if (paymentTransaction == null) {

@@ -40,6 +40,7 @@ public class Const {
         SystemSetting.SupportEmail = settingService.getSettingValueByKey(SettingEnum.SupportEmail);
         SystemSetting.HeaderAlertLine = settingService.getSettingValueByKey(SettingEnum.HeaderAlertLine);
         SystemSetting.CashOnDelivery = settingService.getSettingValueByKey(SettingEnum.CashOnDelivery).equalsIgnoreCase("1");
+
 //        refreshPrivatePublicKey();
     }
 
@@ -81,9 +82,6 @@ public class Const {
         public static String IosAppUrl;
         public static String CustomerAndroidAppVersion;
         public static String CustomerIosAppVersion;
-        public static String DriverAndroidAppVersion;
-        public static String PosAndroidAppVersion;
-
         public static boolean UnderMaintenance;
         public static boolean AdminLogin;
         public static boolean CustomerLogin;

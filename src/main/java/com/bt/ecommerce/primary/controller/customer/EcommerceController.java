@@ -27,6 +27,17 @@ public class EcommerceController extends _BaseController {
                 .build(), HttpStatus.OK);
     }
 
+
+    @TranslateResponseMessage
+    @GetMapping("/contact-and-social")
+    protected ResponseEntity<ResponsePacket> contactAndSocial() {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.contact-and-social")
+                .responsePacket(ecommerceService.contactAndSocialDetail())
+                .build(), HttpStatus.OK);
+    }
+
     @TranslateResponseMessage
     @GetMapping("/get-category-item-details/{categoryUuid}")
     protected ResponseEntity<ResponsePacket> getCategoryItemDetails(@PathVariable("categoryUuid") String categoryUuid) {

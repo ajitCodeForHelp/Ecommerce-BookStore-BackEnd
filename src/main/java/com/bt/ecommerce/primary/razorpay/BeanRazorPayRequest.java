@@ -16,6 +16,14 @@ public class BeanRazorPayRequest {
         public String callback_method;
     }
 
+    @Data
+    public static class RazorPayRequestForOrderId {
+        public int amount;
+        public String currency;
+        public String receipt;
+        public boolean payment_capture;
+    }
+
 
     @Data
     public static class Customer {

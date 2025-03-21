@@ -22,7 +22,6 @@ public class BeanRazorPayResponse {
     }
 
     @Data
-
     public class Root {
         public boolean accept_partial;
         public int amount;
@@ -52,6 +51,14 @@ public class BeanRazorPayResponse {
         public boolean whatsapp_link;
     }
 
+
+    @Data
+    public class RootForOrderId {
+        public String id;
+        public int amount;
+        public String status;
+        public String receipt;
+    }
 
 }
 

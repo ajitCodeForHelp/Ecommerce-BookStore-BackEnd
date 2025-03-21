@@ -31,6 +31,7 @@ public class CouponCode extends _BasicEntity {
     private Integer maxUsePerUser;
     private Integer usedCount = 0;
     private Boolean referralCoupon = Boolean.FALSE;
+    private Boolean shippingCoupon = Boolean.FALSE;
 
     @Getter
     @Setter

@@ -63,4 +63,19 @@ public class EcommerceBean {
         private BasicParent taxDetails;
     }
 
+
+    @Getter
+    @Setter
+    public static class ContactAndSocial {
+        private String supportEmail;
+        private String supportContactNo;
+        private String companyAddress;
+        private String headerAlertLine;
+        private String facebookUrl;
+        private String twitterUrl;
+        private String youtubeUrl;
+        private String telegramUrl;
+        private String instagramUrl;
+    }
+
 }
