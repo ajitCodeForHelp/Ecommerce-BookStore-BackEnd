@@ -28,6 +28,16 @@ public class CustomerOrderController extends _BaseController {
     }
 
     @TranslateResponseMessage
+    @GetMapping("/getPaymentStatus/{paymentGatewayId}")
+    public ResponseEntity<ResponsePacket> getPaymentStatus(@PathVariable("paymentGatewayId") String paymentGatewayId) throws BadRequestException {
+        paymentTransactionService.getPaymentStatus(paymentGatewayId);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.payment_status")
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
     @GetMapping("/getOrderDetail/{orderId}")
     public ResponseEntity<ResponsePacket> getOrderDetail(@PathVariable(value = "orderId") String orderId) throws BadRequestException {
         return new ResponseEntity<>(ResponsePacket.builder()

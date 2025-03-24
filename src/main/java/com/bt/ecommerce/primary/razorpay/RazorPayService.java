@@ -7,6 +7,7 @@ import com.bt.ecommerce.primary.pojo.PaymentTransaction;
 import com.bt.ecommerce.primary.pojo.enums.PaymentGateWayEnum;
 import com.bt.ecommerce.primary.pojo.enums.PaymentGatewayStatusEnum;
 import com.bt.ecommerce.primary.pojo.user.Customer;
+import com.bt.ecommerce.primary.service.CartService;
 import com.bt.ecommerce.primary.service.PaymentTransactionService;
 import com.bt.ecommerce.primary.service._BaseService;
 import com.bt.ecommerce.security.JwtTokenUtil;
@@ -18,6 +19,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import jakarta.servlet.http.HttpServletRequest;
 import org.cloudinary.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -29,6 +31,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -40,6 +44,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 public class RazorPayService extends _BaseService {
@@ -64,6 +69,9 @@ public class RazorPayService extends _BaseService {
 
     @Autowired
     private PaymentTransactionService paymentTransactionService;
+
+    @Autowired
+    private CartService cartService;
     @Autowired
     private JwtTokenUtil jwtTokenUtil;
     @Autowired
@@ -74,7 +82,33 @@ public class RazorPayService extends _BaseService {
     private static final long EXPIRY_DURATION_MS = 10 * 60 * 1000; // 10 minutes
     private static final String CURRENCY = "INR";
 
-    public BeanRazorPayResponse.RootForOrderId createPayment(BeanRazorPayCustomerRequest customerRequest) throws BadRequestException {
+    public BeanRazorPayResponse.Root createPayment(BeanRazorPayCustomerRequest customerRequest) throws BadRequestException {
+        // Validate and fetch logged-in customer
+        Customer loggedInCustomer = (Customer) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+
+        // Generate Payment Transaction
+        PaymentTransaction paymentTransaction = paymentTransactionService.generatePaymentTransaction(
+                loggedInCustomer, customerRequest.getAmount(), PaymentGateWayEnum.RazorPay, customerRequest.getOrderId());
+
+        // Build RazorPay Request
+        BeanRazorPayRequest.RazorPayRequest requestObj = buildRazorPayRequest(customerRequest, loggedInCustomer, paymentTransaction);
+
+        // Call RazorPay API and fetch response
+        BeanRazorPayResponse.Root razorPayResponse = callRazorPayAPI(requestObj);
+
+        // Update Payment Transaction
+        paymentTransactionService.updatePaymentTransaction(
+                paymentTransaction.getPaymentTransactionRefId(),
+                PaymentGatewayStatusEnum.created,
+                requestObj.toString(),
+                razorPayResponse.toString(),
+                razorPayResponse);
+
+        return razorPayResponse;
+    }
+
+
+    public BeanRazorPayResponse.RootForOrderId createPaymentForOrderId(BeanRazorPayCustomerRequest customerRequest) throws BadRequestException {
         // Validate and fetch logged-in customer
         Customer loggedInCustomer = (Customer) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
 
@@ -86,10 +120,10 @@ public class RazorPayService extends _BaseService {
         BeanRazorPayRequest.RazorPayRequestForOrderId requestObj = buildRazorPayRequestForOrderId( customerRequest, loggedInCustomer, paymentTransaction);
 
         // Call RazorPay API and fetch response
-        BeanRazorPayResponse.RootForOrderId razorPayResponse = callRazorPayAPI(requestObj);
+        BeanRazorPayResponse.RootForOrderId razorPayResponse = callRazorPayAPIForOrderId(requestObj);
 
         // Update Payment Transaction
-        paymentTransactionService.updatePaymentTransaction(
+        paymentTransactionService.updatePaymentTransactionForOrderId(
                 paymentTransaction.getPaymentTransactionRefId(),
                 PaymentGatewayStatusEnum.created,
                 requestObj.toString(),
@@ -161,8 +195,6 @@ public class RazorPayService extends _BaseService {
     private BeanRazorPayRequest.RazorPayRequestForOrderId buildRazorPayRequestForOrderId(BeanRazorPayCustomerRequest customerRequest,
                                                                      Customer loggedInCustomer, PaymentTransaction paymentTransaction) {
         BeanRazorPayRequest.RazorPayRequestForOrderId requestObj = new BeanRazorPayRequest.RazorPayRequestForOrderId();
-        long currentTimeMillis = Instant.now().toEpochMilli();
-
         if(loggedInCustomer.getMobile().equalsIgnoreCase("8209165015"))
             requestObj.setAmount(2*100);
         else
@@ -173,10 +205,34 @@ public class RazorPayService extends _BaseService {
         return requestObj;
     }
 
+
+    private BeanRazorPayResponse.Root callRazorPayAPI(BeanRazorPayRequest.RazorPayRequest requestObj) {
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+
+        if (Const.SystemSetting.TestMode)
+            headers.setBasicAuth(razorPayUserNameTest, razorPayPasswordTest);
+        else {
+            headers.setBasicAuth(razorPayUserName, razorPayPassword);
+        }
+
+        HttpEntity<BeanRazorPayRequest.RazorPayRequest> entity = new HttpEntity<>(requestObj, headers);
+
+        try {
+            String responseBody = restTemplate.exchange(
+                    razorPayPaymentLinksUrl, HttpMethod.POST, entity, String.class).getBody();
+
+            return new Gson().fromJson(responseBody, new TypeToken<BeanRazorPayResponse.Root>() {
+            }.getType());
+        } catch (RestClientException e) {
+            throw new RuntimeException("Failed to connect to RazorPay API: " + e.getMessage(), e);
+        }
+    }
+
     /**
      * Call RazorPay API to create a payment link.
      */
-    private BeanRazorPayResponse.RootForOrderId callRazorPayAPI(BeanRazorPayRequest.RazorPayRequestForOrderId requestObj) {
+    private BeanRazorPayResponse.RootForOrderId callRazorPayAPIForOrderId(BeanRazorPayRequest.RazorPayRequestForOrderId requestObj) {
         HttpHeaders headers = new HttpHeaders();
         headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
 
@@ -200,7 +256,7 @@ public class RazorPayService extends _BaseService {
     }
 
 
-    public PaymentGatewayStatusEnum handleWebhook(String signature, String payload) throws JsonProcessingException, BadRequestException {
+    public PaymentGatewayStatusEnum handleWebhookOld(String signature, String payload) throws JsonProcessingException, BadRequestException {
 
         System.out.println(payload);
         ObjectMapper mapper = new ObjectMapper();
@@ -211,6 +267,12 @@ public class RazorPayService extends _BaseService {
         JsonNode paymentLink = jsonPayload.get("payload").get("payment_link").get("entity");
         JsonNode order = jsonPayload.get("payload").get("order").get("entity");
         String razorPayOrderId = order.get("order_id").asText();
+
+
+//        JSONObject order = webhookData.getJSONObject("payload").getJSONObject("order").getJSONObject("entity");
+//        String orderId = order.getString("id");
+//        int amount = order.getInt("amount");
+//        String currency = order.getString("currency");
 
         PaymentTransaction paymentTransaction = paymentTransactionRepository.findByPaymentTransactionRefId(razorPayOrderId);
         if (paymentTransaction == null) {
@@ -239,8 +301,6 @@ public class RazorPayService extends _BaseService {
                 break;
         }
         return statusEnum;
-
-
     }
 
     private PaymentGatewayStatusEnum processPaymentLinkCancelled(JsonNode paymentLink, String paymentGatewayRefId, String payload) throws BadRequestException {
@@ -453,7 +513,59 @@ public class RazorPayService extends _BaseService {
             e.printStackTrace();
         }
     }
+    String RAZORPAY_WEBHOOK_SECRET = "rzp_test_gSYLawQRB8O3IF";
+    public String handleWebhook(String razorpaySignature, String payload) {
+            try {
+                if (!verifySignature(payload, razorpaySignature, RAZORPAY_WEBHOOK_SECRET)) {
+                    return "Invalid signature";
+                }
+                String status = "";
+                // Parse the JSON payload
+                JSONObject webhookData = new JSONObject(payload);
+                String event = webhookData.getString("event");
 
+                // Handle "order.created" event
+                if ("payment.captured".equals(event)) {
+                    JSONObject order = webhookData.getJSONObject("payload").getJSONObject("order").getJSONObject("entity");
+                    String razorderId = order.getString("id");
+                    PaymentTransaction paymentTransaction=  paymentTransactionService.updatePaymentTransactionWebhookAndStatus(razorderId, payload, PaymentGatewayStatusEnum.paid);
+                    String orderID =  cartService.placeOrderWebHook(paymentTransaction.getOrderId());
+                    paymentTransaction.setOrderId(orderID);
+                    paymentTransactionService.updateOrderIdAfterPlaceOrder(razorderId, orderID);
+                    status = "paid";
+                }
+                if ("payment.failed".equals(event)) {
+                    JSONObject order = webhookData.getJSONObject("payload").getJSONObject("order").getJSONObject("entity");
+                    String razorderId = order.getString("id");
+                    paymentTransactionService.updatePaymentTransactionWebhookAndStatus(razorderId, payload, PaymentGatewayStatusEnum.failed);
+                    status = "failed";
+                }
+                if ("payment.authorized".equals(event)) {
+                    JSONObject order = webhookData.getJSONObject("payload").getJSONObject("order").getJSONObject("entity");
+                    String razorderId = order.getString("id");
+                    paymentTransactionService.updatePaymentTransactionWebhookAndStatus(razorderId, payload, PaymentGatewayStatusEnum.authorized);
+                    status = "authorized";
+                }
+                return status;
+            } catch (Exception e) {
+                e.printStackTrace();
+                return "Error processing webhook";
+            }
+        }
+
+        private boolean verifySignature(String payload, String razorpaySignature, String secret) {
+            try {
+                Mac sha256_HMAC = Mac.getInstance("HmacSHA256");
+                SecretKeySpec secret_key = new SecretKeySpec(secret.getBytes(), "HmacSHA256");
+                sha256_HMAC.init(secret_key);
+                byte[] hash = sha256_HMAC.doFinal(payload.getBytes());
+                String generatedSignature = Base64.getEncoder().encodeToString(hash);
+                return generatedSignature.equals(razorpaySignature);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return false;
+            }
+        }
 
 }
 

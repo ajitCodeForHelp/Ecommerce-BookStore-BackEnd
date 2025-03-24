@@ -12,6 +12,7 @@ public enum PaymentGatewayStatusEnum {
     RefundPending("RefundPending"),
     RefundFailed("RefundFailed"),
 
+    authorized("authorized"),
     ;
     String type;
 

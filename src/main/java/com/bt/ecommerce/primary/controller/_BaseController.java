@@ -34,4 +34,7 @@ public class _BaseController {
     @Autowired protected OrderHistoryService orderHistoryService;
     @Autowired protected CourierPartnerService courierPartnerService;
 
+    @Autowired protected PaymentTransactionService paymentTransactionService;
+
+
 }

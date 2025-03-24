@@ -401,6 +401,70 @@ public class CartService extends _BaseService {
         return order.getOrderId();
     }
 
+
+    public String placeOrderWebHook(String cartUuid) throws BadRequestException {
+        // TODO > InOrder To Place Order You Need To Login > Then Update > Customer Details Into It.
+        Customer loggedInCustomer = (Customer) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        Cart cart = cartRepository.findByUuid(cartUuid);
+        if (cart == null) {
+            throw new BadRequestException("There is no valid cart");
+        }
+        if (TextUtils.isEmpty(cart.getItemDetailList())) {
+            throw new BadRequestException("there is no valid item in your cart");
+        }
+        if(cart.getCustomerId() == null){
+            cart.setCustomerId(loggedInCustomer.getId());
+            cart.setCustomerDetail(new Cart.CustomerRefDetail(
+                    loggedInCustomer.getUuid(), loggedInCustomer.getFirstName(),
+                    loggedInCustomer.getLastName(), loggedInCustomer.getIsdCode(),
+                    loggedInCustomer.getMobile(),loggedInCustomer.getEmail()));
+        }
+        cart = cartPriceCalculation(cart);
+        Order order = CartMapper.MAPPER.mapToOrder(cart);
+        order.setCreatedAt(LocalDateTime.now());
+        order.setModifiedAt(LocalDateTime.now());
+            order.setPaymentStatus(PaymentStatusEnum.PAID);
+            order.setPaymentType(PaymentTypeEnum.ONLINE);
+        // Generate > invoice number | order number
+        order.setInvoiceNumber(SpringBeanContext.getBean(SequenceRepository.class).getNextSequenceId(Order.class.getSimpleName()));
+        order.setOrderId(TextUtils.getOrderReferenceId(order.getInvoiceNumber()));
+        order = SpringBeanContext.getBean(OrderService.class).updateOrderStatusLog(order, order.getOrderStatus());
+
+        if(order.getCouponCodeId()!=null){
+            CouponCode couponCode = couponCodeRepository.findById(order.getCouponCodeId()).get();
+            couponCode.setUsedCount(couponCode.getUsedCount()+1);
+            couponCodeRepository.save(couponCode);
+        }
+        orderRepository.save(order);
+
+        // clear the cart
+        clearCart(cart.getUuid());
+
+        // Send Notification To Admin for order Alert
+        SystemUser notifyAdmin =  systemUserRepository.findFirstByUsername("admin@admin.com");
+        FcmNotificationBean.Notification notification = new FcmNotificationBean.Notification("New Order Received" , "New Order Total of " + order.getOrderTotal() +  " with " + order.getItemDetailList().size() + " Items");
+        FcmNotificationBean.Data data = new FcmNotificationBean.Data("New Order Received" , "New Order Total of " + order.getOrderTotal() + " Rs for " + order.getItemDetailList().size() + " Items" , "" , new Date().toString(),"Order" ,order.getOrderId() , order.getOrderStatus().toString());
+        fcmComponent.sendNotificationToUser(notifyAdmin.getDeviceType() , notifyAdmin.getFcmDeviceToken(),notification,data);
+//        fcmComponent.sendNotificationToUser("android" , "eF_QyjMiR960jTDBqIITN3:APA91bGbhEBYhqELw63NbjdvFeo7cuq2aQocl25H_m0zoTxMaDnAXulqQ2OgQk1jErAtl82l-2_TAKLP9Ijq2d7F1zDtAGkosC-caOpSEmLS0WNSq_GBpQE",notification,data);
+
+        // Send SMS to Customer
+        String orderPlaceMsg = "Greetings from The Books 24! Your order " + order.getOrderId() + " is confirmed. " +
+                "We will provide you tracking ID shortly via message or email. Thank you for choosing us! " +
+                "Have a great day. Best regards, Team The Books 24";
+        smsComponent.sendSMSByMakeMySms(order.getCustomerDetail().getUserCustomerMobile(),orderPlaceMsg,"1707173676050498074");
+
+
+        // Send Email To Customer for order Alert
+//        if(order.getCustomerDetail().getUserCustomerEmail()!=null) {
+//        String mailBody = "htmlContent";
+////            emailComponent.sendEmailUsingGmail(order.getCustomerAddressDetail().getEmail(), "Order Confirmation", mailBody);
+//        emailComponent.sendEmailUsingGmail("ajitsinghrathore1999@gmail.com", "Order Confirmation", mailBody);
+//        }
+
+        //
+        return order.getOrderId();
+    }
+
     public long getCartCount() {
         return cartRepository.count();
     }

@@ -43,7 +43,25 @@ public class PaymentTransactionService extends _BaseService {
     }
 
 
-    public PaymentTransaction updatePaymentTransaction(String paymentTransactionRefId, PaymentGatewayStatusEnum paymentGatewayStatusEnum, String paymentRequestData, String paymentResponseData, BeanRazorPayResponse.RootForOrderId razorPayResponse) throws BadRequestException {
+    public PaymentTransaction updatePaymentTransaction(String paymentTransactionRefId, PaymentGatewayStatusEnum paymentGatewayStatusEnum, String paymentRequestData, String paymentResponseData, BeanRazorPayResponse.Root razorPayResponse) throws BadRequestException {
+
+        PaymentTransaction paymentTransaction = paymentTransactionRepository.findByPaymentTransactionRefId(paymentTransactionRefId);
+        if (paymentTransaction == null) {
+            throw new BadRequestException(paymentTransactionRefId + " not found");
+        }
+        paymentTransaction.setPaymentStatus(paymentGatewayStatusEnum);
+        paymentTransaction.setPaymentRequestData(paymentRequestData);
+        paymentTransaction.setPaymentResponseData(paymentResponseData);
+        paymentTransaction.setPaymentGatewayRefId(razorPayResponse.getId());
+        //i think no needed....
+        paymentTransaction.setPaymentCaptured(Boolean.FALSE);
+
+        paymentTransaction.setAmount((double) razorPayResponse.getAmount());
+        paymentTransactionRepository.save(paymentTransaction);
+        return paymentTransaction;
+    }
+
+    public PaymentTransaction updatePaymentTransactionForOrderId(String paymentTransactionRefId, PaymentGatewayStatusEnum paymentGatewayStatusEnum, String paymentRequestData, String paymentResponseData, BeanRazorPayResponse.RootForOrderId razorPayResponse) throws BadRequestException {
 
         PaymentTransaction paymentTransaction = paymentTransactionRepository.findByPaymentTransactionRefId(paymentTransactionRefId);
         if (paymentTransaction == null) {
@@ -72,6 +90,24 @@ public class PaymentTransactionService extends _BaseService {
         paymentTransaction.setPaymentCaptured(Boolean.TRUE);
         paymentTransactionRepository.save(paymentTransaction);
         return paymentTransaction;
+    }
+
+    public PaymentTransaction updateOrderIdAfterPlaceOrder(String paymentGatewayRefId,String orderId) throws BadRequestException {
+
+        PaymentTransaction paymentTransaction = paymentTransactionRepository.findByPaymentGatewayRefId(paymentGatewayRefId);
+        if (paymentTransaction == null) {
+            throw new BadRequestException(paymentGatewayRefId + " not found");
+        }
+        paymentTransaction.setOrderId(orderId);
+        paymentTransactionRepository.save(paymentTransaction);
+        return paymentTransaction;
+    }
+
+
+    public String getPaymentStatus(String paymentGatewayRefId) throws BadRequestException {
+        String orderStatus = "";
+        PaymentTransaction paymentTransaction = paymentTransactionRepository.findByPaymentGatewayRefId(paymentGatewayRefId);
+            return paymentTransaction.getPaymentStatus().toString();
     }
     public String updatePaymentStatusByPaymentGatewayId(String paymentGatewayRefId, PaymentGatewayStatusEnum paymentGatewayStatusEnum,String paymentResponseData) throws BadRequestException {
 

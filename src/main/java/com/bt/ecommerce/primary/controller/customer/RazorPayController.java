@@ -5,6 +5,7 @@ import com.bt.ecommerce.primary.pojo.enums.PaymentGatewayStatusEnum;
 import com.bt.ecommerce.primary.razorpay.BeanRazorPayCustomerRequest;
 import com.bt.ecommerce.primary.razorpay.BeanRazorPayUpdateStatus;
 import com.bt.ecommerce.primary.razorpay.RazorPayService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,7 +27,7 @@ public class RazorPayController {
         ResponsePacket responsePacket;
         try {
 
-            responsePacket = new ResponsePacket<>(0, "payment Created", razorPayService.createPayment( requestPacket));
+            responsePacket = new ResponsePacket<>(0, "payment Created", razorPayService.createPaymentForOrderId( requestPacket));
         } catch (Exception e) {
             responsePacket = new ResponsePacket<>(1, e.getMessage(), null);
         }
@@ -35,12 +36,11 @@ public class RazorPayController {
 
     @PostMapping(value = "/webHookTransaction")
     public ResponseEntity<ResponsePacket> handleWebhook(
-            @RequestHeader("X-Razorpay-Signature") String signature,
-            @RequestBody String payload) {
+            @RequestHeader("X-Razorpay-Signature") String signature,@RequestBody String payload) {
         logger.info("RazorPayController.webHookTransaction");
         ResponsePacket responsePacket;
         try {
-            PaymentGatewayStatusEnum responseStatus = razorPayService.handleWebhook(signature, payload);
+            String responseStatus = razorPayService.handleWebhook(signature,payload);
             responsePacket = new ResponsePacket<>(0, "webHook-Transaction Created", responseStatus);
         } catch (Exception e) {
             responsePacket = new ResponsePacket<>(1, e.getMessage(), null);
