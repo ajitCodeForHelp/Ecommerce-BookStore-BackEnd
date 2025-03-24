@@ -30,10 +30,10 @@ public class CustomerOrderController extends _BaseController {
     @TranslateResponseMessage
     @GetMapping("/getPaymentStatus/{paymentGatewayId}")
     public ResponseEntity<ResponsePacket> getPaymentStatus(@PathVariable("paymentGatewayId") String paymentGatewayId) throws BadRequestException {
-        paymentTransactionService.getPaymentStatus(paymentGatewayId);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.payment_status")
+                .responsePacket(paymentTransactionService.getPaymentStatus(paymentGatewayId))
                 .build(), HttpStatus.OK);
     }
 
