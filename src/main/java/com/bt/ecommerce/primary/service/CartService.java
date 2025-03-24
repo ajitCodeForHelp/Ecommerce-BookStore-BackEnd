@@ -45,9 +45,6 @@ public class CartService extends _BaseService {
     private EmailComponent emailComponent;
 
     @Autowired
-    RazorPayService razorPayService;
-
-    @Autowired
     SmsComponent smsComponent;
 
     public CartDto.DetailCart getCartDetail(String authorizationToken, String deviceId) throws BadRequestException {
