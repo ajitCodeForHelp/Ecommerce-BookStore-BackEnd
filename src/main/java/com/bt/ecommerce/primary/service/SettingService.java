@@ -104,6 +104,8 @@ public class SettingService extends _BaseService {
             }
             if (SettingEnum.getStringSettingsKey().contains(setting.getSettingKey())) {
                 updateSetting.setSettingValue(setting.getSettingValue());
+                SpringBeanContext.getBean(Const.class).refreshSystemSetting();
+
             }
             // Delivery Charges >
             if (setting.getSettingKey().equals(SettingEnum.DeliveryChargeJson)) {
