@@ -37,8 +37,16 @@ public class EcommerceService extends _BaseService {
 
     public EcommerceBean.ContactAndSocial contactAndSocialDetail() {
         EcommerceBean.ContactAndSocial contactAndSocial = new EcommerceBean.ContactAndSocial();
-//        contactAndSocial.setSupportContactNo(Const.SystemSetting.);
-        return null;
+        contactAndSocial.setSupportEmail(Const.SystemSetting.SupportEmail);
+        contactAndSocial.setSupportContactNo(Const.SystemSetting.SupportContactNo);
+        contactAndSocial.setCompanyAddress(Const.SystemSetting.companyAddress);
+        contactAndSocial.setHeaderAlertLine(Const.SystemSetting.HeaderAlertLine);
+        contactAndSocial.setInstagramUrl(Const.SystemSetting.instagramUrl);
+        contactAndSocial.setFacebookUrl(Const.SystemSetting.facebookUrl);
+        contactAndSocial.setYoutubeUrl(Const.SystemSetting.youtubeUrl);
+        contactAndSocial.setTwitterUrl(Const.SystemSetting.twitterUrl);
+        contactAndSocial.setTelegramUrl(Const.SystemSetting.telegramUrl);
+        return contactAndSocial;
     }
 
 

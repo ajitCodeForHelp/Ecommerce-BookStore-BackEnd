@@ -17,6 +17,7 @@ import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.primary.razorpay.RazorPayService;
 import com.bt.ecommerce.security.JwtUserDetailsService;
 import com.bt.ecommerce.utils.TextUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -186,7 +187,7 @@ public class OrderService extends _BaseService {
         return customerOrderDtoList;
     }
 
-    public void cancelOrder(String orderId, OrderDto.CancelOrder cancelOrder) throws BadRequestException {
+    public void cancelOrder(String orderId, OrderDto.CancelOrder cancelOrder) throws BadRequestException, JsonProcessingException {
         Order order = orderRepository.findByOrderId(orderId);
         if (order == null) {
             OrderHistory orderHistory = orderHistoryRepository.findByOrderId(orderId);

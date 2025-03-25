@@ -29,8 +29,12 @@ public enum SettingEnum {
     // DeliveryCharges Json >
     DeliveryChargeJson("DeliveryChargeJson"),
 
-    CashOnDelivery("CashOnDelivery");
-
+    CashOnDelivery("CashOnDelivery"),
+    FacebookUrl("facebookUrl"),
+    TwitterUrl("TwitterUrl"),
+    YoutubeUrl("YoutubeUrl"),
+    TelegramUrl ("TelegramUrl"),
+    InstagramUrl("InstagramUrl");
     String type;
 
     SettingEnum(String type) {
@@ -68,6 +72,11 @@ public enum SettingEnum {
         settingList.add(SupportEmail);
         settingList.add(CompanyAddress);
         settingList.add(HeaderAlertLine);
+        settingList.add(FacebookUrl);
+        settingList.add(InstagramUrl);
+        settingList.add(TelegramUrl);
+        settingList.add(YoutubeUrl);
+        settingList.add(YoutubeUrl);
         return settingList;
     }
 

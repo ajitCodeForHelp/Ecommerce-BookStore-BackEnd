@@ -7,6 +7,7 @@ import com.bt.ecommerce.primary.controller._BaseController;
 import com.bt.ecommerce.primary.dto.OrderDto;
 import com.bt.ecommerce.primary.dto.OrderDto.UpdateOrdersTrackingIds;
 import com.bt.ecommerce.primary.pojo.enums.OrderStatusEnum;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -142,7 +143,7 @@ public class AdminOrderController extends _BaseController {
 
     @TranslateResponseMessage
     @PostMapping("/cancelOrder/{orderId}")
-    public ResponseEntity<ResponsePacket> cancelOrder(@PathVariable(value = "orderId") String orderId ,@RequestBody OrderDto.CancelOrder cancelOrder) throws BadRequestException {
+    public ResponseEntity<ResponsePacket> cancelOrder(@PathVariable(value = "orderId") String orderId ,@RequestBody OrderDto.CancelOrder cancelOrder) throws BadRequestException, JsonProcessingException {
         orderService.cancelOrder(orderId,cancelOrder);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)

@@ -34,6 +34,20 @@ public class RazorPayController {
         return new ResponseEntity<>(responsePacket, HttpStatus.OK);
     }
 
+    @PostMapping(value = "/createPaymentByOrderId")
+    public @ResponseBody
+    ResponseEntity<ResponsePacket> createPaymentByOrderId( @RequestBody BeanRazorPayCustomerRequest requestPacket) {
+        logger.info("RazorPayController.createPaymentByOrderId");
+        ResponsePacket responsePacket;
+        try {
+
+            responsePacket = new ResponsePacket<>(0, "payment Created", razorPayService.createPaymentForOrderId( requestPacket));
+        } catch (Exception e) {
+            responsePacket = new ResponsePacket<>(1, e.getMessage(), null);
+        }
+        return new ResponseEntity<>(responsePacket, HttpStatus.OK);
+    }
+
     @PostMapping(value = "/webHookTransaction")
     public ResponseEntity<ResponsePacket> handleWebhook(
             @RequestHeader("X-Razorpay-Signature") String signature,@RequestBody String payload) {

@@ -40,7 +40,14 @@ public class Const {
         SystemSetting.SupportEmail = settingService.getSettingValueByKey(SettingEnum.SupportEmail);
         SystemSetting.HeaderAlertLine = settingService.getSettingValueByKey(SettingEnum.HeaderAlertLine);
         SystemSetting.CashOnDelivery = settingService.getSettingValueByKey(SettingEnum.CashOnDelivery).equalsIgnoreCase("1");
-
+        SystemSetting.SupportContactNo = settingService.getSettingValueByKey(SettingEnum.SupportContactNo);
+        SystemSetting.companyAddress = settingService.getSettingValueByKey(SettingEnum.CompanyAddress);
+        SystemSetting.HeaderAlertLine = settingService.getSettingValueByKey(SettingEnum.HeaderAlertLine);
+        SystemSetting.facebookUrl = settingService.getSettingValueByKey(SettingEnum.FacebookUrl);
+        SystemSetting.twitterUrl = settingService.getSettingValueByKey(SettingEnum.TwitterUrl);
+        SystemSetting.youtubeUrl = settingService.getSettingValueByKey(SettingEnum.YoutubeUrl);
+        SystemSetting.telegramUrl = settingService.getSettingValueByKey(SettingEnum.TelegramUrl);
+        SystemSetting.instagramUrl = settingService.getSettingValueByKey(SettingEnum.InstagramUrl);
 //        refreshPrivatePublicKey();
     }
 
@@ -92,8 +99,16 @@ public class Const {
         public static String CurrencySymbol;
         public static String CurrencyCode;
         public static String SupportEmail;
-        private static String HeaderAlertLine;
+        public static String SupportContactNo;
+
+        public static String companyAddress;
+        public static String HeaderAlertLine;
         public static boolean CashOnDelivery;
+        public static String facebookUrl;
+        public static String twitterUrl;
+        public static String youtubeUrl;
+        public static String telegramUrl;
+        public static String instagramUrl;
 
     }
 

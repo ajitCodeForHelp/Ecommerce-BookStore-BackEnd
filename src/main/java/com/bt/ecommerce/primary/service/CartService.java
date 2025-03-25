@@ -401,7 +401,7 @@ public class CartService extends _BaseService {
 
     public String placeOrderWebHook(String cartUuid) throws BadRequestException {
         // TODO > InOrder To Place Order You Need To Login > Then Update > Customer Details Into It.
-        Customer loggedInCustomer = (Customer) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+//        Customer loggedInCustomer = (Customer) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
         Cart cart = cartRepository.findByUuid(cartUuid);
         if (cart == null) {
             throw new BadRequestException("There is no valid cart");
@@ -409,13 +409,13 @@ public class CartService extends _BaseService {
         if (TextUtils.isEmpty(cart.getItemDetailList())) {
             throw new BadRequestException("there is no valid item in your cart");
         }
-        if(cart.getCustomerId() == null){
-            cart.setCustomerId(loggedInCustomer.getId());
-            cart.setCustomerDetail(new Cart.CustomerRefDetail(
-                    loggedInCustomer.getUuid(), loggedInCustomer.getFirstName(),
-                    loggedInCustomer.getLastName(), loggedInCustomer.getIsdCode(),
-                    loggedInCustomer.getMobile(),loggedInCustomer.getEmail()));
-        }
+//        if(cart.getCustomerId() == null){
+//            cart.setCustomerId(loggedInCustomer.getId());
+//            cart.setCustomerDetail(new Cart.CustomerRefDetail(
+//                    loggedInCustomer.getUuid(), loggedInCustomer.getFirstName(),
+//                    loggedInCustomer.getLastName(), loggedInCustomer.getIsdCode(),
+//                    loggedInCustomer.getMobile(),loggedInCustomer.getEmail()));
+//        }
         cart = cartPriceCalculation(cart);
         Order order = CartMapper.MAPPER.mapToOrder(cart);
         order.setCreatedAt(LocalDateTime.now());

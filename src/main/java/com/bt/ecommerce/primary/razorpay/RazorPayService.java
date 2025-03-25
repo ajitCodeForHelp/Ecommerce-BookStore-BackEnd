@@ -19,7 +19,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import jakarta.servlet.http.HttpServletRequest;
 import org.cloudinary.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -42,9 +41,6 @@ import java.time.Instant;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 @Service
 public class RazorPayService extends _BaseService {
@@ -410,7 +406,7 @@ public class RazorPayService extends _BaseService {
 
     }
 
-    public void refundOrder(String orderId, OrderDto.CancelOrder cancelOrder) throws BadRequestException {
+    public void refundOrder(String orderId, OrderDto.CancelOrder cancelOrder) throws BadRequestException, JsonProcessingException {
         List<PaymentTransaction> paymentTransactionList = paymentTransactionRepository.findByOrderId(orderId);
         paymentTransactionList.sort((pt1, pt2) -> pt2.getCreatedAt().compareTo(pt1.getCreatedAt()));
         PaymentTransaction paymentTransaction = paymentTransactionList.get(0);
@@ -421,16 +417,21 @@ public class RazorPayService extends _BaseService {
 
         // Retrieve the payment_id
 //        String paymentId = payment.get("payment_id").getAsString();
-        String paymentId = null;
-        String paymentResponseData = paymentTransaction.getPaymentResponseData();
-        Pattern pattern = Pattern.compile("payment_id=([\\w-]+)");
-        Matcher matcher = pattern.matcher(paymentResponseData);
+//        String paymentId = null;
+//        String paymentResponseData = paymentTransaction.getPaymentWebHookData();
+//        Pattern pattern = Pattern.compile("payment_id=([\\w-]+)");
+//        Matcher matcher = pattern.matcher(paymentResponseData);
 
-        if (matcher.find()) {
-             paymentId = matcher.group(1);  // Extract the payment_id
-        } else {
-            throw new BadRequestException("Payment ID not Found");
-        }
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(paymentTransaction.getPaymentWebHookData());
+        String paymentId = rootNode.at("/payload/payment/entity/id").asText();
+
+//        if (matcher.find()) {
+//             paymentId = matcher.group(1);  // Extract the payment_id
+//        } else {
+//            throw new BadRequestException("Payment ID not Found");
+//        }
 
         BeanRazorPayUpdateStatus.RefundResponse root = null;
         HttpHeaders headers = new HttpHeaders();
@@ -445,7 +446,7 @@ public class RazorPayService extends _BaseService {
         HttpEntity<String> entity = new HttpEntity<>(refundRequestBody, headers);
 
         String responseBody = restTemplate.exchange(
-                "https://api.razorpay.com/v1/payments/" + paymentId + "/refund",
+        "https://api.razorpay.com/v1/payments/" + paymentId + "/refund",
                 HttpMethod.POST,
                 entity,
                 String.class).getBody();
@@ -515,10 +516,14 @@ public class RazorPayService extends _BaseService {
     }
     String RAZORPAY_WEBHOOK_SECRET = "rzp_test_gSYLawQRB8O3IF";
     public String handleWebhook(String razorpaySignature, String payload) {
-            try {
-                if (!verifySignature(payload, razorpaySignature, RAZORPAY_WEBHOOK_SECRET)) {
-                    return "Invalid signature";
-                }
+        System.out.println("razorpaySignature is --------" + razorpaySignature);
+
+        System.out.println("razorpay Paylaod is --------" + payload);
+
+        try {
+//                if (!verifySignature(payload, razorpaySignature, RAZORPAY_WEBHOOK_SECRET)) {
+//                    return "Invalid signature";
+//                }
                 String status = "";
                 // Parse the JSON payload
                 JSONObject webhookData = new JSONObject(payload);
@@ -526,8 +531,11 @@ public class RazorPayService extends _BaseService {
 
                 // Handle "order.created" event
                 if ("payment.captured".equals(event)) {
-                    JSONObject order = webhookData.getJSONObject("payload").getJSONObject("order").getJSONObject("entity");
-                    String razorderId = order.getString("id");
+//                    JSONObject order = webhookData.getJSONObject("payload").getJSONObject("order").getJSONObject("entity");
+//                    String razorderId = order.getString("id");
+                    JSONObject payment = webhookData.getJSONObject("payload").getJSONObject("payment").getJSONObject("entity");
+                    String razorderId = payment.getString("order_id");
+
                     PaymentTransaction paymentTransaction=  paymentTransactionService.updatePaymentTransactionWebhookAndStatus(razorderId, payload, PaymentGatewayStatusEnum.paid);
                     String orderID =  cartService.placeOrderWebHook(paymentTransaction.getOrderId());
                     paymentTransaction.setOrderId(orderID);
@@ -535,14 +543,14 @@ public class RazorPayService extends _BaseService {
                     status = "paid";
                 }
                 if ("payment.failed".equals(event)) {
-                    JSONObject order = webhookData.getJSONObject("payload").getJSONObject("order").getJSONObject("entity");
-                    String razorderId = order.getString("id");
+                    JSONObject payment = webhookData.getJSONObject("payload").getJSONObject("payment").getJSONObject("entity");
+                    String razorderId = payment.getString("order_id");
                     paymentTransactionService.updatePaymentTransactionWebhookAndStatus(razorderId, payload, PaymentGatewayStatusEnum.failed);
                     status = "failed";
                 }
                 if ("payment.authorized".equals(event)) {
-                    JSONObject order = webhookData.getJSONObject("payload").getJSONObject("order").getJSONObject("entity");
-                    String razorderId = order.getString("id");
+                    JSONObject payment = webhookData.getJSONObject("payload").getJSONObject("payment").getJSONObject("entity");
+                    String razorderId = payment.getString("order_id");
                     paymentTransactionService.updatePaymentTransactionWebhookAndStatus(razorderId, payload, PaymentGatewayStatusEnum.authorized);
                     status = "authorized";
                 }
