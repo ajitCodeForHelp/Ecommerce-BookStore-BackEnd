@@ -93,7 +93,6 @@ public class SettingService extends _BaseService {
 
             if (SettingEnum.getToggleSettingsKey().contains(setting.getSettingKey())) {
                 updateSetting.setSettingValue(setting.getSettingValue().equals("1") ? "1" : "0");
-                SpringBeanContext.getBean(Const.class).refreshSystemSetting();
             }
             if (SettingEnum.getFloatSettingsKey().contains(setting.getSettingKey())) {
                 try {
@@ -104,8 +103,6 @@ public class SettingService extends _BaseService {
             }
             if (SettingEnum.getStringSettingsKey().contains(setting.getSettingKey())) {
                 updateSetting.setSettingValue(setting.getSettingValue());
-                SpringBeanContext.getBean(Const.class).refreshSystemSetting();
-
             }
             // Delivery Charges >
             if (setting.getSettingKey().equals(SettingEnum.DeliveryChargeJson)) {
@@ -118,6 +115,7 @@ public class SettingService extends _BaseService {
             settingsToUpdate.add(updateSetting);
         }
         settingRepository.saveAll(settingsToUpdate);
+        SpringBeanContext.getBean(Const.class).refreshSystemSetting();
     }
     public double getBaseChargesValue(SettingEnum settingEnum) {
         if (!SettingEnum.getChargesList().contains(settingEnum)) {

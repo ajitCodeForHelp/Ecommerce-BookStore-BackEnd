@@ -20,7 +20,7 @@ public class BannerDto extends AbstractDto{
         private BannerTypeEnum bannerTypeEnum;
         private String bannerImageUrl;
         private String onclickRedirectUrl;
-
+        private String bannerVideoUrl;
     }
 
     @Getter
@@ -30,6 +30,7 @@ public class BannerDto extends AbstractDto{
         private String bannerImageUrl;
         private BannerTypeEnum bannerTypeEnum;
         private String onclickRedirectUrl;
+        private String bannerVideoUrl;
 
     }
     @Setter
@@ -44,6 +45,7 @@ public class BannerDto extends AbstractDto{
         private BannerTypeEnum bannerTypeEnum;
         private String bannerImageUrl;
         private String onclickRedirectUrl;
+        private String bannerVideoUrl;
 
     }
 

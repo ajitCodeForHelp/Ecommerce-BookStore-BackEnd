@@ -15,4 +15,6 @@ public class Banner extends _BasicEntity {
     private String description;
     private BannerTypeEnum bannerTypeEnum;
     private String onclickRedirectUrl;
+    private String bannerVideoUrl;
+
 }
