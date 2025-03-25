@@ -95,6 +95,8 @@ public class ItemDto extends AbstractDto{
         private Boolean stockOut;
         private BasicParent publisherDetails;
         private BasicParent taxDetails;
+        private String itemCode;
+
     }
 
 

@@ -11,6 +11,7 @@ import com.bt.ecommerce.primary.dto.OrderDto;
 import com.bt.ecommerce.primary.mapper.AddressMapper;
 import com.bt.ecommerce.primary.mapper.CartMapper;
 import com.bt.ecommerce.primary.mapper.ItemMapper;
+import com.bt.ecommerce.primary.mapper.OrderMapper;
 import com.bt.ecommerce.primary.pojo.*;
 import com.bt.ecommerce.primary.pojo.enums.DiscountTypeEnum;
 import com.bt.ecommerce.primary.pojo.enums.PaymentStatusEnum;
@@ -27,6 +28,7 @@ import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -34,6 +36,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -468,14 +471,18 @@ public class CartService extends _BaseService {
 
 
     public List<CartDto.DetailCart> getCartList() throws BadRequestException {
-        List<Cart> cartList = cartRepository.findAll();
-        List<CartDto.DetailCart> detailCartList = new ArrayList<>();
-        for (Cart cart : cartList) {
-            // Skip The Empty Cart
-            if(TextUtils.isEmpty(cart.getItemDetailList())) continue;
-            detailCartList.add(CartMapper.MAPPER.mapToDetailCartDto(cart));
-        }
-        return detailCartList;
+//        List<Cart> cartList = cartRepository.findAll();
+        List<Cart> cartList = cartRepository.findAll(Sort.by(Sort.Order.desc("createdAt")));
+        return cartList.stream()
+                .map(cart -> CartMapper.MAPPER.mapToDetailCartDto(cart))
+                .collect(Collectors.toList());
+//        List<CartDto.DetailCart> detailCartList = new ArrayList<>();
+//        for (Cart cart : cartList) {
+//            // Skip The Empty Cart
+//            if(TextUtils.isEmpty(cart.getItemDetailList())) continue;
+//            detailCartList.add(CartMapper.MAPPER.mapToDetailCartDto(cart));
+//        }
+//        return detailCartList;
     }
 
     public CartDto.CartItemCount getCartItemCount(String cartUuid) {

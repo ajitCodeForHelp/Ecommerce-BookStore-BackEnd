@@ -61,6 +61,8 @@ public class EcommerceBean {
         private Boolean stockOut;
         private BasicParent publisherDetails;
         private BasicParent taxDetails;
+        private String itemCode;
+
     }
 
 
