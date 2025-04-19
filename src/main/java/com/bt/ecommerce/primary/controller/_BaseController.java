@@ -33,8 +33,8 @@ public class _BaseController {
     @Autowired protected TaxService taxService;
     @Autowired protected OrderHistoryService orderHistoryService;
     @Autowired protected CourierPartnerService courierPartnerService;
-
     @Autowired protected PaymentTransactionService paymentTransactionService;
+    @Autowired protected DashboardService dashboardService;
 
 
 }
