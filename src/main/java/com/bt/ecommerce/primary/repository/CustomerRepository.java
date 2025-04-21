@@ -5,7 +5,9 @@ import org.bson.types.ObjectId;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.mongodb.repository.MongoRepository;
+import org.springframework.data.mongodb.repository.Query;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 public interface CustomerRepository extends MongoRepository<Customer, ObjectId> {
@@ -29,5 +31,8 @@ public interface CustomerRepository extends MongoRepository<Customer, ObjectId> 
     List<Customer> findByDeleted(boolean deleted);
 
     Customer findFirstByIsdCodeAndMobile(String isdCode, String mobile);
+
+    @Query(value = "{ 'createdAt': { '$gte': ?0, '$lte': ?1 } }", count = true)
+    Integer countCustomersByCreatedAt(LocalDateTime start, LocalDateTime end);
 
 }

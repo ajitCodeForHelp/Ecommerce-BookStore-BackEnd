@@ -8,6 +8,7 @@ import com.bt.ecommerce.primary.pojo.enums.OrderStatusEnum;
 import com.bt.ecommerce.utils.DateUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
+import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -184,7 +185,6 @@ public class DashboardService extends _BaseService {
         long othersTotalQuantity = sortedList.subList(limit, sortedList.size()).stream()
                 .mapToLong(DashboardDto.ItemSalesReport::getItemQuantity)
                 .sum();
-
         DashboardDto.ItemSalesReport others = new DashboardDto.ItemSalesReport();
         others.setItemId("others");
         others.setItemTitle("Others");
@@ -194,5 +194,43 @@ public class DashboardService extends _BaseService {
         top.add(others);
         return top;
     }
+
+    public DashboardDto.DashboardOrderAndSalesStats dashboardSalesAndOrderStats(Long startTimeStamp, Long endTimeStamp) throws BadRequestException {
+        DashboardDto.DashboardOrderAndSalesStats dashboardOrderAndSalesStats = new DashboardDto.DashboardOrderAndSalesStats();
+        LocalDate date = DateUtils.getLocalDate(startTimeStamp);
+        LocalDateTime startDate = date.atStartOfDay();
+        LocalDateTime endDate = DateUtils.getLocalDateTime(endTimeStamp);
+
+        dashboardOrderAndSalesStats.setTotalCart(cartRepository.countCartsWithOrderTotalGreaterThanZero(startDate, endDate));
+
+        DashboardDto.OrderReport totalLiveOrderAndSale = orderRepository.getOrderStatsBetween(startDate, endDate);
+        DashboardDto.OrderReport totalHistoryOrderAndSale = orderHistoryRepository.getOrderStatsBetween(startDate, endDate);
+
+        if (totalLiveOrderAndSale != null) {
+            dashboardOrderAndSalesStats.setTotalOrder((null != totalLiveOrderAndSale.getOrderCount() ? totalLiveOrderAndSale.getOrderCount() : 0) + (null != totalHistoryOrderAndSale.getOrderCount() ? totalHistoryOrderAndSale.getOrderCount() : 0));
+        }
+
+        if (totalHistoryOrderAndSale != null){
+            dashboardOrderAndSalesStats.setTotalSale((null != totalLiveOrderAndSale.getOrderTotal() ? totalLiveOrderAndSale.getOrderTotal() : 0) + (null != totalHistoryOrderAndSale.getOrderTotal() ? totalHistoryOrderAndSale.getOrderTotal() : 0));
+         }
+
+
+        Integer customerCount  = customerRepository.countCustomersByCreatedAt(startDate,endDate);
+
+        dashboardOrderAndSalesStats.setCustomerCount(customerCount);
+
+
+        long liveOrderCount = orderRepository.count();
+
+        dashboardOrderAndSalesStats.setLiveOrderCount(liveOrderCount);
+
+        LocalDateTime sixMonthsAgo = LocalDateTime.now().minusMonths(6);
+
+        List<DashboardDto.OrderMonthWiseChartData> monthWiseChartData = orderHistoryRepository.getLastSixMonthsSales(sixMonthsAgo);
+        dashboardOrderAndSalesStats.setOrderMonthWiseChartData(monthWiseChartData);
+        return dashboardOrderAndSalesStats;
+    }
+
+
 
 }

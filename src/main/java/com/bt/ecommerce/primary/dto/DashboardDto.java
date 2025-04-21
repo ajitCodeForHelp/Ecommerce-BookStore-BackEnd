@@ -24,6 +24,17 @@ public class DashboardDto {
 
     @Getter
     @Setter
+    public static class  DashboardOrderAndSalesStats {
+       private Integer totalCart;
+       private Integer totalOrder;
+       private Double totalSale;
+        private Integer customerCount;
+        private long liveOrderCount;
+        private List<OrderMonthWiseChartData> orderMonthWiseChartData;
+    }
+
+    @Getter
+    @Setter
     public static class  DashboardReport {
         private EcommerceOrderReport ecommerceOrderReport;
         private OrderReport orderReport;
@@ -57,6 +68,14 @@ public class DashboardDto {
         private Double orderTotal = 0.0;
     }
 
+
+    @Getter
+    @Setter
+    public static class OrderMonthWiseChartData {
+        int month ;
+        long totalCount;
+        double totalSale;
+    }
     @Getter
     @Setter
     public static class OrderSalesReport {

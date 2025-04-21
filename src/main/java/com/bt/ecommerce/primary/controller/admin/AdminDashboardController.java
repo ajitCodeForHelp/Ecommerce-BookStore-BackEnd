@@ -28,5 +28,15 @@ public class AdminDashboardController extends _BaseController {
                 .build(), HttpStatus.OK);
     }
 
+    @PostMapping("/salesAndOrderStats")
+    public ResponseEntity<ResponsePacket> salesAndOrderStats(@Valid @RequestBody DashboardDto.DashboardDataRequest request) throws BadRequestException {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("Get Dashboard Data Report Successfully.")
+                .responsePacket(dashboardService.dashboardSalesAndOrderStats(request.getStartTimestamp(), request.getEndTimestamp()))
+                .build(), HttpStatus.OK);
+    }
+
+
 
 }
