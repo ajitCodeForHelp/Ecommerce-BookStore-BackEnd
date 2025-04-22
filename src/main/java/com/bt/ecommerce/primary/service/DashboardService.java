@@ -13,7 +13,9 @@ import software.amazon.awssdk.services.s3.endpoints.internal.Value;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.format.TextStyle;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Component
@@ -59,7 +61,7 @@ public class DashboardService extends _BaseService {
         }
         if (!CollectionUtils.isEmpty(orders)) {
             orderReport.setOrderCount(orders.size());
-            orderReport.setOrderTotal(orders.stream().mapToDouble(Order::getOrderTotal).sum());
+            orderReport.setTotalSales(orders.stream().mapToDouble(Order::getOrderTotal).sum());
 
             for (Order order : orders) {
 
@@ -70,7 +72,7 @@ public class DashboardService extends _BaseService {
                     dayOrderReport = new DashboardDto.OrderReport();
                 }
                 dayOrderReport.setOrderCount(dayOrderReport.getOrderCount() + 1);
-                dayOrderReport.setOrderTotal(dayOrderReport.getOrderTotal() + order.getOrderTotal());
+                dayOrderReport.setTotalSales(dayOrderReport.getTotalSales() + order.getOrderTotal());
                 dateWiseOrderReportMap.put(localDate, orderReport);
 
                 // -------------------- Month Wise Order Sale Data------------------------------
@@ -80,7 +82,7 @@ public class DashboardService extends _BaseService {
                     monthOrderReport = new DashboardDto.OrderReport();
                 }
                 monthOrderReport.setOrderCount(monthOrderReport.getOrderCount() + 1);
-                monthOrderReport.setOrderTotal(monthOrderReport.getOrderTotal() + order.getOrderTotal());
+                monthOrderReport.setTotalSales(monthOrderReport.getTotalSales() + order.getOrderTotal());
                 monthWiseOrderReportMap.put(orderMonth, monthOrderReport);
 
                 // ---------------------- Top 10 Order And There customer details ------------------------
@@ -210,12 +212,12 @@ public class DashboardService extends _BaseService {
             dashboardOrderAndSalesStats.setTotalOrder((null != totalLiveOrderAndSale.getOrderCount() ? totalLiveOrderAndSale.getOrderCount() : 0) + (null != totalHistoryOrderAndSale.getOrderCount() ? totalHistoryOrderAndSale.getOrderCount() : 0));
         }
 
-        if (totalHistoryOrderAndSale != null){
-            dashboardOrderAndSalesStats.setTotalSale((null != totalLiveOrderAndSale.getOrderTotal() ? totalLiveOrderAndSale.getOrderTotal() : 0) + (null != totalHistoryOrderAndSale.getOrderTotal() ? totalHistoryOrderAndSale.getOrderTotal() : 0));
-         }
+        if (totalHistoryOrderAndSale != null) {
+            dashboardOrderAndSalesStats.setTotalSale((null != totalLiveOrderAndSale.getTotalSales() ? totalLiveOrderAndSale.getTotalSales() : 0) + (null != totalHistoryOrderAndSale.getTotalSales() ? totalHistoryOrderAndSale.getTotalSales() : 0));
+        }
 
 
-        Integer customerCount  = customerRepository.countCustomersByCreatedAt(startDate,endDate);
+        Integer customerCount = customerRepository.countCustomersByCreatedAt(startDate, endDate);
 
         dashboardOrderAndSalesStats.setCustomerCount(customerCount);
 
@@ -226,11 +228,30 @@ public class DashboardService extends _BaseService {
 
         LocalDateTime sixMonthsAgo = LocalDateTime.now().minusMonths(6);
 
+
         List<DashboardDto.OrderMonthWiseChartData> monthWiseChartData = orderHistoryRepository.getLastSixMonthsSales(sixMonthsAgo);
-        dashboardOrderAndSalesStats.setOrderMonthWiseChartData(monthWiseChartData);
+
+        // Create a map from month number to data
+        Map<Integer, DashboardDto.OrderMonthWiseChartData> monthDataMap = monthWiseChartData.stream()
+                .collect(Collectors.toMap(DashboardDto.OrderMonthWiseChartData::getMonth, Function.identity()));
+
+        List<DashboardDto.OrderMonthWiseChartData> finalData = new ArrayList<>();
+
+        // Get last 6 months
+        LocalDate now = LocalDate.now();
+        for (int i = 5; i >= 0; i--) {
+            LocalDate month = now.minusMonths(i);
+            int monthNumber = month.getMonthValue();
+            String monthName = month.getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
+
+            DashboardDto.OrderMonthWiseChartData data = monthDataMap.getOrDefault(monthNumber,
+                    new DashboardDto.OrderMonthWiseChartData(monthName, 0, 0));
+
+            data.setMonthName(monthName); // Optional: if you want both number and name
+            finalData.add(data);
+            dashboardOrderAndSalesStats.setOrderMonthWiseChartData(finalData);
+        }
         return dashboardOrderAndSalesStats;
     }
-
-
 
 }

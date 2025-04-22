@@ -65,16 +65,23 @@ public class DashboardDto {
     @Setter
     public static class OrderReport {
         private Integer orderCount = 0;
-        private Double orderTotal = 0.0;
+        private Double totalSales = 0.0;
     }
 
 
     @Getter
     @Setter
     public static class OrderMonthWiseChartData {
-        int month ;
-        long totalCount;
-        double totalSale;
+        private String monthName;
+        private int month;
+        private int orderCount;
+        private double totalSales;
+
+        public OrderMonthWiseChartData(String monthName, int orderCount, double totalSales) {
+            this.monthName = monthName;
+            this.orderCount = orderCount;
+            this.totalSales = totalSales;
+        }
     }
     @Getter
     @Setter
