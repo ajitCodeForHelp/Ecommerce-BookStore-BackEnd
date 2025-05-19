@@ -107,4 +107,13 @@ public interface ItemRepository extends MongoRepository<Item, ObjectId> {
 
     List<Item> findByPublisherId(ObjectId publisherId);
 
+
+    @Query("{ 'parentCategoryIds': ?0 }")
+    List<Item> findByParentCategoryId(ObjectId parentCategoryId);
+
+
+    @Query("{ 'subCategoryIds': ?0 }")
+    List<Item> findBySubCategoryId(ObjectId subCategoryId);
+
+
 }

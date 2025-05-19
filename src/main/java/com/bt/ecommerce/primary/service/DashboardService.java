@@ -207,16 +207,22 @@ public class DashboardService extends _BaseService {
 
         DashboardDto.OrderReport totalLiveOrderAndSale = orderRepository.getOrderStatsBetween(startDate, endDate);
         DashboardDto.OrderReport totalHistoryOrderAndSale = orderHistoryRepository.getOrderStatsBetween(startDate, endDate);
+        Integer totalOrder = 0;
+        Double totalSale = 0.0;
+
 
         if (totalLiveOrderAndSale != null) {
-            dashboardOrderAndSalesStats.setTotalOrder((null != totalLiveOrderAndSale.getOrderCount() ? totalLiveOrderAndSale.getOrderCount() : 0) + (null != totalHistoryOrderAndSale.getOrderCount() ? totalHistoryOrderAndSale.getOrderCount() : 0));
+            totalOrder += (null != totalLiveOrderAndSale.getOrderCount() ? totalLiveOrderAndSale.getOrderCount() : 0);
+            totalSale+= (null!=totalLiveOrderAndSale.getTotalSales() ?totalLiveOrderAndSale.getTotalSales() :0 );
         }
 
         if (totalHistoryOrderAndSale != null) {
-            dashboardOrderAndSalesStats.setTotalSale((null != totalLiveOrderAndSale.getTotalSales() ? totalLiveOrderAndSale.getTotalSales() : 0) + (null != totalHistoryOrderAndSale.getTotalSales() ? totalHistoryOrderAndSale.getTotalSales() : 0));
+            totalOrder+= (null != totalHistoryOrderAndSale.getOrderCount() ? totalHistoryOrderAndSale.getOrderCount() : 0);
+            totalSale+= (null != totalHistoryOrderAndSale.getTotalSales() ? totalHistoryOrderAndSale.getTotalSales() : 0);
         }
 
-
+        dashboardOrderAndSalesStats.setTotalSale(totalSale);
+        dashboardOrderAndSalesStats.setTotalOrder(totalOrder);
         Integer customerCount = customerRepository.countCustomersByCreatedAt(startDate, endDate);
 
         dashboardOrderAndSalesStats.setCustomerCount(customerCount);

@@ -180,4 +180,16 @@ public class AdminCategoryController extends _BaseController {
                 .message("ecommerce.common.message.update")
                 .build(), HttpStatus.OK);
     }
+
+
+    @TranslateResponseMessage
+    @PutMapping("/updateCatSubCatDisplayOrdering}")
+    protected ResponseEntity<ResponsePacket> updateCatSubCatDisplayOrdering(@Valid @RequestBody CategoryDto.CatSubCatSequenceReorder catSubCatSequence) throws BadRequestException {
+        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        categoryService.reorderingCatSubCatSequence(catSubCatSequence);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.update")
+                .build(), HttpStatus.OK);
+    }
 }

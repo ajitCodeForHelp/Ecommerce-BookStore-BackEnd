@@ -121,4 +121,7 @@ public interface CategoryRepository extends MongoRepository<Category, ObjectId> 
             "  'displayCategory' : { '$eq' : true }," +
             "}")
     List<Category> findByActiveAndDeletedForDisplay(boolean active, boolean deleted);
+
+    @Query(value = "{ 'parentCategoryId': ?0 }")
+    List<Category> findByParentCategoryId(ObjectId parentCategoryId);
 }

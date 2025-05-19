@@ -60,6 +60,19 @@ public class CategoryDto extends AbstractDto{
       @NotNull private List<String> itemUuids;
     }
 
+
+    @Setter
+    @Getter
+    public static class CatSubCatSequenceReorder {
+        @NotNull private List<CatSubCatSequence> catSubCatSequences;
+    }
+
+    @Setter
+    @Getter
+    public static class CatSubCatSequence {
+        @NotNull private String id;
+        @NotNull private int sequenceNo;
+    }
     @Setter
     @Getter
     public static class ParentCategoryIds {

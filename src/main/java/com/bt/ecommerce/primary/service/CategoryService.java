@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.stream.Collectors;
@@ -61,14 +62,73 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
             category.setParentCategoryId(null);
             category.setParentCategoryDetail(null);
         }
+        boolean needToUpdateItemCategory = false;
+        if(!category.getTitle().equalsIgnoreCase(updateCategoryDto.getTitle())){
+            needToUpdateItemCategory = true;
+        }
         category = CategoryMapper.MAPPER.mapToPojo(category, updateCategoryDto);
         categoryRepository.save(category);
+        if(needToUpdateItemCategory){
+            updateParentCategoryDetailInSubCategory(category);
+            updateCategoryDetailInItem(category);
+        }
+    }
+    public void updateCategoryDetailInItem(Category category) {
+        List<Item> affectedItems = itemRepository.findByCategoryId(category.getId());
+
+        for (Item item : affectedItems) {
+            boolean updated = false;
+
+            for (BasicParent parent : item.getParentCategoryDetails()) {
+                if (parent.getParentUuid().equals(category.getUuid())) {
+                    parent.setParentTitle(category.getTitle());
+                    parent.setParentUuid(category.getUuid());
+                    updated = true;
+                }
+            }
+
+            for (BasicParent sub : item.getSubCategoryDetails()) {
+                if (sub.getParentUuid().equals(category.getUuid())) {
+                    sub.setParentTitle(category.getTitle());
+                    sub.setParentUuid(category.getUuid());
+                    updated = true;
+                }
+            }
+
+            if (updated) {
+                itemRepository.save(item);
+            }
+        }
     }
 
+
+    private void updateParentCategoryDetailInSubCategory(Category category){
+        List<Category> categoryList = categoryRepository.findByParentCategoryId(category.getId());
+        if(TextUtils.isEmpty(categoryList)) return;
+        for (Category category1 : categoryList) {
+            category1.setParentCategoryDetail(new BasicParent(category.getUuid(),category.getTitle()));
+        }
+        categoryRepository.saveAll(categoryList);
+    }
+
+    public void reorderingCatSubCatSequence(CategoryDto.CatSubCatSequenceReorder catSubCatSequence) {
+        for (CategoryDto.CatSubCatSequence sequence : catSubCatSequence.getCatSubCatSequences()) {
+            Category category = categoryRepository.findByUuid(sequence.getId());
+            category.setSequenceNo(sequence.getSequenceNo());
+            categoryRepository.save(category);
+        }
+    }
     public void updateDisplayCategory(String uuid, DisplayCategoryDto.UpdateDisplayCategory updateDto) throws BadRequestException {
         Category category = findByUuid(uuid);
+        boolean needToUpdateItemCategory = false;
+        if(!category.getTitle().equalsIgnoreCase(updateDto.getTitle())){
+            needToUpdateItemCategory = true;
+        }
         category = CategoryMapper.MAPPER.mapToPojo(category, updateDto);
         categoryRepository.save(category);
+        if(needToUpdateItemCategory){
+            updateCategoryDetailInItem(category);
+        }
     }
 
     @Override
