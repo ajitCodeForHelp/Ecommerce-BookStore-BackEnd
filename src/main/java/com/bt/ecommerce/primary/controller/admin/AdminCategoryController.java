@@ -173,7 +173,7 @@ public class AdminCategoryController extends _BaseController {
     @TranslateResponseMessage
     @PostMapping("/assign-category/{uuid}")
     public ResponseEntity<ResponsePacket> assignCategoryToItem(@PathVariable("uuid") String uuid,
-                                                         @Valid @RequestBody CategoryDto.AssignCategory updateDto) throws BadRequestException {
+                                                               @Valid @RequestBody CategoryDto.AssignCategory updateDto) throws BadRequestException {
         categoryService.assignCategoryToItem(uuid, updateDto.getItemUuids());
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
@@ -181,10 +181,9 @@ public class AdminCategoryController extends _BaseController {
                 .build(), HttpStatus.OK);
     }
 
-
     @TranslateResponseMessage
-    @PutMapping("/updateCatSubCatDisplayOrdering}")
-    protected ResponseEntity<ResponsePacket> updateCatSubCatDisplayOrdering(@Valid @RequestBody CategoryDto.CatSubCatSequenceReorder catSubCatSequence) throws BadRequestException {
+    @PostMapping("/update-Cat-SubCat-Display-Ordering")
+    public ResponseEntity<ResponsePacket> updateCatSubCatDisplayOrdering(@RequestBody CategoryDto.CatSubCatSequenceReorder catSubCatSequence) {
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
         categoryService.reorderingCatSubCatSequence(catSubCatSequence);
         return new ResponseEntity<>(ResponsePacket.builder()
@@ -193,3 +192,5 @@ public class AdminCategoryController extends _BaseController {
                 .build(), HttpStatus.OK);
     }
 }
+
+
