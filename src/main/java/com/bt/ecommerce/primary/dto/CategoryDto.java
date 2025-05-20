@@ -42,8 +42,6 @@ public class CategoryDto extends AbstractDto{
         private String description;
         private int sequenceNo;
         private Boolean displayCategory = false;
-
-
         // category assign items
         private List<BasicParent> categoryAssignItems;
     }
@@ -72,6 +70,14 @@ public class CategoryDto extends AbstractDto{
     public static class CatSubCatSequence {
         @NotNull private String id;
         @NotNull private int sequenceNo;
+    }
+
+    @Setter
+    @Getter
+    public static class CatSubCatSequenceDetail {
+         private String uuid;
+        private int sequenceNo;
+        private String title;
     }
     @Setter
     @Getter

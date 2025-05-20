@@ -17,6 +17,9 @@ public interface CategoryMapper {
     @Mapping(expression = "java(com.bt.ecommerce.utils.DateUtils.getTimeStamp(category.getModifiedAt()))", target = "modifiedAtTimeStamp")
     CategoryDto.DetailCategory mapToDetailDto(Category category);
 
+
+    CategoryDto.CatSubCatSequenceDetail mapToSequnceDetailDto(Category category);
+
     Category mapToPojo(CategoryDto.SaveCategory create);
 
     Category mapToPojo(DisplayCategoryDto.SaveDisplayCategory create);

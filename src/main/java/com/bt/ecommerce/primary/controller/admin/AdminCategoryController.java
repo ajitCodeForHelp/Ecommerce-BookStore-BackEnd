@@ -191,6 +191,30 @@ public class AdminCategoryController extends _BaseController {
                 .message("ecommerce.common.message.update")
                 .build(), HttpStatus.OK);
     }
+
+
+    @TranslateResponseMessage
+    @GetMapping("/parent-category-sequence-detail")
+    protected ResponseEntity<ResponsePacket> parentCategorySequenceDetail(){
+        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get_all")
+                .responsePacket(categoryService.categorySequenceDetail())
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @GetMapping("/parent-category-sequence-detail/{parentCategoryId}")
+    protected ResponseEntity<ResponsePacket> parentCategorySequenceDetail(@PathVariable("parentCategoryId") String parentCategoryUuid) throws BadRequestException{
+        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get_all")
+                .responsePacket(categoryService.subCategorySequenceDetail(parentCategoryUuid))
+                .build(), HttpStatus.OK);
+    }
+
 }
 
 

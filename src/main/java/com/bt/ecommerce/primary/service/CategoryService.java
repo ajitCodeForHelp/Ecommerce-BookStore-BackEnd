@@ -334,4 +334,21 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
         }
         return category;
     }
+
+
+    public List<CategoryDto.CatSubCatSequenceDetail> categorySequenceDetail() {
+        List<Category> list =categoryRepository.findParentCategories();
+        return list.stream()
+                .map(category -> CategoryMapper.MAPPER.mapToSequnceDetailDto(category))
+                .collect(Collectors.toList());
+    }
+
+    public List<CategoryDto.CatSubCatSequenceDetail> subCategorySequenceDetail(String parentCategoryUuid) throws BadRequestException {
+        Category category = findByUuid(parentCategoryUuid);
+        List<Category> list =categoryRepository.getCategoryList(category.getId());
+        return list.stream()
+                .map(category1 -> CategoryMapper.MAPPER.mapToSequnceDetailDto(category1))
+                .collect(Collectors.toList());
+    }
+
 }
