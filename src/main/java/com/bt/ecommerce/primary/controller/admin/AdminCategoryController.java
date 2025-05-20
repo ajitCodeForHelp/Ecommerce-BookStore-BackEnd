@@ -205,7 +205,7 @@ public class AdminCategoryController extends _BaseController {
     }
 
     @TranslateResponseMessage
-    @GetMapping("/parent-category-sequence-detail/{parentCategoryId}")
+    @GetMapping("/sub-category-sequence-detail/{parentCategoryId}")
     protected ResponseEntity<ResponsePacket> parentCategorySequenceDetail(@PathVariable("parentCategoryId") String parentCategoryUuid) throws BadRequestException{
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
         return new ResponseEntity<>(ResponsePacket.builder()
