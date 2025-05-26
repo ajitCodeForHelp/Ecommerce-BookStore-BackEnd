@@ -86,6 +86,18 @@ public class AdminOrderController extends _BaseController {
                 .build(), HttpStatus.OK);
     }
 
+
+    @TranslateResponseMessage
+    @PutMapping("/updateHistoryOrdersTrackingId")
+    public ResponseEntity<ResponsePacket> updateHistoryOrdersTrackingId(
+            @Valid @RequestBody List<UpdateOrdersTrackingIds> request) throws BadRequestException {
+        orderService.updateHistoryOrdersTrackingId(request);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.update")
+                .build(), HttpStatus.OK);
+    }
+
     @TranslateResponseMessage
     @PutMapping("/updateOrderStatus/{orderId}/{orderStatus}")
     public ResponseEntity<ResponsePacket> updateOrderStatus(
@@ -145,6 +157,26 @@ public class AdminOrderController extends _BaseController {
     @PostMapping("/cancelOrder/{orderId}")
     public ResponseEntity<ResponsePacket> cancelOrder(@PathVariable(value = "orderId") String orderId ,@RequestBody OrderDto.CancelOrder cancelOrder) throws BadRequestException, JsonProcessingException {
         orderService.cancelOrder(orderId,cancelOrder);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get")
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @PostMapping("/cancelHistoryOrder/{orderId}")
+    public ResponseEntity<ResponsePacket> cancelHistoryOrder(@PathVariable(value = "orderId") String orderId ,@RequestBody OrderDto.CancelOrder cancelOrder) throws BadRequestException, JsonProcessingException {
+        orderService.cancelHistoryOrder(orderId,cancelOrder);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get")
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @PostMapping("/partialCancelOrder/{orderId}")
+    public ResponseEntity<ResponsePacket> partialCancelOrder(@PathVariable(value = "orderId") String orderId ,@RequestBody OrderDto.PartialCancelOrder partialCancelOrder) throws BadRequestException, JsonProcessingException {
+//        orderService.cancelOrder(orderId,partialCancelOrder);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.get")

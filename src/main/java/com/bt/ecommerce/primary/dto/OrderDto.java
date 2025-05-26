@@ -79,4 +79,11 @@ public class OrderDto extends AbstractDto{
     public static class CancelOrder {
         private String cancelReason;
     }
+
+    @Setter
+    @Getter
+    public static class PartialCancelOrder {
+        private List<String> itemIds;
+        private String cancelReason;
+    }
 }

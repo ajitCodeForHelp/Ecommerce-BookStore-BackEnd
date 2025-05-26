@@ -12,6 +12,9 @@ public enum OrderStatusEnum {
     MESSAGE_SENT("MESSAGE_SENT"),
 
     EMAIL_SENT("EMAIL_SENT"),
+
+    TRACKING_DETAIL_UPDATED("TRACKING_DETAIL_UPDATED"),
+
     ;
     String type;
 

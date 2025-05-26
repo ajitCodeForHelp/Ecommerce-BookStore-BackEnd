@@ -31,6 +31,8 @@ public class Order extends Cart {
     private ObjectId courierPartnerId;
     private BasicParent courierPartnerDetail;
     private String cancelReason;
+    private String partialCancelReason;
+
     // TODO >  PaymentStatus > and more payment related details > txn
 
 

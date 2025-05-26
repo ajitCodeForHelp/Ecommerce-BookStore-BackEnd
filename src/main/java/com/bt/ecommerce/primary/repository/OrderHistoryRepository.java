@@ -48,4 +48,11 @@ public interface OrderHistoryRepository extends MongoRepository<OrderHistory, Ob
                     "'_id': 0 } }"
     })
     List<DashboardDto.OrderMonthWiseChartData> getLastSixMonthsSales(LocalDateTime fromDate);
+
+
+
+    @Query(value = "{" +
+            "  'orderId' : { '$in' : ?0 }," +
+            "}")
+    List<OrderHistory> findByOrderIds(List<String> orderIds);
 }

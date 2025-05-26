@@ -117,6 +117,55 @@ public class OrderService extends _BaseService {
 
     }
 
+
+
+    public void updateHistoryOrdersTrackingId(List<OrderDto.UpdateOrdersTrackingIds> request) throws BadRequestException {
+        Map<String, OrderDto.UpdateOrderDetails> orderTrackingIdMap = new HashMap<>();
+        for (OrderDto.UpdateOrdersTrackingIds updateOrdersTrackingIds : request) {
+            orderTrackingIdMap.put(updateOrdersTrackingIds.getOrderId(), updateOrdersTrackingIds.getUpdateOrderDetails());
+        }
+        List<OrderHistory> orderList = orderHistoryRepository.findByOrderIds(orderTrackingIdMap.keySet().stream().toList());
+        if (TextUtils.isEmpty(orderList)) {
+            throw new BadRequestException("Invalid OrderId Provided");
+        }
+        for (OrderHistory order : orderList) {
+//            if (!order.getOrderStatus().equals(OrderStatusEnum.ORDER)) {
+//                throw new BadRequestException("Invalid Update Request, Order Already Dispatched");
+//            }
+            String orderTrackingId = orderTrackingIdMap.get(order.getOrderId()).getOrderTrackingId();
+            if (TextUtils.isEmpty(orderTrackingId)) {
+                throw new BadRequestException("Invalid OrderTrackingId Provided");
+            }
+            String courierPartnerId = orderTrackingIdMap.get(order.getOrderId()).getCourierPartnerId();
+            if (TextUtils.isEmpty(courierPartnerId)) {
+                throw new BadRequestException("Please Select Courier");
+            }
+            if (!TextUtils.isEmpty(courierPartnerId)) {
+                CourierPartner courierPartner = courierPartnerRepository.findByUuid(courierPartnerId);
+                if (courierPartner == null) {
+                    throw new BadRequestException("ecommerce.common.message.record_not_exist");
+                }
+                order.setCourierPartnerId(courierPartner.getId());
+                order.setCourierPartnerDetail(new BasicParent(courierPartner.getTitle(), courierPartner.getTrackingUrl()));
+            }
+            order.setOrderTrackingId(orderTrackingId);
+            order.setOrderStatus(OrderStatusEnum.DISPATCHED);
+            order.setModifiedAt(LocalDateTime.now());
+            order = updateHistoryOrderStatusLog(order, OrderStatusEnum.TRACKING_DETAIL_UPDATED);
+            String orderPlaceMsg = "Greetings from The Books 24! Your order " + order.getOrderId()  +
+                    " has been dispatched and is on its way. " +
+                    "You can track your order using the tracking ID : " +  order.getOrderTrackingId() +
+                    " via the following link " + order.getCourierPartnerDetail().getParentTitle()  + " Thank you for shopping with us!" +
+                    " Have a great day. Team The Books 24";
+
+            smsComponent.sendSMSByMakeMySms(order.getCustomerDetail().getUserCustomerMobile(),orderPlaceMsg,"1707173659433995728");
+        }
+        // Update All Order Tracking Ids
+        orderHistoryRepository.saveAll(orderList);
+        SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory(OrderStatusEnum.DISPATCHED);
+
+    }
+
     public void updateOrderStatus(String orderId, OrderStatusEnum orderStatus) throws BadRequestException {
         Order order = orderRepository.findByOrderId(orderId);
         if (order == null) {
@@ -172,6 +221,16 @@ public class OrderService extends _BaseService {
         return order;
     }
 
+    public OrderHistory updateHistoryOrderStatusLog(OrderHistory order, OrderStatusEnum orderStatusEnum) {
+        List<Order.OrderStatusLog> orderStatusLogList = order.getOrderStatusLogList();
+        Order.OrderStatusLog orderStatusLog = new Order.OrderStatusLog();
+        orderStatusLog.setOrderStatusEnum(orderStatusEnum);
+        orderStatusLog.setModifiedAt(LocalDateTime.now());
+        orderStatusLogList.add(orderStatusLog);
+        order.setOrderStatusLogList(orderStatusLogList);
+        return order;
+    }
+
     public List<OrderDto.DetailOrder> getCustomerOrderList() {
         // User Customer Order List Contains Live Order + History Orders
         Customer loggedInCustomer = (Customer) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
@@ -190,10 +249,7 @@ public class OrderService extends _BaseService {
     public void cancelOrder(String orderId, OrderDto.CancelOrder cancelOrder) throws BadRequestException, JsonProcessingException {
         Order order = orderRepository.findByOrderId(orderId);
         if (order == null) {
-            OrderHistory orderHistory = orderHistoryRepository.findByOrderId(orderId);
-            if (orderHistory == null) {
                 throw new BadRequestException("Invalid OrderId Provided");
-            }
         }
         order.setOrderStatus(OrderStatusEnum.CANCELLED);
         order.setCancelReason(cancelOrder.getCancelReason());
@@ -205,5 +261,21 @@ public class OrderService extends _BaseService {
         }
         orderRepository.save(order);
         SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory(OrderStatusEnum.CANCELLED);
+    }
+
+    public void cancelHistoryOrder(String orderId, OrderDto.CancelOrder cancelOrder) throws BadRequestException, JsonProcessingException {
+        OrderHistory order = orderHistoryRepository.findByOrderId(orderId);
+        if (order == null) {
+            throw new BadRequestException("Invalid OrderId Provided");
+        }
+        order.setOrderStatus(OrderStatusEnum.CANCELLED);
+        order.setCancelReason(cancelOrder.getCancelReason());
+        updateHistoryOrderStatusLog(order, OrderStatusEnum.CANCELLED);
+        if (order.getPaymentType().equals(PaymentTypeEnum.ONLINE)) {
+            razorPayService.refundOrder(orderId, cancelOrder);
+            order.setPaymentStatus(PaymentStatusEnum.Refunded);
+            updateHistoryOrderStatusLog(order, OrderStatusEnum.REFUND);
+        }
+        orderHistoryRepository.save(order);
     }
 }
