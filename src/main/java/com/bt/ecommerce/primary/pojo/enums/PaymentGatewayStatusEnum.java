@@ -13,6 +13,9 @@ public enum PaymentGatewayStatusEnum {
     RefundFailed("RefundFailed"),
 
     authorized("authorized"),
+
+    Partial_refunded("Partial_refunded"),
+
     ;
     String type;
 

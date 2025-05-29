@@ -6,6 +6,7 @@ import com.bt.ecommerce.messaging.SmsComponent;
 import com.bt.ecommerce.primary.dto.OrderDto;
 import com.bt.ecommerce.primary.mapper.OrderHistoryMapper;
 import com.bt.ecommerce.primary.mapper.OrderMapper;
+import com.bt.ecommerce.primary.pojo.Cart;
 import com.bt.ecommerce.primary.pojo.CourierPartner;
 import com.bt.ecommerce.primary.pojo.Order;
 import com.bt.ecommerce.primary.pojo.OrderHistory;
@@ -15,6 +16,7 @@ import com.bt.ecommerce.primary.pojo.enums.PaymentStatusEnum;
 import com.bt.ecommerce.primary.pojo.enums.PaymentTypeEnum;
 import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.primary.razorpay.RazorPayService;
+import com.bt.ecommerce.primary.repository.OrderHistoryRepository;
 import com.bt.ecommerce.security.JwtUserDetailsService;
 import com.bt.ecommerce.utils.TextUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -152,17 +154,14 @@ public class OrderService extends _BaseService {
             order.setOrderStatus(OrderStatusEnum.DISPATCHED);
             order.setModifiedAt(LocalDateTime.now());
             order = updateHistoryOrderStatusLog(order, OrderStatusEnum.TRACKING_DETAIL_UPDATED);
-            String orderPlaceMsg = "Greetings from The Books 24! Your order " + order.getOrderId()  +
-                    " has been dispatched and is on its way. " +
-                    "You can track your order using the tracking ID : " +  order.getOrderTrackingId() +
-                    " via the following link " + order.getCourierPartnerDetail().getParentTitle()  + " Thank you for shopping with us!" +
-                    " Have a great day. Team The Books 24";
-
-            smsComponent.sendSMSByMakeMySms(order.getCustomerDetail().getUserCustomerMobile(),orderPlaceMsg,"1707173659433995728");
+            String updateTrackingIdMsg = "Greetings from The Books 24! There is an update to the tracking " +
+                    "details for your order " + order.getOrderId() + ". Please use the new tracking ID: " + order.getOrderTrackingId() +
+                    "and you can track via the following link " +   order.getCourierPartnerDetail().getParentTitle() + " Best regards, Team The Books 24";
+            smsComponent.sendSMSByMakeMySms(order.getCustomerDetail().getUserCustomerMobile(),updateTrackingIdMsg,"1707174843600173621");
         }
         // Update All Order Tracking Ids
         orderHistoryRepository.saveAll(orderList);
-        SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory(OrderStatusEnum.DISPATCHED);
+//        SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory(OrderStatusEnum.DISPATCHED);
 
     }
 
@@ -261,6 +260,11 @@ public class OrderService extends _BaseService {
         }
         orderRepository.save(order);
         SpringBeanContext.getBean(OrderHistoryService.class).moveOrderToHistory(OrderStatusEnum.CANCELLED);
+        String cancelOrderMessage = "Your order "+ order.getOrderId()  +" has been cancelled." +
+                                    "Reason: " + order.getCancelReason() +". " +
+                                    "The refund will be processed within 3–4 working days. Thank you for your patience and understanding. " +
+                                     "Best regards, Team The Books 24";
+        smsComponent.sendSMSByMakeMySms(order.getCustomerDetail().getUserCustomerMobile(),cancelOrderMessage,"1707174843338503263");
     }
 
     public void cancelHistoryOrder(String orderId, OrderDto.CancelOrder cancelOrder) throws BadRequestException, JsonProcessingException {
@@ -277,5 +281,71 @@ public class OrderService extends _BaseService {
             updateHistoryOrderStatusLog(order, OrderStatusEnum.REFUND);
         }
         orderHistoryRepository.save(order);
+        String cancelOrderMessage = "Your order "+ order.getOrderId()  +" has been cancelled." +
+                "Reason: " + order.getCancelReason() +". " +
+                "The refund will be processed within 3–4 working days. Thank you for your patience and understanding. " +
+                "Best regards, Team The Books 24";
+        smsComponent.sendSMSByMakeMySms(order.getCustomerDetail().getUserCustomerMobile(),cancelOrderMessage,"1707174843338503263");
     }
+
+
+    public void partialCancelOrder(String orderId, OrderDto.PartialCancelOrder cancelOrder) throws BadRequestException, JsonProcessingException {
+        Order order = orderRepository.findByOrderId(orderId);
+        if (order == null) {
+            throw new BadRequestException("Invalid OrderId Provided");
+        }
+//        order.setOrderStatus(OrderStatusEnum.CANCELLED);
+//        order.setCancelReason(cancelOrder.getCancelReason());
+        double refundAmount = 0;
+        for (Cart.ItemDetail itemDetail : order.getItemDetailList()) {
+            if (cancelOrder.getItemIds().contains(itemDetail.getItemUuid())) {
+                itemDetail.setQuantity(0L);
+                itemDetail.setItemTotal(0);
+                refundAmount += itemDetail.getItemTotal();
+            }
+        }
+        double refundAmountTotal = refundAmount + cancelOrder.getShippingRefundAmount();
+        order.setOrderTotal(order.getOrderTotal() - refundAmountTotal);
+        if (order.getPaymentType().equals(PaymentTypeEnum.ONLINE)) {
+            razorPayService.partialRefundOrder(orderId, refundAmountTotal);
+            order.setPaymentStatus(PaymentStatusEnum.Partial_Refunded);
+            updateOrderStatusLog(order, OrderStatusEnum.PARTIAL_REFUNDED);
+        }
+        orderRepository.save(order);
+        String partialRefundMessage = "The Books 24: Some items from your order " + order.getOrderId() + " are unavailable and have been cancelled. " +
+                "A refund has been initiated (3–4 working days). " +
+                "The remaining items will be delivered soon. Thank you for your understanding. – Team The Books 24";
+        smsComponent.sendSMSByMakeMySms(order.getCustomerDetail().getUserCustomerMobile(), partialRefundMessage, "1707174843338503263");
+    }
+
+    public void partialCancelHistoryOrder(String orderId, OrderDto.PartialCancelOrder cancelOrder) throws BadRequestException, JsonProcessingException {
+        OrderHistory order = orderHistoryRepository.findByOrderId(orderId);
+        if (order == null) {
+            throw new BadRequestException("Invalid OrderId Provided");
+        }
+//        order.setOrderStatus(OrderStatusEnum.CANCELLED);
+//        order.setCancelReason(cancelOrder.getCancelReason());
+        double refundAmount = 0;
+        for (Cart.ItemDetail itemDetail : order.getItemDetailList()) {
+            if (cancelOrder.getItemIds().contains(itemDetail.getItemUuid())) {
+                itemDetail.setQuantity(0L);
+                itemDetail.setItemTotal(0);
+                refundAmount += itemDetail.getItemTotal();
+            }
+        }
+        double refundAmountTotal = refundAmount + cancelOrder.getShippingRefundAmount();
+        order.setOrderTotal(order.getOrderTotal() - refundAmountTotal);
+        if (order.getPaymentType().equals(PaymentTypeEnum.ONLINE)) {
+            razorPayService.partialRefundOrder(orderId, refundAmountTotal);
+            order.setPaymentStatus(PaymentStatusEnum.Partial_Refunded);
+            updateHistoryOrderStatusLog(order, OrderStatusEnum.PARTIAL_REFUNDED);
+        }
+        orderHistoryRepository.save(order);
+        String partialRefundMessage = "The Books 24: Some items from your order " + order.getOrderId() + " are unavailable and have been cancelled. " +
+                "A refund has been initiated (3–4 working days). " +
+                "The remaining items will be delivered soon. Thank you for your understanding. – Team The Books 24";
+        smsComponent.sendSMSByMakeMySms(order.getCustomerDetail().getUserCustomerMobile(), partialRefundMessage, "1707174843338503263");
+    }
+
+
 }

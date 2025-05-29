@@ -466,6 +466,48 @@ public class RazorPayService extends _BaseService {
     }
 
 
+
+    public void partialRefundOrder(String orderId,double amount) throws BadRequestException, JsonProcessingException {
+        List<PaymentTransaction> paymentTransactionList = paymentTransactionRepository.findByOrderId(orderId);
+        paymentTransactionList.sort((pt1, pt2) -> pt2.getCreatedAt().compareTo(pt1.getCreatedAt()));
+        PaymentTransaction paymentTransaction = paymentTransactionList.get(0);
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(paymentTransaction.getPaymentWebHookData());
+        String paymentId = rootNode.at("/payload/payment/entity/id").asText();
+
+        BeanRazorPayUpdateStatus.RefundResponse root = null;
+        HttpHeaders headers = new HttpHeaders();
+        headers.setAccept(Collections.singletonList(MediaType.APPLICATION_JSON));
+        if (Const.SystemSetting.TestMode)
+            headers.setBasicAuth(razorPayUserNameTest, razorPayPasswordTest);
+        else {
+            headers.setBasicAuth(razorPayUserName, razorPayPassword);
+        }
+        String refundRequestBody = "{ \"amount\": " + amount*100 + " }"; // Amount in paise
+
+        HttpEntity<String> entity = new HttpEntity<>(refundRequestBody, headers);
+
+        String responseBody = restTemplate.exchange(
+                "https://api.razorpay.com/v1/payments/" + paymentId + "/refund",
+                HttpMethod.POST,
+                entity,
+                String.class).getBody();
+        root = new Gson().fromJson(responseBody, new TypeToken<BeanRazorPayUpdateStatus.RefundResponse>() {
+        }.getType());
+
+        PaymentGatewayStatusEnum paymentStatusEnum = PaymentGatewayStatusEnum.created;
+        if (root.getStatus().equalsIgnoreCase("processed")) {
+            paymentStatusEnum = PaymentGatewayStatusEnum.Partial_refunded;
+        } else if (root.getStatus().equalsIgnoreCase("pending")) {
+            paymentStatusEnum = PaymentGatewayStatusEnum.RefundPending;
+        } else {
+            paymentStatusEnum = PaymentGatewayStatusEnum.RefundFailed;
+        }
+        paymentTransaction.setPaymentStatus(paymentStatusEnum);
+        paymentTransactionRepository.save(paymentTransaction);
+    }
+
     public void getStatusByOrderId() {
         String razorpayKeyId = "rzp_live_2M4NQa1zuxbe6F"; // Your Razorpay Key ID
         String razorpayKeySecret = "Qhc7v709eCPUk1eXbxUk4F8w"; // Your Razorpay Key Secret

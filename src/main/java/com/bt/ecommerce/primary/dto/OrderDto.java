@@ -85,5 +85,6 @@ public class OrderDto extends AbstractDto{
     public static class PartialCancelOrder {
         private List<String> itemIds;
         private String cancelReason;
+        private double shippingRefundAmount;
     }
 }

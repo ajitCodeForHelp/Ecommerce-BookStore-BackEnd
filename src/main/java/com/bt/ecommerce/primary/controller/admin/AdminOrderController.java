@@ -176,7 +176,17 @@ public class AdminOrderController extends _BaseController {
     @TranslateResponseMessage
     @PostMapping("/partialCancelOrder/{orderId}")
     public ResponseEntity<ResponsePacket> partialCancelOrder(@PathVariable(value = "orderId") String orderId ,@RequestBody OrderDto.PartialCancelOrder partialCancelOrder) throws BadRequestException, JsonProcessingException {
-//        orderService.cancelOrder(orderId,partialCancelOrder);
+        orderService.partialCancelOrder(orderId,partialCancelOrder);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get")
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @PostMapping("/partialCancelHistoryOrder/{orderId}")
+    public ResponseEntity<ResponsePacket> partialCancelHistoryOrder(@PathVariable(value = "orderId") String orderId ,@RequestBody OrderDto.PartialCancelOrder partialCancelOrder) throws BadRequestException, JsonProcessingException {
+        orderService.partialCancelHistoryOrder(orderId,partialCancelOrder);
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.get")

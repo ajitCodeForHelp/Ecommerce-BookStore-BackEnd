@@ -19,5 +19,7 @@ public interface StockInNotificationRepository extends MongoRepository<StockInNo
 
     List<StockInNotification> findByDeleted(boolean deleted);
 
+    List<StockInNotification> findByNotified(boolean notified);
+
     StockInNotification findByUuid(String uuid);
 }

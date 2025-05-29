@@ -7,6 +7,9 @@ public enum OrderStatusEnum {
 
     CANCELLED("CANCELLED"),
 
+
+    PARTIAL_REFUNDED("PARTIAL_REFUNDED"),
+
     REFUND("REFUND"),
 
     MESSAGE_SENT("MESSAGE_SENT"),

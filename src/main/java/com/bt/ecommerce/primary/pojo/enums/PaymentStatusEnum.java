@@ -8,6 +8,8 @@ public enum PaymentStatusEnum {
 
     Refunded("Refunded"),
 
+    Partial_Refunded("Partial_Refunded"),
+
     ;
     String type;
 
