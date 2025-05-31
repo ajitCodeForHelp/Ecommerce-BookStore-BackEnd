@@ -3,6 +3,7 @@ package com.bt.ecommerce.primary.razorpay;
 import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.OrderDto;
+import com.bt.ecommerce.primary.pojo.Order;
 import com.bt.ecommerce.primary.pojo.PaymentTransaction;
 import com.bt.ecommerce.primary.pojo.enums.PaymentGateWayEnum;
 import com.bt.ecommerce.primary.pojo.enums.PaymentGatewayStatusEnum;
@@ -441,7 +442,19 @@ public class RazorPayService extends _BaseService {
         else {
             headers.setBasicAuth(razorPayUserName, razorPayPassword);
         }
-        String refundRequestBody = "{ \"amount\": " + paymentTransaction.getAmount() + " }"; // Amount in paise
+
+        double amount = 0;
+
+        Order order = orderRepository.findByOrderId(orderId);
+        if(order==null){
+            order = orderHistoryRepository.findByOrderId(orderId);
+            amount = order.getOrderTotal()*100;
+        }
+        else{
+            amount = order.getOrderTotal()*100;
+        }
+
+        String refundRequestBody = "{ \"amount\": " + amount + " }"; // Amount in paise
 
         HttpEntity<String> entity = new HttpEntity<>(refundRequestBody, headers);
 

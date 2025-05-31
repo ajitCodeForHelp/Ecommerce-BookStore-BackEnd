@@ -25,7 +25,7 @@ public class CouponCodeDto extends AbstractDto{
         private Double discountValue;
         private long maxDiscountAmount;
         private Integer maxUsePerUser;
-        private Integer usedCount;
+        private Integer usedCount = 0;
         private Boolean referralCoupon;
         private Boolean shippingCoupon;
 
@@ -44,7 +44,7 @@ public class CouponCodeDto extends AbstractDto{
         private Double discountValue;
         private long maxDiscountAmount;
         private Integer maxUsePerUser;
-        private Integer usedCount;
+        private Integer usedCount = 0;
         private Boolean referralCoupon;
         private Boolean shippingCoupon;
 

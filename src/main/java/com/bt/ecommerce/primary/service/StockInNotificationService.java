@@ -54,7 +54,7 @@ public class StockInNotificationService extends _BaseService{
         for (StockInNotification stockInNotification : list) {
             String notifyItemMessage = "Hello! Good news — " + stockInNotification.getItemDetails().getParentTitle() +
                     " is back in stock at The Books 24!" +
-                    "Tap the link to order now: " +  "https://thebooks24.com/pagedetail/" +stockInNotification.getItemId() +
+                    "Tap the link to order now: " +  "thebooks24.com"+
                     "  – Team The Books 24";
             smsComponent.sendSMSByMakeMySms(stockInNotification.getCustomerMobile(),notifyItemMessage,"1707174845303156700");
             stockInNotification.setNotified(true);

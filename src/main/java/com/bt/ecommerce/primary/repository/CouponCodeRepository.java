@@ -16,13 +16,24 @@ public interface CouponCodeRepository extends MongoRepository<CouponCode, Object
     CouponCode findByCouponCode(String couponCode);
     List<CouponCode> findByDeleted(boolean deleted);
 
+//    @Query(value = "{" +
+//            "  'active'  : { '$eq' : true }," +
+//            "  'endDate' : { '$gt' : ?0 }," +
+//            "  'referralCoupon' : { '$eq' : false }," +
+//            "  'usedCount' : { '$lt' : '$maxUsePerUser' }" +
+//            "}")
+//    List<CouponCode> findActiveCouponCodeList(LocalDate localDate);
+
+
     @Query(value = "{" +
-            "  'active'  : { '$eq' : true }," +
-            "  'endDate' : { '$gt' : ?0 }," +
-            "  'referralCoupon' : { '$eq' : false }," +
-            "  'usedCount' : { '$lt' : '$maxUsePerUser' }" +
+            "  'active': true," +
+            "  'endDate': { '$gt': ?0 }," +
+            "  'referralCoupon': false," +
+            "  '$expr': { '$lt': [ { '$ifNull': ['$usedCount', 0] }, '$maxUsePerUser' ] }" +
             "}")
     List<CouponCode> findActiveCouponCodeList(LocalDate localDate);
+
+
 
     List<CouponCode> findByActiveAndDeleted(boolean active, boolean deleted);
 }
