@@ -237,16 +237,29 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
     }
 
 
-    public List<ItemDto.ItemSequenceDetail> itemSequenceDetailByCategory(String categoryUuid) throws BadRequestException {
+    public List<ItemDto.ItemSequenceDetail> itemSequenceDetailByParentCategory(String categoryUuid) throws BadRequestException {
         Category category = categoryRepository.findByUuid(categoryUuid);
         if(category==null){
             throw new BadRequestException("ecommerce.common.message.record_not_exist");
         }
-        List<Item> list =itemRepository.findByCategoryId(category.getId());
+        List<Item> list =itemRepository.findByParentCategoryId(category.getId());
         return list.stream()
                 .map(item -> ItemMapper.MAPPER.mapToSequnceDetailDto(item))
                 .collect(Collectors.toList());
     }
+
+
+    public List<ItemDto.ItemSequenceDetail> itemSequenceDetailBySubCategory(String categoryUuid) throws BadRequestException {
+        Category category = categoryRepository.findByUuid(categoryUuid);
+        if(category==null){
+            throw new BadRequestException("ecommerce.common.message.record_not_exist");
+        }
+        List<Item> list =itemRepository.findBySubCategoryId(category.getId());
+        return list.stream()
+                .map(item -> ItemMapper.MAPPER.mapToSequnceDetailDto(item))
+                .collect(Collectors.toList());
+    }
+
 
     public void reorderingItemSequence(ItemDto.ItemSequenceReorder itemSequenceReorder) {
         for (ItemDto.ItemSequence sequence : itemSequenceReorder.getItemSequences()) {

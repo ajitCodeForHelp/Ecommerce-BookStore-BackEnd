@@ -150,13 +150,24 @@ public class AdminItemController extends _BaseController {
                 .build(), HttpStatus.OK);
     }
     @TranslateResponseMessage
-    @GetMapping("/item-seq-detail-by-category/{categoryUuid}")
-    protected ResponseEntity<ResponsePacket> itemSequenceDetailByCategory(@PathVariable("categoryUuid") String categoryUuid) throws BadRequestException{
+    @GetMapping("/parent-cate-item-seq-detail/{categoryUuid}")
+    protected ResponseEntity<ResponsePacket> parentCatSequenceDetail(@PathVariable("categoryUuid") String categoryUuid) throws BadRequestException{
         SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.get_all")
-                .responsePacket(itemService.itemSequenceDetailByCategory(categoryUuid))
+                .responsePacket(itemService.itemSequenceDetailByParentCategory(categoryUuid))
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @GetMapping("/sub-cate-item-seq-detail/{categoryUuid}")
+    protected ResponseEntity<ResponsePacket> subCatSequenceDetail(@PathVariable("categoryUuid") String categoryUuid) throws BadRequestException{
+        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get_all")
+                .responsePacket(itemService.itemSequenceDetailBySubCategory(categoryUuid))
                 .build(), HttpStatus.OK);
     }
 

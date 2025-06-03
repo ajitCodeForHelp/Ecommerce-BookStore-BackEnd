@@ -48,6 +48,23 @@ public interface ItemRepository extends MongoRepository<Item, ObjectId> {
     List<Item> findByCategoryId(ObjectId categoryId);
 
 
+    @Query(value = "{ " +
+            "'active': true, " +
+            "'deleted': false, " +
+            "'parentCategoryIds': { '$in': [?0] }" +
+            "}")
+    List<Item> findByParentCategoryId(ObjectId parentCategoryId);
+
+
+    @Query(value = "{ " +
+            "'active': true, " +
+            "'deleted': false, " +
+            "'subCategoryIds': { '$in': [?0] }" +
+            "}")
+    List<Item> findBySubCategoryId(ObjectId subCategoryId);
+
+
+
     @Query(value = "" +
             "{" +
             "  'active'  : { '$eq' : true }," +
@@ -106,14 +123,5 @@ public interface ItemRepository extends MongoRepository<Item, ObjectId> {
 
 
     List<Item> findByPublisherId(ObjectId publisherId);
-
-
-    @Query("{ 'parentCategoryIds': ?0 }")
-    List<Item> findByParentCategoryId(ObjectId parentCategoryId);
-
-
-    @Query("{ 'subCategoryIds': ?0 }")
-    List<Item> findBySubCategoryId(ObjectId subCategoryId);
-
 
 }
