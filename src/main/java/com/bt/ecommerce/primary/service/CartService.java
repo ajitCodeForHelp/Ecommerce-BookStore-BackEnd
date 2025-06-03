@@ -251,17 +251,27 @@ public class CartService extends _BaseService {
             cart.setCouponDiscountAmount(0.0);
             return cart;
         }
-        if (cart.getSubTotal() < couponCode.getMinOrderValue()) {
+        double couponApplicableCartSubTotal =0.0;
+        for (Cart.ItemDetail itemDetail : cart.getItemDetailList()) {
+            if(!itemDetail.getOfferApplicable()) continue;
+            couponApplicableCartSubTotal += itemDetail.getItemTotal() * itemDetail.getQuantity();
+        }
+        if (couponApplicableCartSubTotal < couponCode.getMinOrderValue()) {
             cart.setCouponCodeId(null);
             cart.setCouponCodeRefDetail(null);
             cart.setCouponDiscountAmount(0.0);
             return cart;
         }
-        double couponApplicableCartSubTotal = 0;
-        for (Cart.ItemDetail itemDetail : cart.getItemDetailList()) {
-            if(!itemDetail.getOfferApplicable()) continue;
-            couponApplicableCartSubTotal += itemDetail.getItemTotal() * itemDetail.getQuantity();
+        if (cart.isCashOnDelivery()) {
+            cart.setCouponCodeId(null);
+            cart.setCouponCodeRefDetail(null);
+            cart.setCouponDiscountAmount(0.0);
+            return cart;
         }
+//        for (Cart.ItemDetail itemDetail : cart.getItemDetailList()) {
+//            if(!itemDetail.getOfferApplicable()) continue;
+//            couponApplicableCartSubTotal += itemDetail.getItemTotal() * itemDetail.getQuantity();
+//        }
         if(couponApplicableCartSubTotal == 0) return cart;
         // implement coupon code
         double couponCodeDiscountAmount = 0.0;

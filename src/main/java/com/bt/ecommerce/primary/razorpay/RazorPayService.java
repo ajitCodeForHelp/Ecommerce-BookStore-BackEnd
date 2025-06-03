@@ -23,6 +23,7 @@ import com.google.gson.reflect.TypeToken;
 import org.cloudinary.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.mongodb.util.DBObjectUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -444,14 +445,13 @@ public class RazorPayService extends _BaseService {
         }
 
         double amount = 0;
-
         Order order = orderRepository.findByOrderId(orderId);
         if(order==null){
             order = orderHistoryRepository.findByOrderId(orderId);
-            amount = order.getOrderTotal()*100;
+            amount = order.getOrderTotal()*100 - order.getCouponDiscountAmount()*100;
         }
         else{
-            amount = order.getOrderTotal()*100;
+            amount = order.getOrderTotal()*100 - order.getCouponDiscountAmount()*100;
         }
 
         String refundRequestBody = "{ \"amount\": " + amount + " }"; // Amount in paise
@@ -520,55 +520,6 @@ public class RazorPayService extends _BaseService {
         paymentTransaction.setPaymentStatus(paymentStatusEnum);
         paymentTransactionRepository.save(paymentTransaction);
     }
-
-    public void getStatusByOrderId() {
-        String razorpayKeyId = "rzp_live_2M4NQa1zuxbe6F"; // Your Razorpay Key ID
-        String razorpayKeySecret = "Qhc7v709eCPUk1eXbxUk4F8w"; // Your Razorpay Key Secret
-        String orderId = "order_PrBi1yvtOrt9l0"; // The Razorpay order ID you want to query
-
-        try {
-            // Build the URL for the API request
-            String urlString = "https://api.razorpay.com/v1/orders/" + orderId;
-            URL url = new URL(urlString);
-
-            // Open a connection to the Razorpay API
-            HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-            connection.setRequestMethod("GET");
-
-            // Set the Authorization header using Basic Auth (Base64 encoding)
-            String auth = razorpayKeyId + ":" + razorpayKeySecret;
-            String encodedAuth = Base64.getEncoder().encodeToString(auth.getBytes(StandardCharsets.UTF_8));
-            connection.setRequestProperty("Authorization", "Basic " + encodedAuth);
-
-            // Get the response code to check if the request was successful
-            int responseCode = connection.getResponseCode();
-            if (responseCode == HttpURLConnection.HTTP_OK) {
-                // Read the response
-                BufferedReader in = new BufferedReader(new InputStreamReader(connection.getInputStream()));
-                String inputLine;
-                StringBuilder response = new StringBuilder();
-
-                while ((inputLine = in.readLine()) != null) {
-                    response.append(inputLine);
-                }
-                in.close();
-
-                // Parse the JSON response
-                JSONObject jsonResponse = new JSONObject(response.toString());
-                // Extract the payment status
-                String paymentStatus = jsonResponse.getString("status");
-
-                System.out.println("Payment Response " + orderId + ": " + paymentStatus);
-
-                // Print the payment status
-                System.out.println("Payment Status for Order ID " + orderId + ": " + paymentStatus);
-            } else {
-                System.out.println("Failed to get payment status. HTTP Code: " + responseCode);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
     String RAZORPAY_WEBHOOK_SECRET = "rzp_test_gSYLawQRB8O3IF";
     public String handleWebhook(String razorpaySignature, String payload) {
         System.out.println("razorpaySignature is --------" + razorpaySignature);
@@ -590,12 +541,18 @@ public class RazorPayService extends _BaseService {
 //                    String razorderId = order.getString("id");
                     JSONObject payment = webhookData.getJSONObject("payload").getJSONObject("payment").getJSONObject("entity");
                     String razorderId = payment.getString("order_id");
-
+                    int amount = payment.getInt("amount");
                     PaymentTransaction paymentTransaction=  paymentTransactionService.updatePaymentTransactionWebhookAndStatus(razorderId, payload, PaymentGatewayStatusEnum.paid);
-                    String orderID =  cartService.placeOrderWebHook(paymentTransaction.getOrderId());
-                    paymentTransaction.setOrderId(orderID);
-                    paymentTransactionService.updateOrderIdAfterPlaceOrder(razorderId, orderID);
-                    status = "paid";
+                    if(amount < paymentTransaction.getAmount()){
+                        paymentTransactionService.updatePaymentTransactionWebhookAndStatus(razorderId, payload, PaymentGatewayStatusEnum.failed);
+                        status = "failed";
+                    }
+                    else {
+                        String orderID = cartService.placeOrderWebHook(paymentTransaction.getOrderId());
+                        paymentTransaction.setOrderId(orderID);
+                        paymentTransactionService.updateOrderIdAfterPlaceOrder(razorderId, orderID);
+                        status = "paid";
+                    }
                 }
                 if ("payment.failed".equals(event)) {
                     JSONObject payment = webhookData.getJSONObject("payload").getJSONObject("payment").getJSONObject("entity");
