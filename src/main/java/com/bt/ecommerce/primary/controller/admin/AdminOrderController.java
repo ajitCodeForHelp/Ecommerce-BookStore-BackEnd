@@ -193,4 +193,24 @@ public class AdminOrderController extends _BaseController {
                 .build(), HttpStatus.OK);
     }
 
+    @TranslateResponseMessage
+    @PostMapping("/saveOrderNotes/{orderId}")
+    public ResponseEntity<ResponsePacket> orderNotesSave(@PathVariable(value = "orderId") String orderId ,@RequestBody OrderDto.SaveOrderNotes saveOrderNotes) throws BadRequestException, JsonProcessingException {
+        orderService.saveOrderNotes(orderId,saveOrderNotes);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get")
+                .build(), HttpStatus.OK);
+    }
+
+    @TranslateResponseMessage
+    @PostMapping("/saveHistoryOrderNotes/{orderId}")
+    public ResponseEntity<ResponsePacket> saveHistoryOrderNotes(@PathVariable(value = "orderId") String orderId ,@RequestBody OrderDto.SaveOrderNotes saveOrderNotes) throws BadRequestException, JsonProcessingException {
+        orderService.saveHistoryOrderNotes(orderId,saveOrderNotes);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get")
+                .build(), HttpStatus.OK);
+    }
+
 }

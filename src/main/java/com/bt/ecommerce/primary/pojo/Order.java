@@ -32,7 +32,9 @@ public class Order extends Cart {
     private BasicParent courierPartnerDetail;
     private String cancelReason;
     private String partialCancelReason;
-
+    private String notes;
+    private double shippingAmountRefund;
+    private double itemAmountRefund;
     // TODO >  PaymentStatus > and more payment related details > txn
 
 

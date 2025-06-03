@@ -5,7 +5,9 @@ import com.bt.ecommerce.bean.KeyValueDto;
 import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.AbstractDto;
+import com.bt.ecommerce.primary.dto.CategoryDto;
 import com.bt.ecommerce.primary.dto.ItemDto;
+import com.bt.ecommerce.primary.mapper.CategoryMapper;
 import com.bt.ecommerce.primary.mapper.ItemMapper;
 import com.bt.ecommerce.primary.pojo.Category;
 import com.bt.ecommerce.primary.pojo.Item;
@@ -234,6 +236,25 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
         return  ItemMapper.MAPPER.mapToItemSearchDto(item);
     }
 
+
+    public List<ItemDto.ItemSequenceDetail> itemSequenceDetailByCategory(String categoryUuid) throws BadRequestException {
+        Category category = categoryRepository.findByUuid(categoryUuid);
+        if(category==null){
+            throw new BadRequestException("ecommerce.common.message.record_not_exist");
+        }
+        List<Item> list =itemRepository.findByCategoryId(category.getId());
+        return list.stream()
+                .map(item -> ItemMapper.MAPPER.mapToSequnceDetailDto(item))
+                .collect(Collectors.toList());
+    }
+
+    public void reorderingItemSequence(ItemDto.ItemSequenceReorder itemSequenceReorder) {
+        for (ItemDto.ItemSequence sequence : itemSequenceReorder.getItemSequences()) {
+            Item item = itemRepository.findByUuid(sequence.getId());
+            item.setSequenceNo(sequence.getSequenceNo());
+            itemRepository.save(item);
+        }
+    }
 
     public void updateItemCodesForExistingItems() {
         // Step 1: Retrieve all items sorted by createdAt in ascending order

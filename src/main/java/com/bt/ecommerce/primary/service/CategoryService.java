@@ -63,7 +63,9 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
             category.setParentCategoryDetail(null);
         }
         boolean needToUpdateItemCategory = false;
-        if(!category.getTitle().equalsIgnoreCase(updateCategoryDto.getTitle())){
+        if(!category.getTitle().equalsIgnoreCase(updateCategoryDto.getTitle()) ||
+                 !category.getParentCategoryDetail().getParentUuid().equalsIgnoreCase(updateCategoryDto.getParentCategoryUuid())
+        ){
             needToUpdateItemCategory = true;
         }
         category = CategoryMapper.MAPPER.mapToPojo(category, updateCategoryDto);
@@ -338,6 +340,13 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
 
     public List<CategoryDto.CatSubCatSequenceDetail> categorySequenceDetail() {
         List<Category> list =categoryRepository.findParentCategories();
+        return list.stream()
+                .map(category -> CategoryMapper.MAPPER.mapToSequnceDetailDto(category))
+                .collect(Collectors.toList());
+    }
+
+    public List<CategoryDto.CatSubCatSequenceDetail> displayCategorySequenceDetail() {
+        List<Category> list =categoryRepository.findByActiveAndDeletedAndDisplayCategory();
         return list.stream()
                 .map(category -> CategoryMapper.MAPPER.mapToSequnceDetailDto(category))
                 .collect(Collectors.toList());

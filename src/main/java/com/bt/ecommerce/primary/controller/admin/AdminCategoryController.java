@@ -214,7 +214,6 @@ public class AdminCategoryController extends _BaseController {
                 .responsePacket(categoryService.subCategorySequenceDetail(parentCategoryUuid))
                 .build(), HttpStatus.OK);
     }
-
 }
 
 

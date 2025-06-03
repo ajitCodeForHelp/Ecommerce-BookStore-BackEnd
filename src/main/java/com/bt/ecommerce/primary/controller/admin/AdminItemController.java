@@ -5,6 +5,7 @@ import com.bt.ecommerce.bean.ResponsePacket;
 import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.controller._BaseController;
+import com.bt.ecommerce.primary.dto.CategoryDto;
 import com.bt.ecommerce.primary.dto.ItemDto;
 import com.bt.ecommerce.primary.pojo.user.SystemUser;
 import com.bt.ecommerce.security.JwtUserDetailsService;
@@ -148,4 +149,28 @@ public class AdminItemController extends _BaseController {
                 .responsePacket(itemService.listInKeyValue())
                 .build(), HttpStatus.OK);
     }
+    @TranslateResponseMessage
+    @GetMapping("/item-seq-detail-by-category/{categoryUuid}")
+    protected ResponseEntity<ResponsePacket> itemSequenceDetailByCategory(@PathVariable("categoryUuid") String categoryUuid) throws BadRequestException{
+        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get_all")
+                .responsePacket(itemService.itemSequenceDetailByCategory(categoryUuid))
+                .build(), HttpStatus.OK);
+    }
+
+
+    @TranslateResponseMessage
+    @PostMapping("/update-Item-Ordering")
+    public ResponseEntity<ResponsePacket> updateItemDisplayOrdering(@RequestBody ItemDto.ItemSequenceReorder itemSequenceReorder) {
+        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        itemService.reorderingItemSequence(itemSequenceReorder);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.update")
+                .build(), HttpStatus.OK);
+    }
+
+
 }

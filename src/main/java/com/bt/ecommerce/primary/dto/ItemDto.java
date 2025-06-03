@@ -100,4 +100,27 @@ public class ItemDto extends AbstractDto{
     }
 
 
+
+
+    @Setter
+    @Getter
+    public static class ItemSequenceReorder {
+        @NotNull private List<ItemDto.ItemSequence> itemSequences;
+    }
+
+    @Setter
+    @Getter
+    public static class ItemSequence {
+        @NotNull private String id;
+        @NotNull private int sequenceNo;
+    }
+    @Setter
+    @Getter
+    public static class ItemSequenceDetail {
+        private String uuid;
+        private int sequenceNo;
+        private String title;
+    }
+
+
 }

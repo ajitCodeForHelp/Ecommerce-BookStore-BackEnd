@@ -11,7 +11,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -48,6 +47,9 @@ public class OrderDto extends AbstractDto{
         private BasicParent courierPartnerDetail;
         private String cancelReason;
         private double codCharges = 0.0;
+        private String notes;
+        private double shippingAmountRefund;
+        private double itemAmountRefund;
     }
 
     @Setter
@@ -86,5 +88,11 @@ public class OrderDto extends AbstractDto{
         private List<String> itemIds;
         private String cancelReason;
         private double shippingRefundAmount;
+    }
+
+    @Setter
+    @Getter
+    public static class SaveOrderNotes {
+        private String orderNotes;
     }
 }

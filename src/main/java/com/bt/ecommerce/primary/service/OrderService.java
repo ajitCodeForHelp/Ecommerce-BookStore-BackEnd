@@ -305,6 +305,8 @@ public class OrderService extends _BaseService {
             }
         }
         double refundAmountTotal = refundAmount + cancelOrder.getShippingRefundAmount();
+        order.setItemAmountRefund(refundAmount);
+        order.setShippingAmountRefund(cancelOrder.getShippingRefundAmount());
         order.setOrderTotal(order.getOrderTotal() - refundAmountTotal);
         order.setSubTotal(order.getSubTotal()-refundAmount);
         order.setDeliveryCharges(order.getDeliveryCharges()-cancelOrder.getShippingRefundAmount());
@@ -336,6 +338,8 @@ public class OrderService extends _BaseService {
             }
         }
         double refundAmountTotal = refundAmount + cancelOrder.getShippingRefundAmount();
+        order.setItemAmountRefund(refundAmount);
+        order.setShippingAmountRefund(cancelOrder.getShippingRefundAmount());
         order.setOrderTotal(order.getOrderTotal() - refundAmountTotal);
         order.setSubTotal(order.getSubTotal()-refundAmount);
         order.setDeliveryCharges(order.getDeliveryCharges()-cancelOrder.getShippingRefundAmount());
@@ -351,5 +355,23 @@ public class OrderService extends _BaseService {
         smsComponent.sendSMSByMakeMySms(order.getCustomerDetail().getUserCustomerMobile(), partialRefundMessage, "1707174843506117612");
     }
 
+
+    public void saveOrderNotes(String orderId, OrderDto.SaveOrderNotes saveOrderNotes) throws BadRequestException {
+        Order order = orderRepository.findByOrderId(orderId);
+        if (order == null) {
+            throw new BadRequestException("Invalid OrderId Provided");
+        }
+       order.setNotes(saveOrderNotes.getOrderNotes());
+       orderRepository.save(order);
+    }
+
+    public void saveHistoryOrderNotes(String orderId, OrderDto.SaveOrderNotes saveOrderNotes) throws BadRequestException {
+        OrderHistory order = orderHistoryRepository.findByOrderId(orderId);
+        if (order == null) {
+            throw new BadRequestException("Invalid OrderId Provided");
+        }
+        order.setNotes(saveOrderNotes.getOrderNotes());
+        orderHistoryRepository.save(order);
+    }
 
 }

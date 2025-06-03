@@ -150,4 +150,17 @@ public class AdminDisplayCategoryController extends _BaseController {
                 .message("ecommerce.common.message.update")
                 .build(), HttpStatus.OK);
     }
+
+
+    @TranslateResponseMessage
+    @GetMapping("/display-category-sequence-detail")
+    protected ResponseEntity<ResponsePacket> diaplayCategorySequenceDetail(){
+        SystemUser loggedInUser = (SystemUser) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.get_all")
+                .responsePacket(categoryService.displayCategorySequenceDetail())
+                .build(), HttpStatus.OK);
+    }
+
 }

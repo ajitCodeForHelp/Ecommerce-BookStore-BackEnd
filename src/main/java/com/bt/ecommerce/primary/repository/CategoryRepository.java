@@ -125,9 +125,11 @@ public interface CategoryRepository extends MongoRepository<Category, ObjectId> 
     @Query(value = "{" +
             "'parentCategoryId': null," +
             "'active': true," +
-            "'deleted': false" +
+            "'deleted': false," +
+            "'displayCategory': false" +
             "}")
     List<Category> findParentCategories();
+
 
     @Query(value = "{ 'parentCategoryId': ?0 }")
     List<Category> findByParentCategoryId(ObjectId parentCategoryId);
