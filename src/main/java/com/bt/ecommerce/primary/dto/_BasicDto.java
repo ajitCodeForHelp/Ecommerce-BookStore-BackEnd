@@ -7,7 +7,7 @@ import lombok.Setter;
 @Setter
 @Getter
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public abstract class _BasicDto {
+public abstract class   _BasicDto {
 
 
     protected String uuid;

@@ -543,17 +543,18 @@ public class RazorPayService extends _BaseService {
                     String razorderId = payment.getString("order_id");
                     int amount = payment.getInt("amount");
                     PaymentTransaction paymentTransaction=  paymentTransactionService.updatePaymentTransactionWebhookAndStatus(razorderId, payload, PaymentGatewayStatusEnum.paid);
-                    if(amount < paymentTransaction.getAmount()){
-                        paymentTransactionService.updatePaymentTransactionWebhookAndStatus(razorderId, payload, PaymentGatewayStatusEnum.failed);
-                        status = "failed";
+                        String orderID = cartService.placeOrderWebHook(paymentTransaction.getOrderId(),amount);
+                        if(null==orderID){
+                            paymentTransactionService.updatePaymentTransactionWebhookAndStatus(razorderId, payload, PaymentGatewayStatusEnum.failed);
+                            status = "failed";
+                        }
+                        else {
+//                             orderID = cartService.placeOrderWebHook(paymentTransaction.getOrderId(),amount);
+                            paymentTransaction.setOrderId(orderID);
+                            paymentTransactionService.updateOrderIdAfterPlaceOrder(razorderId, orderID);
+                            status = "paid";
+                        }
                     }
-                    else {
-                        String orderID = cartService.placeOrderWebHook(paymentTransaction.getOrderId());
-                        paymentTransaction.setOrderId(orderID);
-                        paymentTransactionService.updateOrderIdAfterPlaceOrder(razorderId, orderID);
-                        status = "paid";
-                    }
-                }
                 if ("payment.failed".equals(event)) {
                     JSONObject payment = webhookData.getJSONObject("payload").getJSONObject("payment").getJSONObject("entity");
                     String razorderId = payment.getString("order_id");

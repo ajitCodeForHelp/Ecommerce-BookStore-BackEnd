@@ -1,11 +1,9 @@
 package com.bt.ecommerce.primary.mapper;
 
 import com.bt.ecommerce.bean.KeyValueDto;
-import com.bt.ecommerce.primary.dto.CartDto;
-import com.bt.ecommerce.primary.dto.CategoryDto;
 import com.bt.ecommerce.primary.dto.ItemDto;
 import com.bt.ecommerce.primary.pojo.Cart;
-import com.bt.ecommerce.primary.pojo.Category;
+import com.bt.ecommerce.primary.pojo.InventoryCart;
 import com.bt.ecommerce.primary.pojo.Item;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -37,5 +35,8 @@ public interface ItemMapper {
 
 
     ItemDto.ItemSequenceDetail mapToSequnceDetailDto(Item item);
+
+    @Mapping(expression = "java(item.getUuid())", target = "itemUuid")
+    InventoryCart.ItemDetail mapToInventoryCartItem(Item item);
 
 }

@@ -412,7 +412,7 @@ public class CartService extends _BaseService {
     }
 
 
-    public String placeOrderWebHook(String cartUuid) throws BadRequestException {
+    public String placeOrderWebHook(String cartUuid,double pgAmount) throws BadRequestException {
         // TODO > InOrder To Place Order You Need To Login > Then Update > Customer Details Into It.
 //        Customer loggedInCustomer = (Customer) SpringBeanContext.getBean(JwtUserDetailsService.class).getLoggedInUser();
         Cart cart = cartRepository.findByUuid(cartUuid);
@@ -430,6 +430,11 @@ public class CartService extends _BaseService {
 //                    loggedInCustomer.getMobile(),loggedInCustomer.getEmail()));
 //        }
         cart = cartPriceCalculation(cart);
+        System.out.println("pgAmount---------------------------" + pgAmount);
+        System.out.println("cartTotal---------------------------" + (cart.getOrderTotal()-cart.getCouponDiscountAmount()));
+        if(pgAmount<(cart.getOrderTotal()-cart.getCouponDiscountAmount()*100)){
+            return null;
+        }
         Order order = CartMapper.MAPPER.mapToOrder(cart);
         order.setCreatedAt(LocalDateTime.now());
         order.setModifiedAt(LocalDateTime.now());

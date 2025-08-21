@@ -20,10 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -54,6 +51,65 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
     public void update(String uuid, AbstractDto.Update update) throws BadRequestException {
         CategoryDto.UpdateCategory updateCategoryDto = (CategoryDto.UpdateCategory) update;
         Category category = findByUuid(uuid);
+        String existingParentUuid = category.getParentCategoryDetail() != null
+                ? category.getParentCategoryDetail().getParentUuid()
+                : null;
+        String newParentUuid = updateCategoryDto.getParentCategoryUuid();
+        if (!Objects.equals(existingParentUuid, newParentUuid)) {
+            List<Item> itemList = itemRepository.findByCategoryId(category.getId());
+            for (Item item : itemList) {
+                boolean subCategoryUpdated = true;
+                for (BasicParent basicParent : item.getParentCategoryDetails()) {
+                    if (basicParent.getParentUuid().equals(uuid)) {
+                        if (updateCategoryDto.getParentCategoryUuid() != null) {
+                            Category newParentCategory = categoryRepository.findByUuid(updateCategoryDto.getParentCategoryUuid());
+                            if (!item.getParentCategoryIds().contains(newParentCategory.getId())) {
+                                basicParent.setParentUuid(newParentCategory.getUuid());
+                                basicParent.setParentTitle(newParentCategory.getTitle());
+                                item.getParentCategoryIds().add(newParentCategory.getId());
+                            }
+                            item.getParentCategoryIds().remove(category.getId());
+                            item.getSubCategoryIds().add(category.getId());
+                            item.getSubCategoryDetails().add(new BasicParent(category.getUuid(), category.getTitle()));
+                            itemRepository.save(item);
+                            subCategoryUpdated = false;
+                        }
+                    }
+                }
+
+                //For Sub-Category
+                List<BasicParent> subCategoryCopy = new ArrayList<>(item.getSubCategoryDetails());
+                if (subCategoryUpdated) {
+                    for (BasicParent basicParent : subCategoryCopy) {
+                        if (basicParent.getParentUuid().equals(uuid)) {
+                            if (updateCategoryDto.getParentCategoryUuid() == null) {
+                                item.getSubCategoryDetails().remove(basicParent);
+                                item.getSubCategoryIds().remove(uuid);
+                                item.getParentCategoryIds().remove(category.getParentCategoryId());
+                                item.getParentCategoryDetails().remove(category.getParentCategoryDetail());
+                                if (!item.getParentCategoryIds().contains(category.getId())) {
+                                    item.getParentCategoryIds().add(category.getId());
+                                    item.getParentCategoryDetails().add(new BasicParent(category.getUuid(), category.getTitle()));
+                                }
+                                itemRepository.save(item);
+                            }
+                            if (updateCategoryDto.getParentCategoryUuid() != null &&
+                                    !(category.getParentCategoryDetail() != null && category.getParentCategoryDetail().getParentUuid().equals(updateCategoryDto.getParentCategoryUuid()))) {
+                                item.getParentCategoryDetails().remove(category.getParentCategoryDetail());
+                                item.getParentCategoryIds().remove(category.getParentCategoryId());
+                                Category newParentCategory = categoryRepository.findByUuid(updateCategoryDto.getParentCategoryUuid());
+                                if (!item.getParentCategoryIds().contains(newParentCategory.getId())) {
+                                    item.getParentCategoryIds().add(newParentCategory.getId());
+                                    item.getParentCategoryDetails().add(new BasicParent(newParentCategory.getUuid(), newParentCategory.getTitle()));
+                                }
+                                itemRepository.save(item);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
         if (!TextUtils.isEmpty(updateCategoryDto.getParentCategoryUuid())) {
             Category parentCategory = categoryRepository.findByUuid(updateCategoryDto.getParentCategoryUuid());
             category.setParentCategoryId(parentCategory.getId());
@@ -62,9 +118,9 @@ public class CategoryService extends _BaseService implements _BaseServiceImpl {
             category.setParentCategoryId(null);
             category.setParentCategoryDetail(null);
         }
+
         boolean needToUpdateItemCategory = false;
-        if(!category.getTitle().equalsIgnoreCase(updateCategoryDto.getTitle()) ||
-                 !category.getParentCategoryDetail().getParentUuid().equalsIgnoreCase(updateCategoryDto.getParentCategoryUuid())
+        if(!category.getTitle().equalsIgnoreCase(updateCategoryDto.getTitle())
         ){
             needToUpdateItemCategory = true;
         }

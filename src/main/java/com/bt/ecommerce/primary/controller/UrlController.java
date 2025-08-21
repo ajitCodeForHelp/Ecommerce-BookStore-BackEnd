@@ -55,24 +55,4 @@ public class UrlController {
                 .message("Page Data.")
                 .build(), HttpStatus.OK);
     }
-
-    @PostMapping("/encodeRajLMS")
-    public ResponseEntity<ResponsePacket> encodeRajLMS() throws Exception {
-        razorPayService.getStatusByOrderId();
-        return new ResponseEntity<>(ResponsePacket.builder()
-                .errorCode(0)
-                .message("ecommerce.common.message.file_uploaded_successfully")
-                .responsePacket(TextUtils.encrypt(""))
-                .build(), HttpStatus.OK);
-    }
-
-
-    @PostMapping("/decodeRajLMS")
-    public ResponseEntity<ResponsePacket> decodeRajLMS() throws Exception {
-        return new ResponseEntity<>(ResponsePacket.builder()
-                .errorCode(0)
-                .message("ecommerce.common.message.file_uploaded_successfully")
-                .responsePacket(TextUtils.decrypt(""))
-                .build(), HttpStatus.OK);
-    }
 }
