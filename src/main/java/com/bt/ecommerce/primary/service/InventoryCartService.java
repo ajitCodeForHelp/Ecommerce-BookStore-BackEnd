@@ -11,11 +11,13 @@ import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.security.JwtTokenUtil;
 import com.bt.ecommerce.utils.TextUtils;
 import org.bson.types.ObjectId;
+import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Service
 public class InventoryCartService extends _BaseService {
 
     public InventoryCartDto.DetailInventoryCart getInventoryCartDetail(String authorizationToken) throws BadRequestException {
