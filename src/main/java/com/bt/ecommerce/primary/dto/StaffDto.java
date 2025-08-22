@@ -22,6 +22,7 @@ public class StaffDto extends AbstractDto{
         private String email;
         @NotNull private String password;
         private String photoImageUrl;
+        private Boolean orderManager;
     }
     @Setter
     @Getter
@@ -35,6 +36,7 @@ public class StaffDto extends AbstractDto{
         private String email;
         @NotNull private String password;
         private String photoImageUrl;
+        private Boolean orderManager;
     }
     @Setter
     @Getter
@@ -48,6 +50,7 @@ public class StaffDto extends AbstractDto{
         private String email;
         private String photoImageUrl;
         private String pwdText;
+        private Boolean orderManager;
     }
 
     @Setter

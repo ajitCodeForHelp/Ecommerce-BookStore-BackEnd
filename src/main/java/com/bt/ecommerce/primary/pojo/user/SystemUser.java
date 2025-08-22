@@ -21,5 +21,4 @@ public class SystemUser extends _BaseUser/*implements UserDetails*/ {
     // User Assign Url List
     // urlUuidList == {Null or Empty} == access all data || SuperAdmin | Admin
     private List<String> urlUuidList;
-
 }

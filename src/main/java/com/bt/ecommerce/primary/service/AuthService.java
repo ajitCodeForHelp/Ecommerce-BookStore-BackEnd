@@ -84,7 +84,7 @@ public class AuthService extends _BaseService {
         adminDetail.setFirstName((user.getFirstName() != null) ? user.getFirstName() : user.getMobile());
         adminDetail.setLastName(user.getLastName());
         adminDetail.setUserType(user.getUserType());
-
+        adminDetail.setOrderManager(user.getOrderManager());
         String token = TextUtils.md5encryption(user.getUniqueKey()) + TextUtils.md5encryption(ipAddress);
         Map<String, Object> bodyPart = new LinkedHashMap<>();
         bodyPart.put("username", user.getUsername());

@@ -48,5 +48,6 @@ public class AuthDto {
         private String lastName;
         private String secretKey;
         private RoleEnum userType;
+        private Boolean orderManager;
     }
 }

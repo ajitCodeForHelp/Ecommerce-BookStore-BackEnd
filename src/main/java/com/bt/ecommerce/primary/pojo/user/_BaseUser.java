@@ -57,6 +57,7 @@ public class _BaseUser extends _BasicEntity implements UserDetails {
     private String deviceType;
     private String fcmDeviceToken;
     private String deviceId;
+    private Boolean orderManager;
 
     // Lang = "en" / "hi" / "ar"
 
