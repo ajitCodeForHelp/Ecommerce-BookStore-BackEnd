@@ -30,5 +30,5 @@ public class Constants {
             "/customer/v1/razorPay/webHookTransaction/**"
     };
     public static final String[] MONITORING_PATTERNS = new String[]{"/actuator/**"};
-    public static final String[] PROTECTED_PATTERNS = new String[]{"/admin/**", "/customer/**"  ,"/ops/**"};
+    public static final String[] PROTECTED_PATTERNS = new String[]{"/admin/**", "/customer/**"  ,"/ops/**","/store/**"};
 }

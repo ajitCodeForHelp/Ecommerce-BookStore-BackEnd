@@ -8,6 +8,7 @@ import com.bt.ecommerce.primary.mapper.ItemMapper;
 import com.bt.ecommerce.primary.pojo.InventoryCart;
 import com.bt.ecommerce.primary.pojo.Item;
 import com.bt.ecommerce.primary.pojo.user.Customer;
+import com.bt.ecommerce.primary.pojo.user.SystemUser;
 import com.bt.ecommerce.security.JwtTokenUtil;
 import com.bt.ecommerce.utils.TextUtils;
 import org.bson.types.ObjectId;
@@ -26,13 +27,13 @@ public class InventoryCartService extends _BaseService {
     }
 
     public List<InventoryCartDto.DetailInventoryCart> getInventoryCartListForOrder(String authorizationToken) throws BadRequestException {
-        Customer loggedInCustomer = null;
+        SystemUser loggedInCustomer = null;
         try {
             if (!TextUtils.isEmpty(authorizationToken)) {
                 String username = SpringBeanContext
                         .getBean(JwtTokenUtil.class)
                         .validateToken(authorizationToken);
-                loggedInCustomer = customerRepository.findFirstByUsername(username);
+                loggedInCustomer = systemUserRepository.findFirstByUsername(username);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -153,12 +154,12 @@ public class InventoryCartService extends _BaseService {
     }
 
     private InventoryCart createNewInventoryCart(String authorizationToken) throws BadRequestException {
-        Customer loggedInCustomer = null;
+        SystemUser loggedInCustomer = null;
         InventoryCart cart = null;
         try {
             if (!TextUtils.isEmpty(authorizationToken)) {
                 String username = SpringBeanContext.getBean(JwtTokenUtil.class).validateToken(authorizationToken);
-                loggedInCustomer = customerRepository.findFirstByUsername(username);
+                loggedInCustomer = systemUserRepository.findFirstByUsername(username);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -184,12 +185,12 @@ public class InventoryCartService extends _BaseService {
         return cart;
     }
     private InventoryCart getCartByStaffId(String authorizationToken) throws BadRequestException {
-        Customer loggedInCustomer = null;
+        SystemUser loggedInCustomer = null;
         InventoryCart cart = null;
         try {
             if (!TextUtils.isEmpty(authorizationToken)) {
                 String username = SpringBeanContext.getBean(JwtTokenUtil.class).validateToken(authorizationToken);
-                loggedInCustomer = customerRepository.findFirstByUsername(username);
+                loggedInCustomer = systemUserRepository.findFirstByUsername(username);
             }
         } catch (Exception e) {
             e.printStackTrace();
