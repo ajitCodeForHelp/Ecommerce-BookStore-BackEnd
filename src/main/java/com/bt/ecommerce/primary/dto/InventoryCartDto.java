@@ -4,6 +4,7 @@ import com.bt.ecommerce.primary.pojo.InventoryCart;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.bson.types.ObjectId;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,6 +26,8 @@ public class InventoryCartDto extends AbstractDto{
     @Getter
     @Setter
     public static class DetailInventoryCart extends Detail{
+        protected ObjectId id;
+        private InventoryCart.StaffRefDetail customerDetail;
         private List<InventoryCart.ItemDetail> itemDetailList = new ArrayList<>();
     }
 }
