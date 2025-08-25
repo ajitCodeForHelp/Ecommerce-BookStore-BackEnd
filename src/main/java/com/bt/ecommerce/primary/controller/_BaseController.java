@@ -35,7 +35,8 @@ public class _BaseController {
     @Autowired protected CourierPartnerService courierPartnerService;
     @Autowired protected PaymentTransactionService paymentTransactionService;
     @Autowired protected DashboardService dashboardService;
-
     @Autowired protected InventoryCartService inventoryCartService;
+    @Autowired protected VendorService vendorService;
+
 
 }

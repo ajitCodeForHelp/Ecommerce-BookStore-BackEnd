@@ -7,7 +7,6 @@ import com.bt.ecommerce.primary.mapper.InventoryCartMapper;
 import com.bt.ecommerce.primary.mapper.ItemMapper;
 import com.bt.ecommerce.primary.pojo.InventoryCart;
 import com.bt.ecommerce.primary.pojo.Item;
-import com.bt.ecommerce.primary.pojo.user.Customer;
 import com.bt.ecommerce.primary.pojo.user.SystemUser;
 import com.bt.ecommerce.security.JwtTokenUtil;
 import com.bt.ecommerce.utils.TextUtils;

@@ -36,10 +36,7 @@ public class _BaseService {
     @Autowired protected TaxRepository taxRepository;
     @Autowired protected OrderHistoryRepository orderHistoryRepository;
     @Autowired protected CourierPartnerRepository courierPartnerRepository;
-
-
-
-
+    @Autowired protected VendorRepository vendorRepository;
     protected DataTableResponsePacket getDataTableResponsePacket(Page pageData, List data) {
         DataTableResponsePacket responsePacket = new DataTableResponsePacket();
         responsePacket.setCurrentPage(pageData.getNumber());
