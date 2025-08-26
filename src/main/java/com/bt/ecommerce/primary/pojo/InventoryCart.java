@@ -28,6 +28,7 @@ public class InventoryCart extends _BasicEntity {
         private String title;
         private List<String> itemImageUrls;
         private Long quantity = 1L;
+        private Boolean isOrdered;
     }
 
     @Getter
@@ -45,4 +46,7 @@ public class InventoryCart extends _BasicEntity {
         private String staffFirstName;
         private String staffLastName;
     }
+
+
+
 }

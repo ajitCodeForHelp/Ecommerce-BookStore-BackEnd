@@ -11,14 +11,24 @@ import com.bt.ecommerce.primary.pojo.user.SystemUser;
 import com.bt.ecommerce.security.JwtTokenUtil;
 import com.bt.ecommerce.utils.TextUtils;
 import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.mongodb.core.BulkOperations;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
 public class InventoryCartService extends _BaseService {
+
+    @Autowired
+    MongoTemplate mongoTemplate;
 
     public InventoryCartDto.DetailInventoryCart getInventoryCartDetail(String authorizationToken) throws BadRequestException {
         InventoryCart cart = getCartByStaffId(authorizationToken);
@@ -209,5 +219,17 @@ public class InventoryCartService extends _BaseService {
             throw new BadRequestException("Invalid cart id provided");
         }
         return InventoryCartMapper.MAPPER.mapToDetailInventoryCartDto(cart);
+    }
+
+
+    public void batchUpdateMultipleCarts(Map<ObjectId, List<String>> cartItemsMap, boolean isOrdered) {
+        BulkOperations bulkOps = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, InventoryCart.class);
+        cartItemsMap.forEach((cartId, itemUuids) -> {
+            Query query = new Query(Criteria.where("_id").is(cartId));
+            Update update = new Update().set("itemDetailList.$[elem].isOrdered", isOrdered)
+                    .filterArray(Criteria.where("elem.itemUuid").in(itemUuids));
+            bulkOps.updateOne(query, update);
+        });
+        bulkOps.execute();
     }
 }

@@ -6,11 +6,17 @@ import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.controller._BaseController;
 import com.bt.ecommerce.primary.dto.CartDto;
 import com.bt.ecommerce.primary.dto.InventoryCartDto;
+import com.bt.ecommerce.primary.dto.OrderDto;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
+import org.bson.types.ObjectId;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @RestController
@@ -83,4 +89,18 @@ public class InventoryCartController extends _BaseController {
                 .build(), HttpStatus.OK);
     }
 
+    @TranslateResponseMessage
+    @PostMapping("/updateItemsAsOrdered")
+    public ResponseEntity<ResponsePacket> updateItemsAsOrdered(@Valid @RequestBody InventoryCartDto.UpdateItemsAsOrderedRequest updateItemsAsOrderedRequest) throws BadRequestException {
+        Map<ObjectId, List<String>> cartItemsMap = new HashMap<>();
+
+        for (InventoryCartDto.CartItemUpdate update : updateItemsAsOrderedRequest.getUpdates()) {
+            cartItemsMap.put(new ObjectId(update.getCartId()), update.getItemUuids());
+        }
+        inventoryCartService.batchUpdateMultipleCarts(cartItemsMap, true);
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .message("ecommerce.common.message.update_items_as_ordered")
+                .build(), HttpStatus.OK);
+    }
 }
