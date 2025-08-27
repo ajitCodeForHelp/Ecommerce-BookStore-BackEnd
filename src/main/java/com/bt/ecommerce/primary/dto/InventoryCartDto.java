@@ -26,20 +26,19 @@ public class InventoryCartDto extends AbstractDto{
     @Getter
     @Setter
     public static class DetailInventoryCart extends Detail{
-        protected ObjectId id;
         private InventoryCart.StaffRefDetail customerDetail;
         private List<InventoryCart.ItemDetail> itemDetailList = new ArrayList<>();
     }
 
     @Getter
     @Setter
-    public class UpdateItemsAsOrderedRequest {
+    public static class UpdateItemsAsOrderedRequest {
         private List<CartItemUpdate> updates;
     }
 
     @Getter
     @Setter
-    public  class CartItemUpdate {
+    public static class CartItemUpdate {
         private String cartId;              // MongoDB _id (ObjectId as String)
         private List<String> itemUuids;     // Which items inside cart to update
     }

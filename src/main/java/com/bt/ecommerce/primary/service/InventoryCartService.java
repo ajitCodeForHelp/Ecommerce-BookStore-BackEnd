@@ -222,10 +222,10 @@ public class InventoryCartService extends _BaseService {
     }
 
 
-    public void batchUpdateMultipleCarts(Map<ObjectId, List<String>> cartItemsMap, boolean isOrdered) {
+    public void batchUpdateMultipleCarts(Map<String, List<String>> cartItemsMap, boolean isOrdered) {
         BulkOperations bulkOps = mongoTemplate.bulkOps(BulkOperations.BulkMode.UNORDERED, InventoryCart.class);
         cartItemsMap.forEach((cartId, itemUuids) -> {
-            Query query = new Query(Criteria.where("_id").is(cartId));
+            Query query = new Query(Criteria.where("uuid").is(cartId));
             Update update = new Update().set("itemDetailList.$[elem].isOrdered", isOrdered)
                     .filterArray(Criteria.where("elem.itemUuid").in(itemUuids));
             bulkOps.updateOne(query, update);

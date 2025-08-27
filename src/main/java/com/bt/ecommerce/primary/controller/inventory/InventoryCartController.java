@@ -92,10 +92,10 @@ public class InventoryCartController extends _BaseController {
     @TranslateResponseMessage
     @PostMapping("/updateItemsAsOrdered")
     public ResponseEntity<ResponsePacket> updateItemsAsOrdered(@Valid @RequestBody InventoryCartDto.UpdateItemsAsOrderedRequest updateItemsAsOrderedRequest) throws BadRequestException {
-        Map<ObjectId, List<String>> cartItemsMap = new HashMap<>();
+        Map<String, List<String>> cartItemsMap = new HashMap<>();
 
         for (InventoryCartDto.CartItemUpdate update : updateItemsAsOrderedRequest.getUpdates()) {
-            cartItemsMap.put(new ObjectId(update.getCartId()), update.getItemUuids());
+            cartItemsMap.put(update.getCartId(), update.getItemUuids());
         }
         inventoryCartService.batchUpdateMultipleCarts(cartItemsMap, true);
         return new ResponseEntity<>(ResponsePacket.builder()
