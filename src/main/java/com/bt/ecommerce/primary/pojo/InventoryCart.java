@@ -29,10 +29,9 @@ public class InventoryCart extends _BasicEntity {
         private List<String> itemImageUrls;
         private Long quantity = 1L;
         private Boolean isOrdered;
-        private List<ObjectId> parentCategoryIds = new ArrayList<>();
-        private List<ObjectId> subCategoryIds = new ArrayList<>();
-
-        private ObjectId publisherId;
+        private List<BasicParent> subCategoryDetails = new ArrayList<>();
+        private BasicParent publisherDetails;
+        private List<BasicParent> parentCategoryDetails = new ArrayList<>();
     }
 
     @Getter
