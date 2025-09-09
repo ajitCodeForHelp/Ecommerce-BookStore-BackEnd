@@ -109,6 +109,17 @@ public class InventoryCartService extends _BaseService {
         return InventoryCartMapper.MAPPER.mapToDetailInventoryCartDto(cart);
     }
 
+    public InventoryCartDto.DetailInventoryCart updateOrderedItem(String cartUuid, String itemUuid) throws BadRequestException {
+        InventoryCart cart = inventoryCartRepository.findByUuid(cartUuid);
+        if (cart == null) {
+            throw new BadRequestException("Please provide a valid cart");
+        }
+        cart.getItemDetailList().stream()
+                .filter(x -> x.getItemUuid().equalsIgnoreCase(itemUuid)).findFirst().ifPresent(x -> x.setIsOrdered(false));
+        inventoryCartRepository.save(cart);
+        return InventoryCartMapper.MAPPER.mapToDetailInventoryCartDto(cart);
+    }
+
     private InventoryCart mapToCartItem(InventoryCart cart, InventoryCartDto.UpdateInventoryCart cartDto) throws BadRequestException {
         if (cartDto.getItemQuantityMap() != null && !cartDto.getItemQuantityMap().isEmpty()) {
             List<ObjectId> itemIds = new ArrayList<>();

@@ -65,6 +65,15 @@ public class InventoryCartController extends _BaseController {
                 .build(), HttpStatus.OK);
     }
 
+    @PutMapping("/updateOrderedItem/{cartUuid}/{itemUuid}")
+    public ResponseEntity<ResponsePacket> updateOrderedItem(@PathVariable("cartUuid") String cardUuid,
+                                                             @PathVariable("itemUuid") String itemUuid) throws BadRequestException {
+        return new ResponseEntity<>(ResponsePacket.builder()
+                .errorCode(0)
+                .responsePacket(inventoryCartService.updateOrderedItem(cardUuid, itemUuid))
+                .message("ecommerce.common.message.cart_item_removed")
+                .build(), HttpStatus.OK);
+    }
 
 
     @TranslateResponseMessage
