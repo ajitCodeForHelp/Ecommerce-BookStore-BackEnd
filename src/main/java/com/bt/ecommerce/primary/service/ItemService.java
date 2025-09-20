@@ -303,31 +303,31 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
 
     public Page<ItemDto.DetailItem> listData(ItemDto.GetList getList) {
 
-        Sort sort;
-
-        switch (getList.getSortBy()) {
-            case "A-Z":
-                sort = Sort.by("title").ascending();
-                break;
-            case "Z-A":
-                sort = Sort.by("title").descending();
-                break;
-            case "PriceLowHigh":
-                sort = Sort.by("sellingPrice").ascending();
-                break;
-            case "PriceHighLow":
-                sort = Sort.by("sellingPrice").descending();
-                break;
-            case "LatestAdded":
-                sort = Sort.by("createdAt").descending();
-                break;
-            case "OldestAdded":
-                sort = Sort.by("createdAt").ascending();
-                break;
-            default:
-                sort = Sort.by("createdAt").descending();
+        Sort sort = Sort.by("createdAt").descending();
+        if(getList.getSortBy()!=null) {
+            switch (getList.getSortBy()) {
+                case "A-Z":
+                    sort = Sort.by("title").ascending();
+                    break;
+                case "Z-A":
+                    sort = Sort.by("title").descending();
+                    break;
+                case "PriceLowHigh":
+                    sort = Sort.by("sellingPrice").ascending();
+                    break;
+                case "PriceHighLow":
+                    sort = Sort.by("sellingPrice").descending();
+                    break;
+                case "LatestAdded":
+                    sort = Sort.by("createdAt").descending();
+                    break;
+                case "OldestAdded":
+                    sort = Sort.by("createdAt").ascending();
+                    break;
+                default:
+                    sort = Sort.by("createdAt").descending();
+            }
         }
-
         Pageable pageable = PageRequest.of(getList.getPageNumber(), getList.getPageSize(), sort);
 
         Page<Item> pageResult = searchItems(
