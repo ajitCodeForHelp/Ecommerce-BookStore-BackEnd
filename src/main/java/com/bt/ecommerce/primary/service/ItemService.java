@@ -384,7 +384,14 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
             criteriaList.add(keywordCriteria);
         }
 
-        Query query = new Query(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
+//        Query query = new Query(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
+        Criteria finalCriteria;
+        if (criteriaList.isEmpty()) {
+            finalCriteria = new Criteria(); // no conditions, fetch all
+        } else {
+            finalCriteria = new Criteria().andOperator(criteriaList.toArray(new Criteria[0]));
+        }
+        Query query = new Query(finalCriteria);
         long total = mongoTemplate.count(query, Item.class);
 
         query.with(pageable);
