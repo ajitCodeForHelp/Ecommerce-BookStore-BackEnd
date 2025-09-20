@@ -71,7 +71,7 @@ public class AdminItemController extends _BaseController {
         return new ResponseEntity<>(ResponsePacket.builder()
                 .errorCode(0)
                 .message("ecommerce.common.message.get_all")
-                .responsePacket(itemService.list(false, list.getPageNumber(), list.getPageSize(), list.getSearch()))
+                .responsePacket(itemService.listData(list))
                 .build(), HttpStatus.OK);
     }
 
