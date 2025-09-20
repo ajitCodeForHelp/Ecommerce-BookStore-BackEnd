@@ -78,6 +78,14 @@ public class ItemDto extends AbstractDto{
     @Getter
     public static class GetList extends _BasePageRequest {
         private String search;
+        Boolean active;
+        Boolean deleted;
+        Boolean stockOut;
+        String keyword;
+        String publisherId;
+        String categoryId;
+        String subCategoryId;
+        String sortBy;
     }
     @Setter
     @Getter

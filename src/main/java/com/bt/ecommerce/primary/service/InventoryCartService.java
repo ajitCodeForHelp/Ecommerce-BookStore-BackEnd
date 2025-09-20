@@ -3,6 +3,7 @@ package com.bt.ecommerce.primary.service;
 import com.bt.ecommerce.configuration.SpringBeanContext;
 import com.bt.ecommerce.exception.BadRequestException;
 import com.bt.ecommerce.primary.dto.InventoryCartDto;
+import com.bt.ecommerce.primary.dto.ItemDto;
 import com.bt.ecommerce.primary.mapper.InventoryCartMapper;
 import com.bt.ecommerce.primary.mapper.ItemMapper;
 import com.bt.ecommerce.primary.pojo.InventoryCart;
@@ -12,6 +13,7 @@ import com.bt.ecommerce.security.JwtTokenUtil;
 import com.bt.ecommerce.utils.TextUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
 import org.springframework.data.mongodb.core.BulkOperations;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -243,4 +245,5 @@ public class InventoryCartService extends _BaseService {
         });
         bulkOps.execute();
     }
+
 }

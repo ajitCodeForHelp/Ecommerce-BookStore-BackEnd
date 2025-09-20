@@ -9,7 +9,7 @@ import lombok.Setter;
 public class _BasePageRequest {
 
 
-    private Integer pageNumber = 0;
-    private Integer pageSize = 10;
+    private Integer pageNumber ;
+    private Integer pageSize ;
 
 }

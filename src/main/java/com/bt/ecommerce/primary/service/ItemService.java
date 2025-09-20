@@ -17,19 +17,26 @@ import com.bt.ecommerce.primary.pojo.common.BasicParent;
 import com.bt.ecommerce.primary.repository.SequenceRepository;
 import com.bt.ecommerce.utils.TextUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.bson.types.ObjectId;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.*;
+import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class ItemService extends _BaseService implements _BaseServiceImpl {
+
+
+    @Autowired
+    MongoTemplate mongoTemplate;
 
     @Override
     public String save(AbstractDto.Save save) throws BadRequestException {
@@ -291,6 +298,98 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
             // Increment the sequence for the next item
 //            sequence++;
         }
+    }
+
+
+    public Page<ItemDto.DetailItem> listData(ItemDto.GetList getList) {
+
+        Sort sort;
+
+        switch (getList.getSortBy()) {
+            case "A-Z":
+                sort = Sort.by("title").ascending();
+                break;
+            case "Z-A":
+                sort = Sort.by("title").descending();
+                break;
+            case "PriceLowHigh":
+                sort = Sort.by("sellingPrice").ascending();
+                break;
+            case "PriceHighLow":
+                sort = Sort.by("sellingPrice").descending();
+                break;
+            case "LatestAdded":
+                sort = Sort.by("createdAt").descending();
+                break;
+            case "OldestAdded":
+                sort = Sort.by("createdAt").ascending();
+                break;
+            default:
+                sort = Sort.by("createdAt").descending();
+        }
+
+        Pageable pageable = PageRequest.of(getList.getPageNumber(), getList.getPageSize(), sort);
+
+        Page<Item> pageResult = searchItems(
+                getList.getActive(),
+                getList.getDeleted(),
+                getList.getStockOut(),
+                getList.getKeyword(),
+                getList.getPublisherId(),
+                getList.getCategoryId(),
+                getList.getSubCategoryId(),
+                pageable
+        );
+
+        return pageResult.map(ItemMapper.MAPPER::mapToDetailDto);
+    }
+
+
+    public Page<Item> searchItems(Boolean active,
+                                  Boolean deleted,
+                                  Boolean stockOut,
+                                  String keyword,
+                                  String publisherId,
+                                  String categoryId,
+                                  String subCategoryId,
+                                  Pageable pageable) {
+
+        List<Criteria> criteriaList = new ArrayList<>();
+
+        if (active != null) criteriaList.add(Criteria.where("active").is(active));
+        if (deleted != null) criteriaList.add(Criteria.where("deleted").is(deleted));
+        if (stockOut != null) criteriaList.add(Criteria.where("stockOut").is(stockOut));
+
+        if (publisherId != null && !publisherId.isEmpty()) {
+            criteriaList.add(Criteria.where("publisherId").is(new ObjectId(publisherId)));
+        }
+
+        if (categoryId != null && !categoryId.isEmpty()) {
+            criteriaList.add(Criteria.where("parentCategoryIds").in(new ObjectId(categoryId)));
+        }
+
+        if (subCategoryId != null && !subCategoryId.isEmpty()) {
+            criteriaList.add(Criteria.where("subCategoryIds").in(new ObjectId(subCategoryId)));
+        }
+
+        if (keyword != null && !keyword.isEmpty()) {
+            Criteria keywordCriteria = new Criteria().orOperator(
+                    Criteria.where("title").regex(keyword, "i"),
+                    Criteria.where("itemCode").regex(keyword, "i"),
+                    Criteria.where("parentCategoryDetails.name").regex(keyword, "i"),
+                    Criteria.where("subCategoryDetails.name").regex(keyword, "i")
+            );
+            criteriaList.add(keywordCriteria);
+        }
+
+        Query query = new Query(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
+        long total = mongoTemplate.count(query, Item.class);
+
+        query.with(pageable);
+
+        List<Item> items = mongoTemplate.find(query, Item.class);
+
+        return new PageImpl<>(items, pageable, total);
     }
 
 }
