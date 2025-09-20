@@ -376,8 +376,10 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
             Criteria keywordCriteria = new Criteria().orOperator(
                     Criteria.where("title").regex(keyword, "i"),
                     Criteria.where("itemCode").regex(keyword, "i"),
-                    Criteria.where("parentCategoryDetails.parentTitle").regex(keyword, "i"),
-                    Criteria.where("subCategoryDetails.parentTitle").regex(keyword, "i")
+                    Criteria.where("description").regex(keyword, "i"),
+                    Criteria.where("customerDescription").regex(keyword, "i")
+//                    Criteria.where("parentCategoryDetails.parentTitle").regex(keyword, "i"),
+//                    Criteria.where("subCategoryDetails.parentTitle").regex(keyword, "i")
             );
             criteriaList.add(keywordCriteria);
         }
