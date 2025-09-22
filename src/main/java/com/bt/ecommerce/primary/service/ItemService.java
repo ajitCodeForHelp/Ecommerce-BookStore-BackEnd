@@ -360,16 +360,20 @@ public class ItemService extends _BaseService implements _BaseServiceImpl {
         if (deleted != null) criteriaList.add(Criteria.where("deleted").is(deleted));
         if (stockOut != null) criteriaList.add(Criteria.where("stockOut").is(stockOut));
 
+//        if (publisherId != null && !publisherId.isEmpty()) {
+//            criteriaList.add(Criteria.where("publisherId").is(new ObjectId(publisherId)));
+//        }
+
         if (publisherId != null && !publisherId.isEmpty()) {
-            criteriaList.add(Criteria.where("publisherId").is(new ObjectId(publisherId)));
+            criteriaList.add(Criteria.where("publisherDetails.parentUuid").is(publisherId));
         }
 
         if (categoryId != null && !categoryId.isEmpty()) {
-            criteriaList.add(Criteria.where("parentCategoryIds").in(new ObjectId(categoryId)));
+            criteriaList.add(Criteria.where("parentCategoryDetails.parentUuid").in(categoryId));
         }
 
         if (subCategoryId != null && !subCategoryId.isEmpty()) {
-            criteriaList.add(Criteria.where("subCategoryIds").in(new ObjectId(subCategoryId)));
+            criteriaList.add(Criteria.where("subCategoryDetails.parentUuid").in(subCategoryId));
         }
 
         if (keyword != null && !keyword.isEmpty()) {
